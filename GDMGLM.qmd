@@ -1,0 +1,451 @@
+---
+title: "Better GDM"
+format: pdf
+editor: source
+bibliography: references.bib
+execute: 
+  cache: true
+---
+
+## The Problem
+
+The idea of GDM, modelling matrices of dissimilarity, was suggested by @Ferrier2002. Recently, @WhiteMEE2023 suggested improvements to generalized dissimilarity modelling. Here we will develop an alternative, based on modelling the data rather than the distances between data.
+
+The ecological problem is to explain how beta diversity, i.e. variation between sites, is affected by predictors, such as the environment. This can be done using GDM, which regresses distances between communities against teh environemntal covariates. Here we suggest an alternative approach.
+
+## The Model
+
+We assume we have a site by species matrix, $Y$, with each row being observations of species (abundance, presentece etc.), and each column being a site. So $Y_{ij}$ is the observation for the $i^th$ species ($i=1,\dots, S$) and $j^th$ species ($j=1,\dots, N$). For each site we have $P$ covariates, $x_{jk}$ ($k=1,\dots,P$), so these are in a $N \times P$ matrix $X$.
+
+We assume we model this data using a GLM, i.e. we assume $Y_{ij}$ follows some distribution in the exponential family, with expected value $\mu = g(\eta)$, where $g()$ is a link function, and $\eta$ is a linear predictor:
+
+$$
+\eta_{ij} = \alpha_i + \kappa_j + \beta_{ij}
+$$
+
+For identifiability we assume $\sum_j \kappa_j = 0$ and $\sum_j \beta_j = 0$
+
+So $\alpha_i$ is the mean commonness of a species, and $\kappa$ is the abundance at a site: we will assume this is not interesting, as it is affected by the sampling process. $\beta_{ij}$ is where beta diversity lies (at least compositional beta diversity). The total beta diversity can be measured as $\text{Var}(\beta) = \sigma^2_\beta$. We can clearly model $\beta_{ij}$ further, e.g. for a single covariate $x_j$
+
+$$
+\beta_{ij} = \beta_0 + \delta_i x_j + \epsilon_{ij}
+$$
+
+i.e. each species has its own response to $x$.
+
+Then,
+
+$$
+\begin{aligned}
+\text{Var}(\beta) &= \text{Var}(\beta_0 + \delta_i x_j + \epsilon_{ij}) \\
+&= \frac{1}{(S-1)(N-1)}\sum_{i=1}^S \sum_{j=1}^N (\delta_i (x_j - \bar{x}) + \epsilon_{ij})^2 \\
+&= \frac{1}{(S-1)(N-1)} \left(\sum_{i=1}^S \sum_{j=1}^N \delta_i^2 (x_j - \bar{x})^2 + \sum_{i=1}^S \sum_{j=1}^N\epsilon_{ij}^2 \right)\\
+&= \frac{1}{(S-1)} \sum_{i=1}^S \delta_i^2 \frac{1}{(N-1)}\sum_{j=1}^N  (x_j - \bar{x})^2 + \frac{1}{(S-1)(N-1)}\sum_{i=1}^S \sum_{j=1}^N\epsilon_{ij}^2 \\
+&= \frac{1}{(S-1)} \sum_{i=1}^S \delta_i^2 \text{Var}(x) + \text{Var}(\epsilon_{ij})\\
+&= \frac{\text{Var}(x)}{(S-1)} \sum_{i=1}^S (\delta_i - \bar{\delta} + \bar{\delta})^2 + \text{Var}(\epsilon_{ij})\\
+&= \frac{\text{Var}(x)}{(S-1)} \sum_{i=1}^S (\delta_i - \bar{\delta})^2 - S \bar{\delta}^2 + \text{Var}(\epsilon_{ij})\\
+&= \text{Var}(\delta_i) \text{Var}(x_j) + \frac{S}{S-1} \bar{\delta}^2 \text{Var}(x) + \text{Var}(\epsilon_{ij})
+\end{aligned}
+$$
+
+because $\sum_{i}(\delta_i - \bar{\delta} + \bar{\delta})^2 = \sum_{i}(\delta_i - \bar{\delta})^2 + \sum_{i}(\delta_i - \bar{\delta})\bar{\delta} + \sum_{i}\bar{\delta})^2 = \sum_{i}(\delta_i - \bar{\delta})^2 + \bar{\delta} (\sum_{i}\delta_i - S\bar{\delta}) + S\bar{\delta}^2 = \sum_{i}(\delta_i - \bar{\delta})^2 + S\bar{\delta}^2$.
+
+So, we can model the species abundance as a function of the environment. We can extend this to more than one covariate, if they are assumed to have independent effects between species (i.e. $\delta_{ik}$ is independent of $\delta_{il}$ for species $i$ and covariates $k$ and $l$).
+
+## Relationship to Distance
+
+If we have two vectors of biodiversity, $\boldsymbol{\eta}_1$ and $\boldsymbol{\eta}_2$ then the distance between then the distance between them is just the Euclidean distance:
+
+$$
+D_{12} = \lVert\boldsymbol{\eta}_1 - \boldsymbol{\eta}_2 \rVert =\sqrt{\sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2}
+$$
+
+So that
+
+$$
+\begin{aligned}
+D^2_{12} &= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
+&= \sum_{i=1}^S \left(\alpha_i + \kappa_1 + \beta_{i1} - (\alpha_i + \kappa_2 + \beta_{i2})\right)^2 \\
+&= \sum_{i=1}^S \left((\kappa_1 - \kappa_2) + (\beta_{i1} - \beta_{i2})\right)^2 \\
+&= \sum_{i=1}^S \left((\kappa_1 - \kappa_2)^2 + (\kappa_1 - \kappa_2)(\beta_{i1} - \beta_{i2}) + (\beta_{i1} - \beta_{i2})^2\right) \\
+&= S (\kappa_1 - \kappa_2)^2 + (\kappa_1 - \kappa_2) \sum_{i=1}^S (\beta_{i1} - \beta_{i2}) + \sum_{i=1}^S(\beta_{i1} - \beta_{i2})^2\\
+&= S (\kappa_1 - \kappa_2)^2 +  \sum_{i=1}^S(\beta_{i1} - \beta_{i2})^2\\
+&= S (\kappa_1 - \kappa_2)^2 +  \sum_{i=1}^S\beta_{i1}^2 - 2\sum_{i=1}^S\beta_{i1}\beta_{i2} + \sum_{i=1}^S\beta^2_{i1}\\
+&= S (\kappa_1 - \kappa_2)^2 +  (S-1) \left(\text{Var}(\beta_{\cdot 1}) + \text{Var}(\beta_{\cdot 2}) - 
+2\text{Cov}(\beta_{\cdot 1} \beta_{\cdot 2})\right)
+\end{aligned}
+$$
+
+Where the $(\kappa_1 - \kappa_2) \sum_{i=1}^S (\beta_{i1} - \beta_{i2})$ term disappears because, by construction, $\sum_{i=1}^S \beta_{ij}=0$. $\text{Var}_{ij}(X)$ is the variance of $X$ in populations $i$ and $j$.
+
+If we are interested in compositional diversity, we can ignore the terms involving the $\kappa$s, so the distance is just a function of the second moments of $\beta$.
+
+## Examples
+
+We use two of the three examples from @WhiteMEE2023. The third is presence/absence data, so is less interesting, as $\epsilon_{ij}$ is the residual, which is thoroughly uninteresting in Bernoulli trials.
+
+First we need some bookkeeping, to list the libraries and create a function to ...
+
+```{r Bookkeeping}
+library(zen4R)
+library(INLA)
+library(gdm)
+library(taxize)
+
+# Define PC priors, to stop the models exploding horribly
+PCHyper <- list(prec = list(prior="pc.prec", param=c(0.1,0.001)))
+PCHyper2 <- list(prec = list(prior="pc.prec", param=c(0.2,0.01)))
+
+# Number of simulations from posterior to calculate statistics
+nsim <- 1000
+
+# Function to calculate variance components
+CalcPostVar <- function(INLAsamp, data) {
+  # Extract main effects of covariates
+  LatentNames <- attr(INLAsamp$latent, "dimnames")[[1]]
+  RFnames <- paste(c(gsub("Precision for ", "", names(INLAsamp$hyperpar)), 
+                     "(Intercept)", "Predictor"), collapse="|")
+  FxNames <- LatentNames[!grepl(RFnames, LatentNames)]
+  RFNames <- gsub(":.", "", FxNames)
+  # Calculate/extract parts of variance terms
+  VarHyper <- 1/INLAsamp$hyperpar
+  wh.delta <- sapply(RFNames, function(wh, nm) grep(wh, nm), nm=names(VarHyper))
+  VarDelta <- VarHyper[wh.delta]
+  VarOth <- VarHyper[!seq_along(VarHyper)%in%wh.delta]
+  
+  VarX <- var(data[, RFNames])
+  S <- nlevels(data$Species)
+
+  # Deltabar
+  Fx.wh <- which(attr(INLAsamp$latent, "dimnames")[[1]]%in%FxNames)
+  Deltabar <- INLAsamp$latent[Fx.wh]
+  names(Deltabar) <- attr(INLAsamp$latent, "dimnames")[[1]][Fx.wh]
+  
+  
+  AllVars <- c(MeanDelta = t(Deltabar)%*%VarX%*%Deltabar,
+               VarDelta = sum(VarDelta*diag(VarX)), # not sure this is right
+               VarOth)
+  return(AllVars)
+}
+
+```
+
+### Example 1: South African flora
+
+This is data with 288 species and 413 sites. The data is given in wide format, so we need to convert it to long. The data can be downloaded from [Zenodo](https://zenodo.org/records/10091442).
+
+```{r GetDataSA}
+#|output: false
+
+if(!dir.exists("philawhite-spGDMM-code-d8279ee/data/")) {
+  download_zenodo("10.5281/zenodo.10091441")
+  unzip("spGDMM-code-spGDMM_v1.zip")
+}
+
+Data <- read.csv("philawhite-spGDMM-code-d8279ee/data/sa_species_data.csv")
+
+
+# SpNames <- gsub("\\.", " ", names(Data)[grep("\\.", names(Data))])
+SpNames <- names(Data)[grep("\\.", names(Data))]
+# FamNames <- names(FamData)[!names(FamData)%in%names(Data)]
+
+# Discover that not all family names from GBIF are he same as the family data
+# FamData <- read.csv("philawhite-spGDMM-code-d8279ee/data/sa_family_data.csv")
+# FamNames <- names(FamData)[!names(FamData)%in%names(Data)]
+# Family[!Family%in%FamNames]
+
+SpData.wide <- Data[, SpNames]
+IsZero <- apply(SpData.wide, 2, function(x) mean(x==0))
+
+UseNames <- names(IsZero)[IsZero<0.99]
+RemoveNames <- SpNames[!SpNames%in%UseNames]
+NamesToLong <- names(Data)[!names(Data)%in%RemoveNames]
+
+SAData.long <- reshape(Data[,NamesToLong], direction = "long", varying = UseNames,
+                       v.names = "Percent", timevar="SpeciesID")
+SAData.long$Species <- SpNames[SAData.long$SpeciesID]
+SAData.long$Percent2 <- pmax(0.1, SAData.long$Percent)
+SAData.long$Abund <- log(SAData.long$Percent2/(100-SAData.long$Percent2))
+
+SA.EnvCov <- c("gmap", "RFL_CONC", "HeatLoadIndex30m", "tmean13c", 
+            # "Elevation30m", 
+            "SoilConductivitymSm", "SoilTotalNPercent")
+
+ScCov <- apply(SAData.long[,SA.EnvCov], 2, scale)
+colnames(ScCov) <- paste0(colnames(ScCov), ".sc")
+
+SAData <- cbind(SAData.long, ScCov)
+
+
+
+# Get family names from GBIF
+Classification <- classification(SpNames, db = 'gbif', rows=1)
+Family <- unlist(lapply(Classification, function(lst) lst$name[lst$rank=="family"]))
+
+
+SAData$Family <- unlist(sapply(SAData$Species, function(Sp, fam) {
+#  cat(Spp, "\n")
+  ff <- which(Sp==names(fam))
+  if(length(ff)==0) {
+    res <- "AAAAAGH"
+  } else {
+    res <- fam[ff]
+  }
+  res
+}, fam=Family))
+
+# any(SAData$Family=="AAAAAGH")
+
+SAData$Family <- factor(SAData$Family)
+SAData$Species <- factor(SAData$Species)
+SAData$plot <- factor(SAData$plot)
+
+```
+
+Covariates: 
+
+- gmap: mean annual precipitation 
+- RFL_CONC: rainfall concentration 
+- Elevation30m: elevation (at 30m resolution) 
+- HeatLoadIndex30m: heat load index (at 30m resolution) 
+- tmean13c: mean annual temperature 
+- SoilConductivitymSm: soil conductivity 
+- SoilTotalNPercent: Nitrogen concentration in soil (%)
+
+We remove elevation because of the high correlation with tmean13c (`r round(cor(SAData.long$tmean13c, SAData.long$Elevation30m), 2)`), and all species that occur in \<1% of sites, giving `r length(UseNames)` species out of the original 288.
+
+We fit the model with INLA, and use relatively tight PC priors to control the estimates of the environmental effects (without doing this everything is horribly unstable).
+
+```{r, FitModelSA}
+
+# Create formula for INLA
+SA.Formula <- formula(
+  paste0("Abund ~ f(Species, hyper = PCHyper) + f(Family, hyper = PCHyper) + f(plot, hyper = PCHyper) + ", 
+         paste(
+           c(paste0(SA.EnvCov, ".sc"), 
+             sapply(paste0(SA.EnvCov, ".sc"), function(eu) {
+               paste0("f(Species.", eu, ", ", eu, ", hyper = PCHyper)")
+             })), collapse=" + "))
+)
+
+
+SAenvInd <- data.frame(sapply(SA.EnvCov, function(nm, dat) assign(nm, dat), 
+                              dat=SAData$Species))
+names(SAenvInd) <- paste0("Species.", names(SAenvInd), ".sc")
+
+SAData <- cbind(SAData, SAenvInd)
+
+
+# int.strategy = "ccd" or int.strategy = "grid"
+# Fit the model
+SAinla <- inla(SA.Formula, data=SAData, control.compute=list(config = TRUE), 
+               control.inla=list(int.strategy = "ccd"))
+SASumm <-summary(SAinla)
+
+
+```
+
+This will calculate the statistics
+
+```{r, CalcStatsSA}
+#| eval: true
+
+SAsamps <- inla.posterior.sample(nsim, SAinla)
+
+SAPosts <- data.frame(t(sapply(SAsamps, CalcPostVar, data=SAData)))
+Use <- !names(SAPosts)%in%paste0("Precision.for.", c("Species", "plot"))
+SA.PropVar <- sweep(SAPosts[,Use], 1, rowSums(SAPosts[,Use]), "/")
+names(SA.PropVar) <- gsub("Precision.for.the.Gaussian.observations", "VarEps", 
+                          names(SA.PropVar), fixed=TRUE)
+
+par(mfrow=c(1,3))
+plot(density(SA.PropVar$MeanDelta), main="Mean Covariate")
+plot(density(SA.PropVar$VarDelta), main="Variation in Covariate")
+plot(density(SA.PropVar$VarEps), main="Residual")
+
+# Summary
+SA.SummVars <- cbind(
+  Mode=MCMCglmm::posterior.mode(coda::as.mcmc(SA.PropVar)),
+  coda::HPDinterval(coda::as.mcmc(SA.PropVar), prob = 0.95)
+)
+
+```
+
+We find that `r round(100*(1-SA.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-SA.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-SA.SummVars["VarEps", "lower"]), 2)`%.
+
+### Example 2: The Inevitable BCI Data
+
+This is counts of trees on an island that only exists to let ecologists take a holiday in the jungle. The data can be downloaded from @Condit2002.
+
+```{r, GetDataBCI}
+
+BCI.Env <- read.csv("philawhite-spGDMM-code-d8279ee/data/Panama_env.csv")
+BCI.Sp <- read.csv("philawhite-spGDMM-code-d8279ee/data/Panama_species.csv")
+
+# Stupid naming 
+# "species" is actually site. And the format of the names is different between files
+# This is why "data scientist" has a lower job satisfaction than "statistician"
+BCI.Sp$site.no. <- sprintf("P%02d", as.numeric(gsub("P", "", BCI.Sp$species)))
+BCI.Sp$species <- NULL
+
+BCI.EnvCov <- c("precip", "elev", "age")
+Pres <- apply(BCI.Sp, 2, function(x) sum(x>0))
+sp.tmp <- BCI.Sp[,which(Pres>10)]
+dat.tmp <- cbind(BCI.Env, sp.tmp)
+SpNames <- names(sp.tmp)[!names(sp.tmp)%in%c("species", "site.no.")]
+BCIData <- reshape(dat.tmp, direction = "long", varying = SpNames, v.names = "Count")
+BCIData$Species <- factor(SpNames[BCIData$time])
+BCIData$Site <- factor(BCIData$site.no.)
+BCIData$SiteSpecies <- paste0(BCIData$Site, BCIData$Species)
+# Scale env
+Scale.tmp <- apply(BCIData[,BCI.EnvCov], 2, scale)
+colnames(Scale.tmp) <- paste0(colnames(Scale.tmp), ".sc")
+BCIData <- cbind(BCIData, Scale.tmp)
+```
+
+We can fit the model in INLA:
+
+```{r, FiModelBCI}
+
+BCI.Formula <- formula(
+  paste0("Count ~ f(Species, hyper = PCHyper) + f(Site, hyper = PCHyper) + ", 
+         paste(
+           c(paste0(BCI.EnvCov, ".sc"), 
+             sapply(paste0(BCI.EnvCov, ".sc"), function(eu) {
+               paste0("f(Species.", eu, ", ", eu, ", hyper = PCHyper)")
+             })), collapse=" + "), " + f(OD, hyper = PCHyper)")
+)
+
+BCIenvInd <- data.frame(sapply(BCI.EnvCov, function(nm, dat) assign(nm, dat), 
+                               dat=BCIData$Species))
+names(BCIenvInd) <- paste0("Species.", names(BCIenvInd), ".sc")
+
+BCIData <- cbind(BCIData, BCIenvInd)
+BCIData$OD <- factor(1:nrow(BCIData))
+
+# Fit the model
+BCIinla <- inla(BCI.Formula, data=BCIData, control.compute=list(config = TRUE),
+                family="poisson")
+BCISumm <-summary(BCIinla)
+```
+
+```{r, CalcStatsBCI}
+#| eval: true
+
+BCIsamps <- inla.posterior.sample(nsim, BCIinla)
+
+BCI.Posts <- data.frame(t(sapply(BCIsamps, CalcPostVar, data=BCIData)))
+Use <- !names(BCI.Posts)%in%paste0("Precision.for.", c("Species", "Site"))
+BCI.PropVar <- sweep(BCI.Posts[,Use], 1, rowSums(BCI.Posts[,Use]), "/")
+names(BCI.PropVar)[3] <- "VarEps"
+
+par(mfrow=c(1,3))
+plot(density(BCI.PropVar$MeanDelta), main="Mean Covariate")
+plot(density(BCI.PropVar$VarDelta), main="Variation in Covariate")
+plot(density(BCI.PropVar$VarEps), main="Residual")
+
+BCI.SummVars <- cbind(
+  Mode=MCMCglmm::posterior.mode(coda::as.mcmc(BCI.PropVar)),
+  coda::HPDinterval(coda::as.mcmc(BCI.PropVar), prob = 0.95)
+)
+
+```
+
+We find that `r round(100*(1-BCI.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-BCI.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-BCI.SummVars["VarEps", "lower"]), 2)`%.
+
+
+
+
+
+
+### Example 3: Australian Plants
+
+This is occurrence of plants in Southwest Australia, the `southwest` data in the `gdm` package. The data are not well documented, with several presences per species per site. Absence data is not given. Fortunately, the environmental data does not vary within a site.
+
+```{r, GetDataSW}
+data("southwest")
+
+SW.EnvCov <- names(southwest)[!names(southwest)%in%c("species","site", "Lat", "Long")]
+
+Pres <- table(southwest$species)
+sp.keep <- names(Pres[Pres>50]) #reduce to 10?
+
+southwest.small <- southwest[southwest$species%in%sp.keep,]
+southwest.small$species <- factor(southwest.small$species)
+SW.pres <- expand.grid(species=unique(southwest.small$species),
+                       site=unique(southwest.small$site))
+SW.pres$Presence <- apply(SW.pres, 1, function(wh, dat) {
+ any(dat$site==wh["site"] & dat$species==wh["species"])
+}, dat=southwest.small)
+
+# Extract environmental variables
+SWenv <- data.frame(apply(southwest.small[,SW.EnvCov], 2, function(x, dat) {
+  tapply(x, list(dat$site), function(xx) xx[1])
+}, dat=southwest.small))
+env.site <- rownames(SWenv)
+SWenv <- data.frame(apply(SWenv, 2, scale))
+names(SWenv) <- paste0(colnames(SWenv), ".sc")
+SWenv$site <- env.site
+
+SW.data <- merge(SW.pres, SWenv)
+SW.data$Presence <- as.numeric(SW.data$Presence)
+
+# Check to see if there is variation in environment between sites. There isn't.
+# SDs <- by(southwest.small, list(southwest.small$site), function(df, vars) {
+#   apply(df[,vars], 2, sd)
+# }, vars=SW.EnvCov)
+# table(unlist(SDs))
+
+```
+
+We can fit the model in INLA:
+
+```{r, FiModelSW}
+
+SW.Formula <- formula(
+  paste0("Presence ~ f(species, hyper = PCHyper) + f(site, hyper = PCHyper) + ", 
+         paste(
+           c(paste0(SW.EnvCov, ".sc"), 
+             sapply(paste0(SW.EnvCov, ".sc"), function(eu) {
+               paste0("f(Species.", eu, ", ", eu, ", hyper = PCHyper)")
+             })), collapse=" + "))
+)
+
+SWenvInd <- data.frame(sapply(SW.EnvCov, function(nm, dat) assign(nm, dat), 
+                               dat=SW.data$species))
+names(SWenvInd) <- paste0("Species.", names(SWenvInd), ".sc")
+SW.data <- cbind(SW.data, SWenvInd)
+
+# Fit the model
+SWinla <- inla(SW.Formula, data=SW.data, control.compute=list(config = TRUE),
+                family="binomial", Ntrials = 1)
+SWSumm <-summary(SWinla)
+```
+
+```{r, CalcStatsSW}
+#| eval: true
+
+SWsamps <- inla.posterior.sample(nsim, SWinla)
+
+SW.Posts <- data.frame(t(sapply(SWsamps, CalcPostVar, data=SW.data)))
+SW.Posts$logitVar <- pi/3
+Use <- !names(Posts)%in%paste0("Precision.for.", c("species", "site"))
+SW.PropVar <- sweep(SW.Posts[,Use], 1, rowSums(SW.Posts[,Use]), "/")
+names(SW.PropVar)[3] <- "VarEps"
+
+par(mfrow=c(1,3))
+plot(density(SW.PropVar$MeanDelta), main="Mean Covariate")
+plot(density(SW.PropVar$VarDelta), main="Variation in Covariate")
+plot(density(SW.PropVar$VarEps), main="Residual")
+
+SW.SummVars <- cbind(
+  Mode=MCMCglmm::posterior.mode(coda::as.mcmc(SW.PropVar)),
+  coda::HPDinterval(coda::as.mcmc(SW.PropVar), prob = 0.95)
+)
+
+```
+
+We find that `r round(100*(1-SW.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-SW.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-SW.SummVars["VarEps", "lower"]), 2)`%.
+
+
+## References
