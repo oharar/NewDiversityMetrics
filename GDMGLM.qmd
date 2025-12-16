@@ -87,7 +87,7 @@ We use two of the three examples from @WhiteMEE2023. The third is presence/absen
 First we need some bookkeeping, to list the libraries and create a function to ...
 
 ```{r Bookkeeping}
-library(zen4R)
+library(zen4R) # usedto download SA data
 library(INLA)
 library(gdm)
 library(taxize)
@@ -137,12 +137,13 @@ This is data with 288 species and 413 sites. The data is given in wide format, s
 ```{r GetDataSA}
 #|output: false
 
-if(!dir.exists("philawhite-spGDMM-code-d8279ee/data/")) {
-  download_zenodo("10.5281/zenodo.10091441")
-  unzip("spGDMM-code-spGDMM_v1.zip")
+# Download the data, if it hasn't already been done.
+if(!dir.exists("data/philawhite-spGDMM-code-d8279ee/data/")) {
+  download_zenodo("10.5281/zenodo.10091441", path="data")
+  unzip("data/spGDMM-code-spGDMM_v1.zip", exdir="data")
 }
 
-Data <- read.csv("philawhite-spGDMM-code-d8279ee/data/sa_species_data.csv")
+Data <- read.csv("data/philawhite-spGDMM-code-d8279ee/data/sa_species_data.csv")
 
 
 # SpNames <- gsub("\\.", " ", names(Data)[grep("\\.", names(Data))])
@@ -176,12 +177,9 @@ colnames(ScCov) <- paste0(colnames(ScCov), ".sc")
 
 SAData <- cbind(SAData.long, ScCov)
 
-
-
 # Get family names from GBIF
 Classification <- classification(SpNames, db = 'gbif', rows=1)
 Family <- unlist(lapply(Classification, function(lst) lst$name[lst$rank=="family"]))
-
 
 SAData$Family <- unlist(sapply(SAData$Species, function(Sp, fam) {
 #  cat(Spp, "\n")
@@ -220,7 +218,7 @@ We fit the model with INLA, and use relatively tight PC priors to control the es
 
 # Create formula for INLA
 SA.Formula <- formula(
-  paste0("Abund ~ f(Species, hyper = PCHyper) + f(Family, hyper = PCHyper) + f(plot, hyper = PCHyper) + ", 
+  paste0("Abund ~ f(Species, hyper = PCHyper) + f(plot, hyper = PCHyper) + ", 
          paste(
            c(paste0(SA.EnvCov, ".sc"), 
              sapply(paste0(SA.EnvCov, ".sc"), function(eu) {
@@ -354,10 +352,6 @@ BCI.SummVars <- cbind(
 We find that `r round(100*(1-BCI.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-BCI.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-BCI.SummVars["VarEps", "lower"]), 2)`%.
 
 
-
-
-
-
 ### Example 3: Australian Plants
 
 This is occurrence of plants in Southwest Australia, the `southwest` data in the `gdm` package. The data are not well documented, with several presences per species per site. Absence data is not given. Fortunately, the environmental data does not vary within a site.
@@ -401,6 +395,7 @@ SW.data$Presence <- as.numeric(SW.data$Presence)
 We can fit the model in INLA:
 
 ```{r, FiModelSW}
+#| warning: false
 
 SW.Formula <- formula(
   paste0("Presence ~ f(species, hyper = PCHyper) + f(site, hyper = PCHyper) + ", 
@@ -422,6 +417,8 @@ SWinla <- inla(SW.Formula, data=SW.data, control.compute=list(config = TRUE),
 SWSumm <-summary(SWinla)
 ```
 
+And now...
+
 ```{r, CalcStatsSW}
 #| eval: true
 
@@ -429,7 +426,7 @@ SWsamps <- inla.posterior.sample(nsim, SWinla)
 
 SW.Posts <- data.frame(t(sapply(SWsamps, CalcPostVar, data=SW.data)))
 SW.Posts$logitVar <- pi/3
-Use <- !names(Posts)%in%paste0("Precision.for.", c("species", "site"))
+Use <- !names(SW.Posts)%in%paste0("Precision.for.", c("species", "site"))
 SW.PropVar <- sweep(SW.Posts[,Use], 1, rowSums(SW.Posts[,Use]), "/")
 names(SW.PropVar)[3] <- "VarEps"
 

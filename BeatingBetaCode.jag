@@ -1,0 +1,74 @@
+
+model {
+  for(sp in 1:NSp) {
+    for(rep in 1:NRep) {
+      Abund[rep, sp] ~ dpois(lambda[rep, sp])
+      lambda[rep, sp] <- mu[rep, sp]*Present[Site[rep], sp]
+      OD[rep, sp] ~ dnorm(0, tauOD)
+      log(mu[rep, sp]) <- logmu[Site[rep], sp] + OD[rep, sp]
+    }
+    for(site in 1:NSite) {
+      Present[site, sp] ~ dbern(p[site, sp])
+      SiteOD[site, sp] ~ dmnorm(0, tauSiteOD)
+      logmu[site, sp] <- mu.lam + al.lamST[site] + be.lamST[sp] + SiteOD[site, sp] + 
+          gamma.lamST[sp]*(temperature[site]-mean(temperature[]))
+      logit(p[site, sp]) <- mu.z + al.zST[site] + be.zST[sp] + 
+          gamma.zST[sp]*(temperature[site]-mean(temperature[]))
+    }
+    be.lamST[sp] ~ dnorm(mu.be.lam, tau.be.lam)
+    be.zST[sp] ~ dnorm(mu.be.z, tau.be.z)
+    gamma.lamST[sp] ~ dnorm(mu.gam.lam, tau.gam.lam)
+    gamma.zST[sp] ~ dnorm(mu.gam.z, tau.gam.z)
+
+    be.lam[sp] <- be.lamST[sp] - mean(be.lamST[])
+    be.z[sp] <- be.zST[sp] - mean(be.zST[])
+    gamma.lam[sp] <- gamma.lamST[sp] - mean(gamma.lamST[])
+    gamma.z[sp] <- gamma.zST[sp] - mean(gamma.zST[])
+  }
+  for(site in 1:NSite) {
+    al.lamST[site] ~ dnorm(mu.al.lam, tau.al.lam)
+    al.zST[site] ~ dnorm(mu.al.z, tau.al.z)
+    al.lam[site] <- al.lamST[site] - mean(al.lamST[])
+    al.z[site] <- al.zST[site] - mean(al.zST[])
+    SR[site] <- sum(Present[site, ])
+    temperature[site] ~ dnorm(0, 1)
+    StdDevDelta[site] <- sd(SiteOD[site, ])
+  }  
+
+  mu.be.lam ~ dnorm(0, 1)
+  mu.be.z ~ dnorm(0, 1)
+  mu.al.lam ~ dnorm(0, 1)
+  mu.al.z ~ dnorm(0, 1)
+  mu.lam ~ dnorm(0, 1)
+  mu.z ~ dnorm(0, 1)
+  mu.gam.lam ~ dnorm(0, 1)
+  mu.gam.z ~ dnorm(0, 1)
+
+  Mean.lam <- mu.lam + mean(al.lamST[]) + mean(be.lamST[])
+  Mean.z <- mu.z + mean(al.zST[]) + mean(be.zST[])
+
+  Mean.gam.lam <- mu.gam.lam + mean(gamma.lamST[])
+  Mean.gam.z <- mu.z + mean(gamma.zST[])
+  
+  tau.be.lam <- pow(sd.be.lam, -2); sd.be.lam ~ dexp(1)
+  tau.be.z <- pow(sd.be.z, -2); sd.be.z ~ dexp(1)
+  tau.al.lam <- pow(sd.al.lam, -2); sd.al.lam ~ dexp(1)
+  tau.al.z <- pow(sd.al.z, -2); sd.al.z ~ dexp(1)
+
+  tau.gam.lam <- pow(sd.gam.lam, -2); sd.gam.lam ~ dexp(1)
+  tau.gam.z <- pow(sd.gam.z, -2); sd.gam.z ~ dexp(1)
+  tauOD <- pow(sdOD, -2); sdOD ~ dexp(1)
+  tauSiteOD <- pow(sdSiteOD, -2); sdSiteOD ~ dexp(1)
+
+# Finite population variances
+  StdDev.be.lam <- sd(be.lamST[])
+  StdDev.be.z <- sd(be.zST[])
+  StdDev.al.lam  <- sd(al.lamST[])
+  StdDev.al.z <- sd(al.zST[])
+
+  StdDev.gam.lam <- sd(gamma.lamST[])
+  StdDev.gam.z <- sd(gamma.zST[])
+  StdDevSiteOD <- sd(SiteOD[, ])
+  StdDevOD <- sd(OD[, ]) # observation level OD
+
+}
