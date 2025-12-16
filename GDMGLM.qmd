@@ -137,13 +137,21 @@ This is data with 288 species and 413 sites. The data is given in wide format, s
 ```{r GetDataSA}
 #|output: false
 
-# Download the data, if it hasn't already been done.
-if(!dir.exists("data/philawhite-spGDMM-code-d8279ee/data/")) {
+# Download the data, if it hasn't already been done. Cleans up afterwards, too 
+if(!file.exists("data/sa_species_data.csv")) {
   download_zenodo("10.5281/zenodo.10091441", path="data")
   unzip("data/spGDMM-code-spGDMM_v1.zip", exdir="data")
+  DataFiles <- dir("data/philawhite-spGDMM-code-d8279ee/data/")
+  sapply(DataFiles, function(x) {
+    cat(x, file.exists(file.path("data/philawhite-spGDMM-code-d8279ee/data/",x)), "\n")
+    file.copy(from=file.path("data/philawhite-spGDMM-code-d8279ee/data/",x),
+              to=file.path("data/",x), overwrite = TRUE)
+  })
+    unlink("data/philawhite-spGDMM-code-d8279ee/", recursive = TRUE)
+    unlink("data/spGDMM-code-spGDMM_v1.zip", recursive = TRUE)
 }
 
-Data <- read.csv("data/philawhite-spGDMM-code-d8279ee/data/sa_species_data.csv")
+Data <- read.csv("data/sa_species_data.csv")
 
 
 # SpNames <- gsub("\\.", " ", names(Data)[grep("\\.", names(Data))])
