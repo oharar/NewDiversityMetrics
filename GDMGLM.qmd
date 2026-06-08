@@ -1,6 +1,9 @@
 ---
 title: "Better GDM"
-format: pdf
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the code"
 editor: source
 bibliography: references.bib
 execute: 
@@ -11,7 +14,7 @@ execute:
 
 The idea of GDM, modelling matrices of dissimilarity, was suggested by @Ferrier2002. Recently, @WhiteMEE2023 suggested improvements to generalized dissimilarity modelling. Here we will develop an alternative, based on modelling the data rather than the distances between data.
 
-The ecological problem is to explain how beta diversity, i.e. variation between sites, is affected by predictors, such as the environment. This can be done using GDM, which regresses distances between communities against teh environemntal covariates. Here we suggest an alternative approach.
+The ecological problem is to explain how beta diversity, i.e. variation between sites, is affected by predictors, such as the environment. This can be done using GDM, which regresses distances between communities against the environemntal covariates. Here we suggest a more direct approach: model the effects of the environment on the species, and then look at how this affects variation in the communities.
 
 ## The Model
 
@@ -82,19 +85,20 @@ If we are interested in compositional diversity, we can ignore the terms involvi
 
 ## Examples
 
-We use two of the three examples from @WhiteMEE2023. The third is presence/absence data, so is less interesting, as $\epsilon_{ij}$ is the residual, which is thoroughly uninteresting in Bernoulli trials.
-
-First we need some bookkeeping, to list the libraries and create a function to ...
+We use the three examples from @WhiteMEE2023. First we need to do some preliminary work: importing packages, defining some terms (e.g. priors), and several functions that will b eused later.
 
 ```{r Bookkeeping}
-library(zen4R) # usedto download SA data
+#| results: hide
+#| output: false
+
+library(zen4R) # used to download SA data
 library(INLA)
 library(gdm)
 library(taxize)
 
 # Define PC priors, to stop the models exploding horribly
-PCHyper <- list(prec = list(prior="pc.prec", param=c(0.1,0.001)))
-PCHyper2 <- list(prec = list(prior="pc.prec", param=c(0.2,0.01)))
+PCHyper <- list(prec = list(prior="pc.prec", param=c(u=0.5, alpha=0.001)))
+PCHyper2 <- list(prec = list(prior="pc.prec", param=c(u=1, alpha=0.1)))
 
 # Number of simulations from posterior to calculate statistics
 nsim <- 1000
@@ -128,6 +132,69 @@ CalcPostVar <- function(INLAsamp, data) {
   return(AllVars)
 }
 
+# Function to transform log precision of hyper parameters to standard deviation
+CalcHyperSDs <- function(mod, use=NULL) {
+  if(is.null(use)) use <- seq_along(mod$internal.marginals.hyperpar)
+  
+  sd.lst <- lapply(mod$internal.marginals.hyperpar[use], function(lst) {
+    marg <- inla.tmarginal(function(x) exp(-x/2), lst)
+    res <- c(inla.mmarginal(marg), inla.hpdmarginal(c(0.5, 0.95), marg))
+    names(res) <- c("mode", "Lower50", "Lower95", "Upper50", "Upper95")
+    res
+  })
+  sd.df <- as.data.frame(do.call(rbind, sd.lst))
+  sd.df
+}
+
+# Function to create linear combinations of fixed & random effects for variable var
+CreateLinComb <- function(var, Levels, prefix="Species.") {
+  lc <- inla.make.lincombs(var= rep(1, nlevels(Levels)),
+                           tt = diag(1, nlevels(Levels)))
+  lc <- lapply(lc, function(l, var) {
+    names(l[[1]]) <- var
+    names(l[[2]]) <- paste0(prefix, var)
+    l
+  }, var=var)
+  names(lc) <- paste0(var, names(lc))
+  lc
+}
+
+
+# Function to plot fixed effects
+# PlotFixed(fixed=SAFamSumm$fixed, use=Use.fixed)
+
+PlotFixed <- function(fixed, use) {
+  plot(fixed[use, "mean"], use, yaxt="n", xlab="Mean Effect", ylab="", 
+       xlim=range(fixed[use, c("0.025quant", "0.975quant")]),
+       main="Mean Effect")
+  segments(fixed[use, "0.025quant"], use, fixed[use, "0.975quant"], use)
+  axis(2, gsub("\\.sc", "", rownames(fixed)[use]), at=use, las=1)
+  abline(v=0, lty=2)
+}
+
+# Function to plot hyperparameter SDs
+# PlotHyper(SDs=SAHyperSDs, use=Use.hyper)
+PlotHyper=function(SDs, use=NULL) {
+  if(is.null(use)) use <- 1:nrow(SDs)
+  plot(SDs[use,"mode"], use, yaxt="n", xlab="Std Dev", ylab="", 
+       xlim=range(c(0,SDs[,c("Lower95", "Upper95")])),
+       main="Std Dev across Species")
+  segments(SDs[use,"Lower50"], use, SDs[use,"Upper50"], use, lwd=3, lend=2)
+  segments(SDs[use,"Lower95"], use, SDs[use,"Upper95"], use)
+}
+
+# Function to plot random effects and their means
+PlotEff <- function(summ, mean, ...) {
+  At <- rank(summ$mean)
+  plot(summ$mean, At, yaxt="n", type="n", ...)
+  rect(mean["0.025quant"], -10, mean["0.975quant"], 1e4, col="pink", border=NA)
+  abline(v=mean["mean"], col=2)
+  points(summ$mean, At)
+  segments(summ[,"0.025quant"], At, 
+           summ[,"0.975quant"], At)
+  abline(v=0, lty=2)
+}
+
 ```
 
 ### Example 1: South African flora
@@ -153,20 +220,13 @@ if(!file.exists("data/sa_species_data.csv")) {
 
 Data <- read.csv("data/sa_species_data.csv")
 
-
 # SpNames <- gsub("\\.", " ", names(Data)[grep("\\.", names(Data))])
 SpNames <- names(Data)[grep("\\.", names(Data))]
-# FamNames <- names(FamData)[!names(FamData)%in%names(Data)]
-
-# Discover that not all family names from GBIF are he same as the family data
-# FamData <- read.csv("philawhite-spGDMM-code-d8279ee/data/sa_family_data.csv")
-# FamNames <- names(FamData)[!names(FamData)%in%names(Data)]
-# Family[!Family%in%FamNames]
 
 SpData.wide <- Data[, SpNames]
 IsZero <- apply(SpData.wide, 2, function(x) mean(x==0))
 
-UseNames <- names(IsZero)[IsZero<0.99]
+UseNames <- names(IsZero)[IsZero<0.95]
 RemoveNames <- SpNames[!SpNames%in%UseNames]
 NamesToLong <- names(Data)[!names(Data)%in%RemoveNames]
 
@@ -177,7 +237,6 @@ SAData.long$Percent2 <- pmax(0.1, SAData.long$Percent)
 SAData.long$Abund <- log(SAData.long$Percent2/(100-SAData.long$Percent2))
 
 SA.EnvCov <- c("gmap", "RFL_CONC", "HeatLoadIndex30m", "tmean13c", 
-            # "Elevation30m", 
             "SoilConductivitymSm", "SoilTotalNPercent")
 
 ScCov <- apply(SAData.long[,SA.EnvCov], 2, scale)
@@ -185,25 +244,7 @@ colnames(ScCov) <- paste0(colnames(ScCov), ".sc")
 
 SAData <- cbind(SAData.long, ScCov)
 
-# Get family names from GBIF
-Classification <- classification(SpNames, db = 'gbif', rows=1)
-Family <- unlist(lapply(Classification, function(lst) lst$name[lst$rank=="family"]))
-
-SAData$Family <- unlist(sapply(SAData$Species, function(Sp, fam) {
-#  cat(Spp, "\n")
-  ff <- which(Sp==names(fam))
-  if(length(ff)==0) {
-    res <- "AAAAAGH"
-  } else {
-    res <- fam[ff]
-  }
-  res
-}, fam=Family))
-
-# any(SAData$Family=="AAAAAGH")
-
-SAData$Family <- factor(SAData$Family)
-SAData$Species <- factor(SAData$Species)
+# SAData$Species <- factor(SAData$Species)
 SAData$plot <- factor(SAData$plot)
 
 ```
@@ -220,41 +261,45 @@ Covariates:
 
 We remove elevation because of the high correlation with tmean13c (`r round(cor(SAData.long$tmean13c, SAData.long$Elevation30m), 2)`), and all species that occur in \<1% of sites, giving `r length(UseNames)` species out of the original 288.
 
-We fit the model with INLA, and use relatively tight PC priors to control the estimates of the environmental effects (without doing this everything is horribly unstable).
+We fit the model with INLA, and use relatively tight PC priors to control the estimates of the environmental effects (without doing this everything is horribly unstable, and even doing this the model is not very stable: slight changes change the effects of covariates).
 
 ```{r, FitModelSA}
-
+#| warning: false
 # Create formula for INLA
+EnvForm <- sapply(SA.EnvCov, function(var) {
+  paste0(var, ".sc + f(Species.", var, ".sc, ", var, 
+         ".sc, hyper = PCHyper)")
+})
+
 SA.Formula <- formula(
   paste0("Abund ~ f(Species, hyper = PCHyper) + f(plot, hyper = PCHyper) + ", 
-         paste(
-           c(paste0(SA.EnvCov, ".sc"), 
-             sapply(paste0(SA.EnvCov, ".sc"), function(eu) {
-               paste0("f(Species.", eu, ", ", eu, ", hyper = PCHyper)")
-             })), collapse=" + "))
+         paste(EnvForm, collapse=" + "))
 )
 
-
-SAenvInd <- data.frame(sapply(SA.EnvCov, function(nm, dat) assign(nm, dat), 
-                              dat=SAData$Species))
+SAenvInd <- data.frame(sapply(SA.EnvCov, function(nm, dat)
+  assign(nm, dat), dat=SAData$Species))
 names(SAenvInd) <- paste0("Species.", names(SAenvInd), ".sc")
 
 SAData <- cbind(SAData, SAenvInd)
 
+LCs.lst <- lapply(paste0(SA.EnvCov, ".sc"), CreateLinComb,
+                  Levels=factor(SAData$Species))
+SA.LCs <- do.call(c, LCs.lst)
 
 # int.strategy = "ccd" or int.strategy = "grid"
 # Fit the model
 SAinla <- inla(SA.Formula, data=SAData, control.compute=list(config = TRUE), 
-               control.inla=list(int.strategy = "ccd"))
+               control.inla=list(int.strategy = "ccd"), lincomb = SA.LCs)
 SASumm <-summary(SAinla)
-
 
 ```
 
-This will calculate the statistics
+From this we first need to calculate the statistics described above. Because the statistics are not linear, we need to simulate from the posterior. There is an approximation here because INLA will only simulate from the integration points of the hyperparameters, not from their full distribution. This might be fixable later.
 
 ```{r, CalcStatsSA}
 #| eval: true
+#| fig-cap: Posterior distributions of diversity components
+#| fig-height: 3
 
 SAsamps <- inla.posterior.sample(nsim, SAinla)
 
@@ -277,7 +322,208 @@ SA.SummVars <- cbind(
 
 ```
 
-We find that `r round(100*(1-SA.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-SA.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-SA.SummVars["VarEps", "lower"]), 2)`%.
+We find that `r round(100*(1-SA.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-SA.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-SA.SummVars["VarEps", "lower"]), 2)`%. So only a small fraction of the variation is due to the environment. The distribution for the variation in the covariate looks horrible because it is only drawn from the integration points, as noted above. This makes it a bit of a mess, but doesn't change the overall message in any of the examples.
+
+We can look at the importance of the variables. First, by plotting the mean effects and their standard deviations (across species). Then we can look at their contributions to the variance.
+
+```{r PlotMeansSA}
+#| eval: true
+#| warning: false
+# Plot means
+Use.fixed <- which(!grepl("\\(Int", rownames(SASumm$fixed)))
+Use.hyper <- sapply(SA.EnvCov, function(x, y) grep(x, y),
+                    y=names(SAinla$marginals.hyperpar))
+
+SAHyperSDs <- CalcHyperSDs(SAinla, use=Use.hyper)
+
+par(mar=c(4.1,1,3,1), oma=c(1,8,1,1), mfrow=c(1,2))
+ PlotFixed(fixed=SASumm$fixed, use=Use.fixed)
+ PlotHyper(SDs=SAHyperSDs, use=NULL)
+
+```
+
+We can see that temperature has the largest effect, both in the average effect and the variation across species. Four of the effects appear not to have any variation between species. But, as noted above, this does not seem to be stable: change hte model or priors and we get slightly different results.
+
+Finally, we can visualise the effects of the environment on each species. We can clearly see the effect of temperature, and that different species prefer it warmer or colder. But we can see this across other covariates too.
+
+```{r PlotCovarEffsSA}
+#| fig-height: 8
+#| results: hide
+
+SA.RanEff <- SAinla$summary.lincomb.derived
+SA.UseSumRan <- grep("Species\\.", names(SAinla$summary.random))
+Xlims <- range(SA.RanEff[,c("0.025quant", "0.975quant")])
+
+par(mar=c(2.1,1,3,1), mfrow=c(2,3))
+sapply(SA.EnvCov, function(env, RanEff, SummFix, ...) {
+PlotEff(summ=RanEff[grep(env, rownames(RanEff)),], 
+        mean=SummFix[paste0(env, ".sc"),],
+        ylab="", xlab="", main=env, ...)
+}, RanEff=SA.RanEff, SummFix=SASumm$fixed, xlim=Xlims)
+
+```
+
+### Example 1a: South African flora at the family level
+
+Like @WhiteMEE2023, we will also look at this dataat the family level. This means we have 52 families and 413 sites. We will compare the family and species level analyses with each other and with @WhiteMEE2023 below. First, download and format the data.
+
+```{r GetDataSAFam}
+#|output: false
+
+FamData <- read.csv("data/sa_family_data.csv")
+FamNames <- names(FamData)[!names(FamData)%in%names(Data)]
+FamData.wide <- FamData[, FamNames]
+IsZero <- apply(FamData.wide, 2, function(x) mean(x==0))
+
+UseNames <- names(IsZero)[IsZero<0.99]
+RemoveNames <- FamNames[!FamNames%in%UseNames]
+NamesToLong <- names(FamData)[!names(FamData)%in%RemoveNames]
+
+FamData.long <- reshape(FamData[,NamesToLong], direction = "long", 
+                        varying = UseNames,
+                       v.names = "Percent", timevar="FamilyID")
+
+FamData.long$Species <- FamNames[FamData.long$FamilyID]
+FamData.long$Percent2 <- pmax(0.1, FamData.long$Percent)
+FamData.long$Abund <- log(FamData.long$Percent2/(100-FamData.long$Percent2))
+
+Fam.EnvCov <- c("gmap", "RFL_CONC", "HeatLoadIndex30m", "tmean13c", 
+            # "Elevation30m", 
+            "SoilConductivitymSm", "SoilTotalNPercent")
+
+ScCov <- apply(FamData.long[,Fam.EnvCov], 2, scale)
+colnames(ScCov) <- paste0(colnames(ScCov), ".sc")
+
+SAFamData <- cbind(FamData.long, ScCov)
+
+SAFamData$Family <- factor(UseNames[SAFamData$FamilyID])
+SAFamData$plot <- factor(SAFamData$plot)
+
+```
+
+The covariates are as before, as is the use of INLA and the priors:
+
+```{r, FitModelSAFam}
+#| warning: false
+# Create formula for INLA
+SAFam.Formula <- formula(
+  paste0("Abund ~ f(Family, hyper = PCHyper) + f(plot, hyper = PCHyper) + ", 
+         paste(
+           c(paste0(Fam.EnvCov, ".sc"), 
+             sapply(paste0(Fam.EnvCov, ".sc"), function(eu) {
+               paste0("f(Family.", eu, ", ", eu, ", hyper = PCHyper)")
+             })), collapse=" + "))
+)
+
+SAFamenvInd <- data.frame(sapply(Fam.EnvCov, function(nm, dat) assign(nm, dat), 
+                              dat=SAFamData$Family))
+names(SAFamenvInd) <- paste0("Family.", names(SAFamenvInd), ".sc")
+SAFamData <- cbind(SAFamData, SAFamenvInd)
+
+# Linear combinations
+LCs.lst <- lapply(paste0(SA.EnvCov, ".sc"), CreateLinComb,
+                  Levels=factor(SAFamData$Family), prefix="Family.")
+SAFam.LCs <- do.call(c, LCs.lst)
+
+# Fit the model
+SAFaminla <- inla(SAFam.Formula, data=SAFamData, 
+                  control.compute=list(config = TRUE), 
+               control.inla=list(int.strategy = "ccd"), lincomb = SAFam.LCs)
+SAFamSumm <-summary(SAFaminla)
+
+```
+
+As before, we now calculate the statistics.
+
+```{r, CalcStatsSAFam}
+#| eval: true
+#| fig-height: 3
+
+SAFamsamps <- inla.posterior.sample(nsim, SAFaminla)
+
+SAFamPosts <- data.frame(t(sapply(SAFamsamps, CalcPostVar, data=SAFamData)))
+Use <- !names(SAFamPosts)%in%paste0("Precision.for.", c("Family", "plot"))
+SAFam.PropVar <- sweep(SAFamPosts[,Use], 1, rowSums(SAFamPosts[,Use]), "/")
+names(SAFam.PropVar) <- gsub("Precision.for.the.Gaussian.observations", "VarEps", 
+                          names(SAFam.PropVar), fixed=TRUE)
+
+par(mfrow=c(1,3))
+plot(density(SAFam.PropVar$MeanDelta), main="Mean Covariate")
+plot(density(SAFam.PropVar$VarDelta), main="Variation in Covariate")
+plot(density(SAFam.PropVar$VarEps), main="Residual")
+
+# Summary
+SAFam.SummVars <- cbind(
+  Mode=MCMCglmm::posterior.mode(coda::as.mcmc(SAFam.PropVar)),
+  coda::HPDinterval(coda::as.mcmc(SAFam.PropVar), prob = 0.95)
+)
+
+```
+
+We find that `r round(100*(1-SAFam.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-SAFam.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-SAFam.SummVars["VarEps", "lower"]), 2)`%, so a bit more of the beta diversity at the family level is explained by the environmental covariates than at the species level. We can look at the individual covariates:
+
+```{r PlotEffectsFam}
+
+Use.fixed <- which(!grepl("\\(Int", rownames(SAFamSumm$fixed)))
+Use.hyper <- sapply(SA.EnvCov, function(x, y) grep(x, y),
+                    y=names(SAFaminla$marginals.hyperpar))
+
+SAFamHyperSDs <- CalcHyperSDs(SAFaminla, use=Use.hyper)
+
+par(mar=c(4.1,1,3,1), oma=c(1,8,1,1), mfrow=c(1,2))
+ PlotFixed(fixed=SAFamSumm$fixed, use=Use.fixed)
+ PlotHyper(SDs=SAFamHyperSDs, use=NULL)
+
+```
+
+Again, temperature has the largest effect, both in the average effect and the variation across species. But now the estiamtes look happier - nothing going to zero. Finally, some more detailed plots:
+
+```{r PlotCovarEffsFam}
+#| fig-height: 8
+#| results: hide
+
+SA.RanEff <- SAinla$summary.lincomb.derived
+SA.UseSumRan <- grep("Species\\.", names(SAinla$summary.random))
+Xlims <- range(SA.RanEff[,c("0.025quant", "0.975quant")])
+
+SAFam.RanEff <- SAFaminla$summary.lincomb.derived
+UseSumRan <- grep("Family\\.", names(SAFaminla$summary.random))
+Xlims <- range(unlist(lapply(SAFaminla$summary.random[UseSumRan], function(lst) 
+  range(lst[,c("0.025quant", "0.975quant")]))))
+
+
+par(mar=c(2.1,1,3,1), mfrow=c(2,3))
+sapply(SA.EnvCov, function(env, RanEff, SummFix, ...) {
+PlotEff(summ=RanEff[grep(env, rownames(RanEff)),], 
+        mean=SummFix[paste0(env, ".sc"),],
+        ylab="", xlab="", main=env, ...)
+}, RanEff=SAFam.RanEff, SummFix=SAFamSumm$fixed, xlim=Xlims)
+
+```
+
+
+#### Comparison with spGDMM
+
+With spGDMM, @WhiteMEE2023 could compare models using cross-validation, were able to compare the effects of the different covariates, and were qualitatively able to compare the covariate effects with a spatial term: 
+
+      The scale of the differences in $\eta(\mathbf{s}, \mathbf{s}')$ is large 
+      relative to the scale of the scaled warping functions in Figure 4. This 
+      suggests that the spatial random effect contributes to the mean dissimilarity 
+      more than the environmental covariates, even when considering the additive 
+      effect of many environmental variables. 
+
+Here we don't (yet) have a spatial term, but we can compare the covariate effects to the total variance in diversity, and see that at the species level almost all of the variation (`r round(100*(SAFam.SummVars["VarEps", "Mode"]), 2)`%) is unexplained, whilst at the family level about `r round(100*(1-SAFam.SummVars["VarEps", "Mode"]), 2)`% of the variation is explained by the covariates. We are both in broad agreement.
+
+@WhiteMEE2023 find that precipitation (`gmap`) is the most important variable, whereas we find temperature to be more important in both analyses. This is less of a conflict than it appears, as they state
+
+    Holding other covariates constant in the South Africa data, annual average 
+    precipitation has almost no estimated impact on beta diversity until the 
+    average exceeds 300 mm according to estimates from the spGDMM. Beyond 300 mm, 
+    annual precipitation has a very strong impact on beta diversity. This suggests 
+    that precipitation averages below 300 mm are effectively similar in terms of 
+    beta diversity. 
+
+In the data only `r round(100*mean(SAData$gmap>300), 1)`% of the locations have a rainfall over 300 mm, which suggests their results are being driven by a small part of the environmental space. This also suggests that non-linear terms might be worth exploring, although the variation may also be driven by linear effects of the species that prefer higher rainfall.
 
 ### Example 2: The Inevitable BCI Data
 
@@ -285,8 +531,8 @@ This is counts of trees on an island that only exists to let ecologists take a h
 
 ```{r, GetDataBCI}
 
-BCI.Env <- read.csv("philawhite-spGDMM-code-d8279ee/data/Panama_env.csv")
-BCI.Sp <- read.csv("philawhite-spGDMM-code-d8279ee/data/Panama_species.csv")
+BCI.Env <- read.csv("data/Panama_env.csv")
+BCI.Sp <- read.csv("data/Panama_species.csv")
 
 # Stupid naming 
 # "species" is actually site. And the format of the names is different between files
@@ -312,6 +558,8 @@ BCIData <- cbind(BCIData, Scale.tmp)
 We can fit the model in INLA:
 
 ```{r, FiModelBCI}
+#| warning: false
+
 
 BCI.Formula <- formula(
   paste0("Count ~ f(Species, hyper = PCHyper) + f(Site, hyper = PCHyper) + ", 
@@ -329,14 +577,21 @@ names(BCIenvInd) <- paste0("Species.", names(BCIenvInd), ".sc")
 BCIData <- cbind(BCIData, BCIenvInd)
 BCIData$OD <- factor(1:nrow(BCIData))
 
+# Linear combinations
+# Should improve code
+LCs.lst <- lapply(paste0(BCI.EnvCov, ".sc"), CreateLinComb, Levels=BCIData$Species)
+BCI.LCs <- do.call(c, LCs.lst)
+
 # Fit the model
 BCIinla <- inla(BCI.Formula, data=BCIData, control.compute=list(config = TRUE),
-                family="poisson")
+                family="poisson", lincomb = BCI.LCs)
 BCISumm <-summary(BCIinla)
+
 ```
 
 ```{r, CalcStatsBCI}
 #| eval: true
+#| fig-height: 3
 
 BCIsamps <- inla.posterior.sample(nsim, BCIinla)
 
@@ -359,6 +614,44 @@ BCI.SummVars <- cbind(
 
 We find that `r round(100*(1-BCI.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-BCI.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-BCI.SummVars["VarEps", "lower"]), 2)`%.
 
+
+```{r PlotEffectsBCI}
+
+# Plot means
+Use.fixed <- which(!grepl("\\(Int", rownames(BCISumm$fixed)))
+Use.hyper <- sapply(BCI.EnvCov, function(x, y) grep(x, y),
+                    y=names(BCIinla$marginals.hyperpar))
+
+BCIHyperSDs <- CalcHyperSDs(BCIinla)
+
+par(mar=c(4.1,1,3,1), oma=c(1,8,1,1), mfrow=c(1,2))
+ PlotFixed(fixed=BCISumm$fixed, use=Use.fixed)
+ PlotHyper(SDs=BCIHyperSDs, use=Use.hyper)
+
+```
+
+We can see that elevation has the largest average effect, with a negtive gradient, but there is variation across species in all effects.
+
+
+```{r PlotCovarEffsBCI}
+#| fig-height: 8
+#| results: hide
+
+BCI.RanEff <- BCIinla$summary.lincomb.derived
+
+UseSumRan <- grep("Species\\.", names(BCIinla$summary.random))
+Xlims <- range(BCI.RanEff[,c("0.025quant", "0.975quant")])
+
+par(mar=c(2.1,1,3,1), mfrow=c(1,3))
+sapply(BCI.EnvCov, function(env, RanEff, Fixed, ...) {
+  PlotEff(summ=RanEff[grep(env, rownames(RanEff)),], 
+        mean=Fixed[grep(env, rownames(Fixed)),],
+        ylab="", xlab="", main=env, ...)
+}, RanEff=BCI.RanEff, Fixed=BCISumm$fixed, xlim=Xlims)
+
+```
+
+Here we can see that almost all species are negatively affectsed by gradient, whereas the effects of precipitation and age as more mixed.
 
 ### Example 3: Australian Plants
 
@@ -392,12 +685,6 @@ SWenv$site <- env.site
 SW.data <- merge(SW.pres, SWenv)
 SW.data$Presence <- as.numeric(SW.data$Presence)
 
-# Check to see if there is variation in environment between sites. There isn't.
-# SDs <- by(southwest.small, list(southwest.small$site), function(df, vars) {
-#   apply(df[,vars], 2, sd)
-# }, vars=SW.EnvCov)
-# table(unlist(SDs))
-
 ```
 
 We can fit the model in INLA:
@@ -419,9 +706,13 @@ SWenvInd <- data.frame(sapply(SW.EnvCov, function(nm, dat) assign(nm, dat),
 names(SWenvInd) <- paste0("Species.", names(SWenvInd), ".sc")
 SW.data <- cbind(SW.data, SWenvInd)
 
+# Create linear combinations
+LCs.lst <- lapply(paste0(SW.EnvCov, ".sc"), CreateLinComb, Levels=SW.data$species)
+SW.LCs <- do.call(c, LCs.lst)
+
 # Fit the model
 SWinla <- inla(SW.Formula, data=SW.data, control.compute=list(config = TRUE),
-                family="binomial", Ntrials = 1)
+                family="binomial", Ntrials = 1, lincomb = SW.LCs)
 SWSumm <-summary(SWinla)
 ```
 
@@ -451,6 +742,43 @@ SW.SummVars <- cbind(
 ```
 
 We find that `r round(100*(1-SW.SummVars["VarEps", "Mode"]), 2)`% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of `r round(100*(1-SW.SummVars["VarEps", "upper"]), 2)`% - `r round(100*(1-SW.SummVars["VarEps", "lower"]), 2)`%.
+
+```{r PlotEffectsSW}
+
+# Plot means
+Use.fixed <- which(!grepl("\\(Int", rownames(SWSumm$fixed)))
+Use.hyper <- sapply(SW.EnvCov, function(x, y) grep(x, y),
+                    y=names(SWinla$marginals.hyperpar))
+
+SWHyperSDs <- CalcHyperSDs(SWinla)
+
+par(mar=c(4.1,1,3,1), oma=c(1,8,1,1), mfrow=c(1,2))
+ PlotFixed(fixed=SWSumm$fixed, use=Use.fixed)
+ PlotHyper(SDs=SWHyperSDs, use=Use.hyper)
+
+```
+
+We can see that elevation has the largest average effect, but there is variation across species in all effects
+
+
+```{r PlotCovarEffsSW}
+#| fig-height: 20
+#| results: hide
+
+SW.RanEff <- SWinla$summary.lincomb.derived
+
+UseSumRan <- grep("Species\\.", names(SWinla$summary.random))
+Xlims <- range(SW.RanEff[,c("0.025quant", "0.975quant")])
+
+par(mar=c(2.1,1,3,1), mfrow=c(5,2))
+
+sapply(SW.EnvCov, function(env, RanEff, Fixed, ...) {
+  PlotEff(summ=RanEff[grep(env, rownames(RanEff)),], 
+        mean=Fixed[grep(env, rownames(Fixed)),],
+        ylab="", xlab="", main=env, ...)
+}, RanEff=SW.RanEff, Fixed=SWSumm$fixed, xlim=Xlims)
+
+```
 
 
 ## References
