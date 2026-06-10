@@ -2,7 +2,7 @@
 title: "Basic Diversity Example"
 author: "Bob O'Hara"
 format:
-  pdf
+  html
 bibliography: references.bib
 execute: 
   cache: true
@@ -10,15 +10,14 @@ execute:
 
 # Introduction
 
-This is an implementation of the diversity statistics, to demonstrate their calculation without any trait or environmental variables. We will use data whre we can estimate both occurrence and abundance (conditional on occurrence)
+This is an implementation of the diversity statistics, to demonstrate their calculation without any trait or environmental variables. We will use data where we can estimate both occurrence and abundance (conditional on occurrence).
 
 # The Community Model
 
-We For species $i$ on site $j$ we denote occurrence as $z_{ij} \in \{0,1\}$, and abundance as $\lambda_{ij}$.
 
-For the general theory we assume the incidence/abundance/whatever is $k_ij$ for species $j$ on site $i$. Here we have $k_{ij}$ as one of $\{ z_{ij}, \lambda_{ij}\}$, where $z_{ij}$ is presence/absence, and $\lambda_{ij}$ is the actual abundance on site $i$. 
+For species $i$ on site $j$ we denote occurrence as $z_{ij} \in \{0,1\}$ (where 1 is presence), and abundance as $\lambda_{ij} > 0$. We will link both of these to the general theory, where we assume the occurrence/abundance/whatever is $k_ij$ for species $j$ on site $i$.
 
-We assume presence is a Bernoulli trial, so if $z_{ij} \in \{0,1\}$, where 1 means presence, then $z_{ij} \sim \text{Bern}(p_{ij})$, with probability $\text{logit}(p_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}$. This is equivalent to a threshold model, i.e. saying that we have a continuous random variable, $\eta_{ij}^{(z)}$, and $z_{ij} = 1$ if $\eta_{ij}^{(z)}>0$. We will assume that $\eta_{ij}^{(z)}$ follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then 
+Fo occurrence we assume presence is a Bernoulli trial, then $z_{ij} \sim \text{Bern}(p_{ij})$.  with probability $\text{logit}(\eta_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}$. This is equivalent to a threshold model, i.e. saying that we have a continuous random variable, $\eta_{ij}^{(z)}$, and $z_{ij} = 1$ if $\eta_{ij}^{(z)}>0$. We will assume that $\eta_{ij}^{(z)}$ follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then 
 
 $$
 \eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \beta^{(z)}_j + \gamma^{(z)}_j x_i + \delta^{(z)}_{ij}.
@@ -34,74 +33,16 @@ $$
 
 Clearly $\lambda_{ij}=0$ if $z_{ij}=0$.
 
-For both models we assume the effects are random effects, i.e. with a variance to be estimated, and we can assume that $E(\alpha^{(z)}_i)=E(\beta^{(z)}_j)=E(\delta^{(z)}_{ij})=E(\alpha^{(\lambda)}_i)=E(\beta^{(\lambda)}_j)=E(\delta^{(\lambda)}_{ij})=0$, i.e. the intercept effects are all mean centred. $\gamma^{(z)}_j$ and $\gamma^{(\lambda)}_j$ have means to be estimated (i.e. the average effect of $x_i$ over all species).
-
-## Variances
-
-Going from the above, if we write the linear predictor as $k_{ij}$, for either $z$ or $\lambda$, and ignore the superscripts, we get
-
-$$
-k_{ij} = \mu + \lambda_i + \eta_j  + \delta_{ij}
-$$
-
-From which (following Chrisoph's work) we see that the total diversity (gamma diversity) is 
-
-$$
-  \text{Var}_{ij}(k_{ij}) = \sigma_{\lambda}^2 + \sigma_{\eta}^2 + \sigma_{\delta}^2
-$$
-
-Where we write $\text{Var}_{ij}(k_{ij})$ to be explicit that we are calculating the variance over both sites ($i$) and species ($j$). 
-
-<!---
-## Finite Population Variances and Infinite Population Variances
-
-In the statistical modelling there are two types of variance we will come across. If, for example, we assume $\alpha_i \sim N(0,\sigma_\alpha^2)$, we have $\sigma_\alpha^2$, the infinite population variance, but we can also calculate $\text{Var}(\alpha_i) = \frac{1}{m}\sum \alpha_i^2$, the finite population variance. The difference is whether we only consider the observations or the (infinite) population that these observations are assumed to have been drawn from, These, and particularly their sampling distributions, may not be the same. 
-
-The difference between these is that the finite population variance is the variance of what was measured, i.e. the variance of the samples from the population. The infinite population variance is the variance over all possible samples. If the samples are random (and the model is correct), the two should be equivalent. Which one to use will depend on the questions being asked, i.e. if they are about the specific locations being sampled (in which case the finite population variance is appropriate), or if the questions are about the whole region, including unsampled sites (when the infinite population variance should be used).
-
-One area where this becomes an issue is with compositional alpha diversity, where we can estimate $\text{Var}(\delta_{ij}|i)$, even if we assume the infinite population variance is constant across sites.
-
-At the moment the population and super population estimates are mixed up, but they will be separated later (I only thought about this once I had written most of the code, so it will need some additions).
---->
-
-# Diversity Measures
-
-## Means 
-
-Incidence
+For both models we assume the effects are random effects, i.e. with a variance to be estimated. But to make the presentation easier to follow, we use the posterior estimates of the parameters to calculate variances from. 
 
 
+The models are fitted with JAGS, so it is easier to estimate uncertainty. Detailsa re in the fold-out below.
 
-
-## Alpha Diversity
-
-
-**Species Richness**: 
-
-**Unevenness**: 
-
-## Beta Diversity
-
-Beta diversity is variation between sites. As with alpha diversity, we can first split it into species presence and composition. We can go further and follow @Baselga2010 by decomposing the species presence component into changes in richness ("nestedness") and changes in which species are present (which we call "replacement").
-
-### Species Identity
-
-Here we call total variation in species identity "turnover", and it is made up of nestedness & replacement. Replacement is, roughly, the change in species species composition if the species richness was the same. 
-
-
-### Within Species
-
-Within species diversity is akin to alpha diversity, but now it is about the incidence and abundance of one species across several sites. These are the possible statistics, for which we need some interpetations:
-
-- Range size: $R_j = \sum_i z_{ij}$, i.e. the number of sites the species is observed on (note that this is not the same as geographic range). We could also use $\mu^{(z)}+\beta^{(z)}_j$.
-- Site specificity: $\text{Var}_{i}(\eta^{(z)}_{ij}|j) = \sigma^{2}_{(z)\alpha} + \pi/3$. This is the variance in presence across sites, so is a measure of habitat specificity: if it is high, the species is always found on some sites, and never on others. If it is low, it's random where we find it.
-- mean local abundance: $E_i(\eta^{(\lambda)}_{ij}|j) = \mu^{(\lambda)}+\beta^{(\lambda)}_j$
-- Variance in abundance: $\text{Var}_{i}(\eta^{(\lambda)}_{ij}|j) = \sigma^{2}_{(\lambda)\alpha} + \sigma^{2}_{(\lambda)\gamma}$. This is also related to site specificity.
-
-Site richness is related to having a restricted distribution, mean abundance is related to scarcity. We can link this to the typology of rarity from @CrisfieldRarity, as range size (which modifies geographic range _sensu_  @rabinowitz1981Rarity), local abundance and occupancy (which replaces habitat specificity in the scheme of  @rabinowitz1981Rarity). These can be identified with our within species statistics.
 
 
 # An Example
+
+
 
 ::: {.callout-note collapse=true}
 
@@ -204,21 +145,14 @@ model {
     for(site in 1:NSite) {
       Present[site, sp] ~ dbern(p[site, sp])
       SiteOD[site, sp] ~ dmnorm(0, tauSiteOD)
-      logmu[site, sp] <- mu.lam + al.lamST[site] + be.lamST[sp] + SiteOD[site, sp] + 
-          gamma.lam[sp]*(temperature[site]-mean(temperature[]))
-      logit(p[site, sp]) <- mu.z + al.zST[site] + be.zST[sp] + 
-          gamma.z[sp]*(temperature[site]-mean(temperature[]))
+      logmu[site, sp] <- mu.lam + al.lamST[site] + be.lamST[sp] + SiteOD[site, sp]
+      logit(p[site, sp]) <- mu.z + al.zST[site] + be.zST[sp]
     }
-    be.lamST[sp] ~ dnorm(mu.be.lam, tau.be.lam)
     be.zST[sp] ~ dnorm(mu.be.z, tau.be.z)
-    gamma.lam[sp] ~ dnorm(mu.gam.lam, tau.gam.lam)
-    gamma.z[sp] ~ dnorm(mu.gam.z, tau.gam.z)
+    be.lamST[sp] ~ dnorm(mu.be.lam, tau.be.lam)
 
     be.lam[sp] <- be.lamST[sp] - mean(be.lamST[])
     be.z[sp] <- be.zST[sp] - mean(be.zST[])
-    # These are deviations
-    gamma.lamDev[sp] <- gamma.lam[sp] - mean(gamma.lam[])
-    gamma.zDev[sp] <- gamma.z[sp] - mean(gamma.z[])
   }
   for(site in 1:NSite) {
     al.lamST[site] ~ dnorm(mu.al.lam, tau.al.lam)
@@ -226,46 +160,23 @@ model {
     al.lam[site] <- al.lamST[site] - mean(al.lamST[])
     al.z[site] <- al.zST[site] - mean(al.zST[])
     SR[site] <- sum(Present[site, ])
-    temperature[site] ~ dnorm(0, 1)
-    StdDevDelta[site] <- sd(SiteOD[site, ])
-    
-# Means 
-    Rz[site] <- al.z[site] + Mean.z
-    Rlam[site] <- al.lam[site] + Mean.lam + inprod(be.lam,Present[site, ])
-# Site Variances
-
-  }  
-  
-  for(sp in 1:NSp) {
-  # Species Means
-    Oz[sp] <- be.z[sp] + Mean.z
-    Olam[sp] <- be.lam[sp] + Mean.lam + inprod(al.lam,Present[, sp])
-  # Species Variances
-  
   }
-
+    
   mu.be.lam ~ dnorm(0, 1)
   mu.be.z ~ dnorm(0, 1)
   mu.al.lam ~ dnorm(0, 1)
   mu.al.z ~ dnorm(0, 1)
   mu.lam ~ dnorm(0, 1)
   mu.z ~ dnorm(0, 1)
-  mu.gam.lam ~ dnorm(0, 1)
-  mu.gam.z ~ dnorm(0, 1)
 
   Mean.lam <- mu.lam + mean(al.lamST[]) + mean(be.lamST[])
   Mean.z <- mu.z + mean(al.zST[]) + mean(be.zST[])
 
-  Mean.gam.lam <- mu.gam.lam + mean(gamma.lam[])
-  Mean.gam.z <- mu.z
-  
   tau.be.lam <- pow(sd.be.lam, -2); sd.be.lam ~ dexp(1)
   tau.be.z <- pow(sd.be.z, -2); sd.be.z ~ dexp(1)
   tau.al.lam <- pow(sd.al.lam, -2); sd.al.lam ~ dexp(1)
   tau.al.z <- pow(sd.al.z, -2); sd.al.z ~ dexp(1)
 
-  tau.gam.lam <- pow(sd.gam.lam, -2); sd.gam.lam ~ dexp(1)
-  tau.gam.z <- pow(sd.gam.z, -2); sd.gam.z ~ dexp(1)
   tauOD <- pow(sdOD, -2); sdOD ~ dexp(1)
   tauSiteOD <- pow(sdSiteOD, -2); sdSiteOD ~ dexp(1)
 
@@ -275,12 +186,9 @@ model {
   StdDev.al.lam  <- sd(al.lamST[])
   StdDev.al.z <- sd(al.zST[])
 
-  StdDev.gam.lam <- sd(gamma.lam[])
-  StdDev.gam.z <- sd(gamma.z[])
   StdDevSiteOD <- sd(SiteOD[, ])
-#  Note: temperature is scaled
-  StdDevDelta.lam <- sqrt(sd(SiteOD[, ])^2 +  (mu.gam.lam^2 + sd(gamma.lam)^2)) # interaction
-  StdDevDelta.z <- sqrt(3.289868 +  (mu.gam.z^2 + sd(gamma.z)^2)) # interaction
+  StdDevDelta.lam <- sd(SiteOD[, ]) # interaction
+  StdDevDelta.z <- sqrt(3.289868) # interaction
   StdDevOD <- sd(OD[, ]) # observation level OD
   StdDevTotal.z <- sqrt(StdDev.al.z^2 + StdDev.be.z^2 + StdDevDelta.z^2)
   StdDevTotal.lam <- sqrt(StdDev.al.lam^2 + StdDev.be.lam^2 + StdDevDelta.lam^2)
@@ -305,12 +213,15 @@ ToMonitor.z <- c("Mean.z", "SR", "sd.al.z", "sd.be.z", "al.z")
 ToMonitor.lam <- c("Mean.lam", "sd.al.lam", "sd.be.lam", "sdSiteOD", "sdOD", "StdDevDelta")
 ToMonitor.gam <- c("mu.gam.lam", "sd.gam.lam", "sd.gam.z", "mu.gam.z", 
                    "gamma.lam", "gamma.z", "Mean.gam.lam", "Mean.gam.z")
-ToMonitor.means <- c("logmu", "Present") # if we want everything
-ToMonitor.DivStats <- c("Mean.z", "Mean.lam", "Rz", "Rlam", "Oz", "Olam",
-                        "sd.al.z", "sd.be.z", "sd.al.lam", "sd.be.lam",
-                        "StdDevDelta.z", "StdDevDelta.lam",
-                        "StdDevTotal.z", "StdDevTotal.lam")
-ToMonitor <- unique(c(ToMonitor.z, ToMonitor.lam, ToMonitor.gam, ToMonitor.means))
+ToMonitor.means <- c("logmu", "Present", "p") # if we want everything
+ToMonitor.DivStats <- c("Unevenness", "UnevennessOcc")
+ToMonitor.Unevenness <- c("be.lam", "SiteOD", "Present")
+
+ToMonitor <- unique(c(ToMonitor.z, ToMonitor.lam, ToMonitor.gam, ToMonitor.means,
+                      ToMonitor.DivStats))
+# Add to this as we go on
+ToMonitor <- unique(c(ToMonitor.means))
+
 Inits <- replicate(2, GetInits(DataToJAGS), simplify = FALSE)
 
 DivModel <- run.jags(model = "BeatingBetaCode.jag", monitor=ToMonitor, data=DataToJAGS,
@@ -318,14 +229,26 @@ DivModel <- run.jags(model = "BeatingBetaCode.jag", monitor=ToMonitor, data=Data
 #         n.chains = 2, adapt = 1e2, burnin = 0, sample = 150)
 #         n.chains = 4, adapt = 1e3, burnin = 0, sample = 5e3)
          n.chains = 6, adapt = 1e3, burnin = 0, sample = 1e3)
-Summ <- summary(DivModel, vars= c(ToMonitor.z, ToMonitor.lam, ToMonitor.gam))
+# Summ <- summary(DivModel, vars= c(ToMonitor.z, ToMonitor.lam, ToMonitor.gam))
+# Summ <- summary(DivModel, vars= ToMonitor)
 
 # Combine MCMC into one data fame, so it's easier to work with below
 DivPars <- combine.mcmc(DivModel)
 
+# this is a function to calculate the summaries we want
+CalcSumm <- function(mc) {
+  require(coda)
+  require(MCMCglmm)
+  Summ <- summary(mc)
+  Summ$HPD <- HPDinterval(mc, prob=0.95)
+  Summ$PMode <- posterior.mode(mc)
+  Summ
+}
+
+
 ```
 
-We get some output. in the fold below are some trace plots so we can see if it has converged & if it is mixing well. The caution is well warranted.
+We get some output, that we should probably check for convergence.
 
 :::
 
@@ -333,559 +256,137 @@ We get some output. in the fold below are some trace plots so we can see if it h
 
 All of our diversity metrics are based on decomposing the distributions into:
 
-- Incidence
-- Composition
+- Occurrence
+- Abundance
 
 And looking at the means and variances of the parameters associated with these.
 
+## Means
 
-
-## Incidence
-
-Alpha diversity is a within-site diversity. We split it into species richness and composition, and look at unevenness as a summary of composition.
-
-### Means and what they mean
-
-(1) **We have $\mu$, the grand mean**
+The overall means are probably rather boring, but we can look at the site means. For abundance we only average over the species that are present: for those we do not observe, we estimate presence.
 
 ```{r}
-#| echo: false
+Sites <- 1:DataToJAGS$NSite
+Species <- 1:DataToJAGS$NSp
 
-plot(DivModel, vars="Mean.gam.z", plot.type = "histogram")
-
-```
-
-(2) **Species Richness**
-
-We calculate species richness on site $i$, $S_i$, as $\sum_j z_{ij}$
-
-```{r}
-#| echo: false
-GetSpRichness <- function(mc) {
-  SR <- mc[,grep("SR", colnames(mc))]
-  Rz <- mc[,grep("al.z", colnames(mc))] + mc[,grep("Mean.z", colnames(mc))]
-  as.mcmc(SR, Rz)
-}
-SR <- GetSpRichness(mc=DivPars)
-# summary(SR)
-
-```
-
-In @fig-SR we plot the estimated species richness for each site for the data, with colours for islands and open/closed circles for summer/spring respectively.
-
-```{r}
-#| fig-height: 10
-#| fig-cap: "Posterior estimates of species richness. Filled circles: spring, open circles: summer."
-#| label: fig-SR
-#| echo: false
-SRRows <- grep("SR", rownames(Summ))
-CodeIsland <- as.numeric(factor(gsub("_.*", "", rownames(Present))))
-CodeSeason <- as.numeric(factor(gsub(".*_", "", rownames(Present))))
-
-par(mar=c(4.1,4.1,1,1))
-plot(Summ[SRRows,"Mean"], SRRows, col=CodeIsland, 
-     pch=c(1,16)[CodeSeason], cex=2, 
-     xlim=c(0, max(Summ[SRRows,"Upper95"])),
-     xlab="Species Richness", ylab="Site")
-segments(Summ[SRRows,"Lower95"], SRRows, Summ[SRRows,"Upper95"], SRRows, 
-         col=CodeIsland)
-legend(1, 18, c("Nor", "Sp", "Wang"), col=1:3, lwd=2)
-
-```
-
-(3) **Average Abundance**
-
-
-
-```{r}
-#| echo: false
-# GetSpRichness <- function(mc) {
-#   SR <- mc[,grep("SR", colnames(mc))]
-#   Rz <- DivPars[,grep("al.lam", colnames(mc))] + mc[,grep("Mean.lam", colnames(mc))]
-#   as.mcmc(SR, Rz)
-# }
-Rz <- as.mcmc(DivPars[,grep("al.lam", colnames(DivPars))] + 
-                DivPars[,grep("Mean.lam", colnames(DivPars))])
-
-# SR <- GetSpRichness(mc=DivPars)
-# summary(SR)
-
-```
-
-In @fig-AveSiteAbund we plot the estimated average site abundance
-
-```{r}
-#| fig-height: 10
-#| fig-cap: "Posterior estimates of species richness. Filled circles: spring, open circles: summer."
-#| label: fig-AveSiteAbund
-#| echo: false
-SRRows <- grep("SR", rownames(Summ))
-CodeIsland <- as.numeric(factor(gsub("_.*", "", rownames(Present))))
-CodeSeason <- as.numeric(factor(gsub(".*_", "", rownames(Present))))
-
-par(mar=c(4.1,4.1,1,1))
-plot(Summ[SRRows,"Mean"], SRRows, col=CodeIsland, 
-     pch=c(1,16)[CodeSeason], cex=2, 
-     xlim=c(0, max(Summ[SRRows,"Upper95"])),
-     xlab="Species Richness", ylab="Site")
-segments(Summ[SRRows,"Lower95"], SRRows, Summ[SRRows,"Upper95"], SRRows, 
-         col=CodeIsland)
-legend(1, 18, c("Nor", "Sp", "Wang"), col=1:3, lwd=2)
-
-```
-
-(4) Prevalence (?) Habitat specificity?
-
-This is the average occupancy per species
-
-```{r}
-#| echo: false
-GetSiteMeans <- function(mc) {
-  Oz <- mc[,grep("be.z", colnames(mc))] + mc[,grep("Mean.z", colnames(mc))]
-  Olam <- mc[,grep("be.lam", colnames(mc))] + mc[,grep("Mean.lam", colnames(mc))]
-  as.mcmc(cbind(Oz, Olam))
-}
-SR <- GetSpRichness(mc=DivPars)
-# summary(SR)
-
-```
-
-
-
-### Unevenness
-
-Our estimate of (site specific) unevenness is 
-
-$$
-\text{Var}_{j}(\eta_{ij}|i) = \sigma_{\beta}^2 + \sigma_{\gamma}^2 x_i + \sigma_{\delta,i}^2
-$$
-
-We plot it for our sites in @fig-UnevennessData. The unevennesses look very high, apparently because of rare species. We can look at the distribution of posterior means for a couple of sites (grey is the total distribution of present species, red is for species that are observed to be present) in @fig-SiteDistr.
-
-```{r}
-#| fig-height: 10
-#| label: fig-UnevennessData
-#| fig-cap: "Posterior estimates of unevenness for all sites. Filled circles: spring, open circles: summer."
-#| warning: false
-#| echo: false
-# If site=FALSE this is the same for every site
-CalcUnevenness <- function(mc, XX, site=FALSE, prop=FALSE) {
-  if(any(is.na(XX))) {
-    XX[is.na(XX)] <- 0
-    message("Some covariates are missing: these have been set to 0")
-  }
-  resX <- mc[,grep("sd.gam.lam", colnames(mc))]%o%XX^2
-  if(site) {
-    eta <- mc[,grep("logmu", colnames(mc))]
-    Z <- mc[,grep("Present", colnames(mc))]
-    Site.eta <- gsub(",.*", "", gsub(".*\\[", "", colnames(eta)))
-    Species.eta <- gsub(".*,", "", gsub("\\]", "", colnames(eta)))
-    
-    res <- sapply(unique(Site.eta), function(site, eta, pres, siteInd) {
-      ind <- pres[,siteInd==site]==1
-      etaS <- eta[,siteInd==site]
-      StdDev <- sapply(1:nrow(etaS), function(row, eta, ind) sd(eta[row,ind[row,]]), 
-                       eta=etaS, ind=ind)
-      StdDev
-    }, eta=eta, pres=Z, siteInd=Site.eta)
+# Function to Calculate mean occupancy or abundance for each site
+CalcSiteMean <- function(site, mc, Occ=TRUE) {
+# Extract relevant statistics from MCMC draws
+  mu <- mc[,grep(paste0("^logmu\\[", site, ","), colnames(mc))]
+  inc <- mc[,grep(paste0("^Present\\[", site, ","), colnames(mc))]
+  p <- mc[,grep(paste0("^p\\[", site, ","), colnames(mc))]
+  
+  if(Occ) {
+    res <- apply(log(1/(1/p - 1)), 1, mean)
   } else {
-    res <- mc[,grep("sd.be.lam", colnames(mc))]^2 + resX + 
-      mc[,grep("sdSiteOD", colnames(mc))]
+    res <- sapply(1:nrow(mc), function(i, mu, pres) {
+      mean(mu[1,pres[i,]==1]) # mean for when presence=1
+    }, mu=mu, pres=inc)
   }
-  if(prop) { # Does this make sense?
-    prop <- resX/res
-    res <- cbind(res, prop)
-  }
-  as.mcmc(res)
+  res
+  
 }
-Unevenness <- CalcUnevenness(mc=DivPars, XX=DataToJAGS$temperature, prop=FALSE, site=TRUE)
-SummSD <- summary(Unevenness)
-logmuSDRows <- 1:nrow(SummSD$statistics)
 
-par(mar=c(4.1,4.1,1,1))
-plot(SummSD$statistics[,"Mean"], logmuSDRows, col=CodeIsland, 
-     pch=c(1,16)[CodeSeason], cex=2, 
-     xlim=c(min(SummSD$quantiles[,"2.5%"]), max(SummSD$quantiles[,"97.5%"])),
-     xlab="Unevenness", ylab="Site")
-segments(SummSD$quantiles[,"2.5%"], logmuSDRows, 
-         SummSD$quantiles[,"97.5%"], logmuSDRows, 
-         col=CodeIsland)
-legend(1.9, 13, c("Nor", "Sp", "Wang"), col=1:3, lwd=2)
+# Function to calculate species richness
+CalcSR <- function(site, mc) {
+  inc <- mc[,grep(paste0("^Present\\[", site, ","), colnames(mc))]
+  res <- apply(inc, 1, sum)
+  res
+}
 
+RsiteOcc <- coda::as.mcmc(sapply(Sites, CalcSiteMean, Occ=TRUE, mc=DivPars))
+RsiteAbund <- coda::as.mcmc(sapply(Sites, CalcSiteMean, Occ=FALSE, mc=DivPars))
+SpRichness <- coda::as.mcmc(sapply(Sites, CalcSR, mc=DivPars))
+
+
+SummRsiteOcc <- CalcSumm(RsiteOcc)
+SummRsiteAbund <- CalcSumm(RsiteAbund)
+SummSpRichness <- CalcSumm(SpRichness)
 ```
 
-Most species that are modelled to be present are really rare. 
+The estimates are plotted below, with the same site on the same row.
 
 ```{r}
 #| fig-height: 8
-#| echo: false
-#| label: fig-SiteDistr
-#| fig-cap: "Estimates of abundance distributions for four sites: estimates for species which were observed are in red, and unobserved species (i.e. those with abundance 0 on these sites, but where z=1) in grey."
-# site,species
-# mcmc <- DivModel$mcmc[[1]]
-GetlogMuSite <- function(mcmc, site=1) {
-  UseColsPres <- colnames(mcmc)[grep(paste0("Present\\[", site, ","), colnames(mcmc))]
-  Present.mcmc <- mcmc[,UseColsPres]
+#| fig-cap: Posterior modes and 95% HPDIs for unevenness of communities on sites
 
-  UseColsAbund <- colnames(mcmc)[grep(paste0("logmu\\[", site, ","), colnames(mcmc))]
-  logmu.mcmc <- mcmc[,UseColsAbund]+(1e4*(1-Present.mcmc))
-  logmu.mcmc
-}
-
-HistMeanMus <- function(mcmcs, site=1, Pres=NULL, ...) {
-  lmus <- do.call(rbind, lapply(mcmcs, GetlogMuSite, site=site))
-
-  HistAll <- hist(apply(lmus, 2, function(x) mean(x[x<1e3])), plot=FALSE)
-  
-  if(!is.null(Pres)) {
-    HistPres <- hist(apply(lmus[,!is.na(Pres[site,])], 2, function(x) mean(x[x<1e3])), 
-                     breaks=HistAll$breaks, plot=FALSE)
-  }
-  plot(HistAll, ...)
-  if(!is.null(Pres)) plot(HistPres, add = TRUE, col=2)
-}
-
-par(mfrow=c(2,2), oma=c(2,2,0,0), mar=c(2.6,2.1,4.1,2))
-HistMeanMus(DivModel$mcmc, site=2, Pres = DataToJAGS$Present, main="Site 2", xlab="", ylab="")
-HistMeanMus(DivModel$mcmc, site=20, Pres = DataToJAGS$Present, main="Site 20", xlab="", ylab="")
-HistMeanMus(DivModel$mcmc, site=32, Pres = DataToJAGS$Present, main="Site 32", xlab="", ylab="")
-HistMeanMus(DivModel$mcmc, site=23, Pres = DataToJAGS$Present, main="Site 23", xlab="", ylab="")
-mtext("Frequency", 2, outer=TRUE)
-mtext("Species effect", 1, outer=TRUE)
-```
-
-
-## Beta Diversity
-
-### Species Identity
-
-#### Nestedness
-
-We can calculate nestedness, and also look at the proportion of variance due to the gradient (@fig-nestedness).
-
-```{r}
-#| echo: false
-#| label: fig-nestedness
-#| fig-cap: "Nestedness. Variance on left, proportion due to the environment on the right. The horror that is the density on the right is real, and not due to the MCMC behaving poorly."
-CalcNestedness <- function(mc, VarX=1, prop=FALSE) {
-  resX <-  mc[,grep("mu.gam.z", colnames(mc))]^2*VarX
-  res <- mc[,grep("sd.al.z", colnames(mc))]^2 + resX
-  if(prop) {
-    res.prop <- resX/res
-    res <- cbind(res, res.prop)
-  }
-  as.mcmc(res)
-}
-Nestedness <- CalcNestedness(mc=DivPars, prop=TRUE)
-# summary(Nestedness)
-SummNest <- summary(Nestedness)
-
-plot(Nestedness, trace = FALSE)
-
-```
-
-Most (`r round(100*SummNest$statistics["res.prop", "Mean"])`%) of the variation in nestedness is due to temperature. The effect has a posterior mean of `r round(Summ["mu.gam.z","Mean"], 2)` and a 95% credible interval of `r round(Summ["mu.gam.z","Lower95"], 2)` to `r round(Summ["mu.gam.z","Upper95"], 2)`. The distribution of the proporyion looks horrible here.
-
-
-### Replacement
-
-Replacement is $E_j \left(\text{Var}_i(\eta_{ij}^{(z)})\right) =  \sigma_{\alpha}^2 +  \left(\sigma^2_{\gamma^{(z)}} + (\bar{\gamma}^{(z)})^2\right) \text{Var}_i(x_i) + \pi^2/3$, and the density is plotted in @fig-replacement.
-
-```{r}
-#| echo: false
-#| label: fig-replacement
-#| fig-cap: "Densities of replacement: variance on left, proportion due to covariates on the right."
-CalcReplacement <- function(mc, VarX=1, prop=FALSE) {
-  resX <- (mc[,grep("sd.gam.z", colnames(mc))]^2 + mc[,grep("mu.gam.z", colnames(mc))]^2)*VarX
-  res <- mc[,grep("sd.al.z", colnames(mc))]^2 + resX + pi/3
-  if(prop) {
-    res.prop <- resX/res
-    res <- cbind(res, res.prop)
-  }
-  as.mcmc(res)
-}
-Replacement <- CalcReplacement(mc=DivPars, prop=TRUE)
-SummReplacement <- summary(Replacement)
-plot(Replacement, trace = FALSE)
-
-```
-
-Replacement is a number. Of it, about `r round(100*SummReplacement$statistics["res.prop", "Mean"])`% of the variation is due to temperature, so most of this variation cannot be explained by the gradient.
-
-### Composition and GBH on GDM
-
-Our compositional beta diversity statistic is $\sigma_{\alpha}^2 +  \left(\sigma^2_{\gamma^{(\lambda)}} + (\bar{\gamma}^{(\lambda)})^2\right) \text{Var}_i(x_i) + \sigma^2_\delta$
-
-```{r}
-#| echo: false
-#| label: fig-CompBeta
-#| fig-cap: "Densities of compositional diversity: variance on left, proportion due to the environment on right. The proportion due to the environment is equivalent to a statistic for GDM."
-CalcBeta <- function(mc, VarX=1, prop=FALSE) {
-  resX <- (mc[,grep("sd.gam.lam", colnames(mc))]^2+ mc[,grep("mu.gam.lam", colnames(mc))]^2)*VarX
-  res <- mc[,grep("sd.al.lam", colnames(mc))]^2 + resX + mc[,grep("sdSiteOD", colnames(mc))]^2
-  if(prop) {
-    res.prop <- resX/res
-    res <- cbind(res, res.prop)
-  }
-  as.mcmc(res)
-}
-
-Beta <- CalcBeta(mc=DivPars, prop=TRUE)
-Summ.beta <-  summary(Beta)
-
-plot(Beta, trace = FALSE)
-```
-
-We can see that we have beta diversity. For GDM fans, only about `r round(100*Summ.beta$statistics["res.prop", "Mean"])`% of the variation is driven by the temperature gradient.
-
-
-## Gamma Diversity
-
-Total Variation between sites & species. Does anyone care by this point? In case you do, it's in @fig-gamma.
-
-```{r}
-#| echo: false
-#| label: fig-gamma
-#| fig-cap: "Summary of posterior distribution of Gamma diversity (history of MCMC draws on left, density on right)."
-Gamma <- as.mcmc.list(lapply(DivModel$mcmc, 
-                             function(mc) {
-                               res <- apply(mc[,grep("logmu", colnames(mc))], 1, var)
-                               as.mcmc(res)
-                             }))
-plot(Gamma)
-
-```
-
-## For the Poster
-
-```{r}
-#| echo: false
-#| label: fig-Poster
-#| fig-height: 4
-#| fig-cap: "Posterior distributions of diversity statistics. Posterior mode and 95% credible intervals"
-
-CalcPosterStats <- function(mc, VarX=1, prop=FALSE) {
-  
-  sd.al.lam <- mc[,grep("sd.gam.lam", colnames(mc))]
-  gamma.lam <- mc[,grep("gamma.lam", colnames(mc))]
-  sd.be.lam <- mc[,grep("sd.be.lam", colnames(mc))]
-  sd.al.z <- mc[,grep("sd.al.z", colnames(mc))]
-  gamma.z <- mc[,grep("gamma.z", colnames(mc))]
-  sdSiteOD <- mc[,grep("sdSiteOD", colnames(mc))]
-  sd.be.z <- mc[,grep("sd.be.z", colnames(mc))]
-  
-  Stats.l <- cbind(
-  Replacement.l = sd.al.lam^2 + apply(gamma.lam, 1, mean)^2 + apply(gamma.lam, 1, sd)^2 +
-    sdSiteOD^2,
-  Nestedness.l = sd.al.lam^2 + apply(gamma.lam, 1, mean)^2,
-  Disparity.l = sd.be.lam,
-  Unevenness.l = sd.be.lam^2 + sdSiteOD^2
-  )
-
-  Stats.z <- cbind(
-  Replacement.z = sd.al.z^2 + apply(gamma.z, 1, mean)^2 + apply(gamma.z, 1, sd)^2 + (pi^2)/3,
-  Nestedness.z = sd.al.z^2 + apply(gamma.z, 1, mean)^2, 
-  Disparity.z = sd.be.z,
-  Unevenness.z = sd.be.z^2 + (pi^2)/3
-  )
-
-  if(prop) {
-    Replacement.l.x = (apply(gamma.lam, 1, mean)^2 + apply(gamma.lam, 1, sd)^2)
-    Nestedness.l.x = apply(gamma.lam, 1, mean)^2
-    Stats.l.prop <- cbind(
-      Replacement.l.p = Replacement.l.x/Stats.l[,"Replacement.l"], 
-      Nestedness.l.p = Nestedness.l.x/Stats.l[,"Nestedness.l"]
+PlotPars <- function(Summ, At="Orig",...) {
+  if(length(At)==length(Summ$PMode)) {
+    At.y <- At
+  } else {
+    At.y <- switch(At, 
+                   Orig = 1:length(Summ$PMode), 
+                   rank = rank(Summ$PMode, ties="random")
     )
-    
-    Replacement.z.x = (apply(gamma.z, 1, mean)^2 + apply(gamma.z, 1, sd)^2)
-    Nestedness.z.x = apply(gamma.z, 1, mean)^2
-    Stats.z.prop <- cbind(
-      Replacement.z.p = Replacement.z.x/Stats.z[,"Replacement.z"], 
-      Nestedness.z.p = Nestedness.z.x/Stats.z[,"Nestedness.z"]
-    )
-
-    
-    # Stats.z.prop <- c(
-    #   Replacement.z.p = (apply(gamma.z, 1, mean)^2 + apply(gamma.z, 1, sd))^2/Stats.z[,"Replacement.z"], 
-    #   Nestedness.z.p = apply(gamma.lam, 1, mean)^2/Stats.z[,"Nestedness.z"]
-    # )
-    Stats.l <- cbind(Stats.l, Stats.l.prop)
-    Stats.z <- cbind(Stats.z, Stats.z.prop)
   }
+  plot(Summ$PMode, At.y, xlim=range(Summ$HPD), ...)
+  segments(Summ$HPD[,"lower"], At.y, Summ$HPD[,"upper"], At.y)
   
-  res <- cbind(Stats.l, Stats.z)
-  as.mcmc(res)
 }
 
-
-thing <- as.mcmc.list(lapply(DivModel$mcmc, CalcPosterStats, prop=TRUE))
-summ.stats <- summary(thing)
-Nop <- !grepl("p$", rownames(summ.stats$statistics))
-At <- rep(1:4,2) + rep(c(-0.1,0.1), each=4)
-
-par(mar=c(4.1,8,1,1))
-plot(summ.stats$statistics[Nop,"Mean"],At, cex=1, pch=15, xlim=range(summ.stats$quantiles),
-     yaxt="n", col=rep(c(2,3), each=4), xlab="Diversity Statistic", ylab="")
-segments(summ.stats$quantiles[Nop,"2.5%"],At, summ.stats$quantiles[Nop,"97.5%"],At, 
-         col=rep(c(2,3), each=4))
-axis(2, c("Replacement", "Nestedness", "Disparity", "Unevenness"), at=1:4, las=1)
-legend(6.3,3,c("Abundance", "Incidence"), fill=2:3, cex=1)
+At.mean <- rank(SummRsiteOcc$PMode, ties="random")
+par(mfrow=c(1,3), mar=c(2,2,4,1))
+PlotPars(SummRsiteOcc, At=At.mean, main="Mean Occupancy")
+PlotPars(SummSpRichness, At=At.mean, main="Species Richness")
+PlotPars(SummRsiteAbund, At=At.mean, main="Mean Abundance")
 ```
 
-```{r}
-#| echo: false
-#| label: fig-PosterProps
-#| fig-height: 4
-#| fig-cap: "Posterior distributions for proportions of diversity statistics explained by temperature. Posterior mode and 95% credible intervals"
+Not surprisingly, the posterior modes for species richness and mean occupancy are strongly correlated ($\rho$: `r round(cor(SummRsiteOcc$PMode, SummSpRichness$PMode), 2)`). But the occurrence and abundance are prett much uncorrelated ($\rho$: `r round(cor(SummRsiteOcc$PMode, SummRsiteAbund$PMode), 2)`).
 
 
-Nop <- !grepl("p$", rownames(summ.stats$statistics))
-At <- rep(1:2,2) + rep(c(-0.1,0.1), each=2)
+## Unevenness
 
-par(mar=c(4.1,8,1,1))
-plot(summ.stats$statistics[!Nop,"Mean"],At, cex=1, pch=15, xlim=c(0,0.2),
-     yaxt="n", col=rep(c(2,3), each=2), xlab="Proportion of Diversity", ylab="")
-segments(summ.stats$quantiles[!Nop,"2.5%"],At, summ.stats$quantiles[!Nop,"97.5%"],At, 
-         col=rep(c(2,3), each=2))
-axis(2, c("Replacement", "Nestedness"), at=1:2, las=1)
-legend(0.1,1.7,c("Abundance", "Incidence"), fill=2:3, cex=1)
-```
+Our theory says that unevenness is $\text{Var}_j(k_{i,j})$, i.e. the variance in the species' effects on each site. For abundance this is related to measures such as Shannon's and Simpson's diversity: the more evenly distributed species' abundances are, the higher the abundance (an uneven distribution would mean one or a few species with high abundances, i.e. dominating the community). Our variance is a measure of unevenness: when it is zero, all species have the same abundance, so there is maximal diversity.
 
-
-
-<!---
-## Ignore this bit.
-
-Finally, some code to find out which covariate to use. This is not run when the document is rendered. It suggest that there are positive effects of silt/clay chlorophyll a and elevation on abundance, and possibly a negative effect of temperature on presence.
+In practice we calculate our abundance unevenness only using the species estimated to be present on the site.
 
 ```{r}
-#| eval: false
-#| echo: false
-EnvToUse <- c("TOC", "elevation", "temperature", "DIN", "RDP", 
-                         "Chl.a", "silt_clay")
-EnvSc <- scale(Env[,EnvToUse])
-DataToJAGS$Env <- as.matrix(EnvSc)
-DataToJAGS$NEnv <- ncol(EnvSc)
-# DataToJAGS$Island <- Counts$Island
-# DataToJAGS$Transect <- Counts$Transect
-# DataToJAGS$Station <- Counts$Station
-# DataToJAGS$Season <- Counts$Season
-# pairs(Env[,9:16])
-# 
-# par(mfrow=c(2,4))
-# apply(Env[,9:16], 2, hist)
+Sites <- 1:DataToJAGS$NSite
+Species <- 1:DataToJAGS$NSp
 
-cat("
-model {
-  for(sp in 1:NSp) {
-    for(rep in 1:NRep) {
-      Abund[rep, sp] ~ dpois(lambda[rep, sp])
-      lambda[rep, sp] <- mu[rep, sp]*Present[Site[rep], sp]
-      OD[rep, sp] ~ dnorm(0, tauOD)
-      log(mu[rep, sp]) <- logmu[Site[rep], sp] + OD[rep, sp]
-    }
-    for(site in 1:NSite) {
-      Present[site, sp] ~ dbern(p[site, sp])
-      logmu[site, sp] <- mu.lam + al.lam[site] + be.lam[sp] + 
-          inprod(Env[site,], mu.gam.lam[])
-      logit(p[site, sp]) <- mu.z + al.z[site] + be.z[sp] + 
-          inprod(Env[site,], mu.gam.z[])
-    }
-    be.lam[sp] ~ dnorm(mu.be.lam, tau.be.lam)
-    be.z[sp] ~ dnorm(mu.be.z, tau.be.z)
-
-#    for(env in 1:NEnv) {
-#      gamma.z[sp,env] ~ dnorm(mu.gam.z[env], tau.gam.z[sp,env])
-#      gamma.lam[sp,env] ~ dnorm(mu.gam.lam[env], tau.gam.lam[sp,env])
-#      logtau.gam.z[sp,env] ~ dunif(-10,10)
-#      tau.gam.z[sp,env] <- exp(logtau.gam.z[sp,env])
-#      logtau.gam.lam[sp,env] ~ dunif(-10,10)
-#      tau.gam.lam[sp,env] <- exp(logtau.gam.lam[sp,env])
-#    }
-  }
-  for(site in 1:NSite) {
-    al.lam[site] ~ dnorm(mu.al.lam, tau.al.lam)
-    al.z[site] ~ dnorm(mu.al.z, tau.al.z)
-    SR[site] <- sum(Present[site, ])
-  }
-  for(env in 1:NEnv) {
-      mu.gam.z[env] ~ dnorm(0,1)
-      mu.gam.lam[env] ~ dnorm(0,1)
-  }
-
-  mu.be.lam ~ dnorm(0, 1)
-  mu.be.z ~ dnorm(0, 1)
-  mu.al.lam ~ dnorm(0, 1)
-  mu.al.z ~ dnorm(0, 1)
-  mu.lam ~ dnorm(0, 1)
-  mu.z ~ dnorm(0, 1)
-
-  Mean.lam <- mu.lam + mean(al.lam[]) + mean(be.lam[])
-  Mean.z <- mu.z + mean(al.z[]) + mean(be.z[])
+CalcUnevenness <- function(site, mc, Occ=TRUE) {
+  mu <- mc[,grep(paste0("^logmu\\[", site, ","), colnames(mc))]
+  inc <- mc[,grep(paste0("^Present\\[", site, ","), colnames(mc))]
+  p <- mc[,grep(paste0("^p\\[", site, ","), colnames(mc))]
   
-  tau.be.lam <- pow(sd.be.lam, -2); sd.be.lam ~ dexp(1)
-  tau.be.z <- pow(sd.be.z, -2); sd.be.z ~ dexp(1)
-  tau.al.lam <- pow(sd.al.lam, -2); sd.al.lam ~ dexp(1)
-  tau.al.z <- pow(sd.al.z, -2); sd.al.z ~ dexp(1)
-
-  tauOD <- pow(sdOD, -2); sdOD ~ dexp(1)
-
-
-}", file="BeatingBetaVarSelecCode.jag")
-
-GetMoreInits <- function(data) {
-  init <- GetInits(data)
-#  init$logtau.gam.z <- matrix(-2, nrow=data$NSp, ncol=data$NEnv)
-#  init$logtau.gam.lam <- matrix(-2, nrow=data$NSp, ncol=data$NEnv)
-
-  init$mu.gam.z <- rnorm(data$NEnv, 0, 0.2)
-  init$mu.gam.lam <- rnorm(data$NEnv, 0, 0.2)
-  init
+  if(Occ) {
+    res <- apply(log(1/(1/p - 1)), 1, var)
+  } else {
+    res <- sapply(1:nrow(mc), function(i, mu, pres) {
+      var(mu[1,pres[i,]==1])
+    }, mu=mu, pres=inc)
+  }
+  res
+  
 }
-try <- GetMoreInits(DataToJAGS)
-Inits <- replicate(2, GetMoreInits(DataToJAGS), simplify = FALSE)
 
-ToMonitor.gams <- c("mu.gam.z", "mu.gam.lam")
+UnevennessOcc <- sapply(Sites[1], CalcUnevenness, mc=DivPars)
+UnevennessAbund <- coda::as.mcmc(sapply(Sites, CalcUnevenness, Occ=FALSE, mc=DivPars))
 
-DivModelSelec <- run.jags(model = "BeatingBetaVarSelecCode.jag", 
-                          monitor=ToMonitor.gam, data=DataToJAGS,
-                  inits = Inits, method="parallel", # silent.jags=TRUE,
-         n.chains = 2, adapt = 5e3, burnin = 5e3, sample = 1e3, thin = 10)
-plot(DivModelSelec, plot.type = "trace")
-SummSel <- summary(DivModelSelec)
-LamSel <- grep("lam", rownames(SummSel))
-ZSel <- grep("z", rownames(SummSel))
+library(MCMCglmm)
 
-par(mfrow=c(1,2), mar=c(2,1,4,1), oma=c(2,6,2,2))
-plot(SummSel[ZSel,"Mean"], ZSel, 
-     xlim=c(min(SummSel[ZSel,"Lower95"]), max(SummSel[ZSel,"Upper95"])),
-     xlab="Coefficient", ylab="", yaxt="n", main="Presence")
-segments(SummSel[ZSel,"Lower95"], ZSel, SummSel[ZSel,"Upper95"], ZSel)
-axis(2, at=ZSel, labels=EnvToUse, las=1)
-abline(v=0, lty=2)
-
-plot(SummSel[LamSel,"Mean"], LamSel, 
-     xlim=c(min(SummSel[LamSel,"Lower95"]), max(SummSel[LamSel,"Upper95"])),
-     xlab="Coefficient", ylab="", yaxt="n", main="Abundance")
-segments(SummSel[LamSel,"Lower95"], LamSel, SummSel[LamSel,"Upper95"], LamSel)
-# axis(2, at=LamSel, labels=EnvToUse, las=1)
-abline(v=0, lty=2)
-
+SummUn <- summary(UnevennessAbund)
+SummUn$HPD <- HPDinterval(UnevennessAbund, prob=0.95)
+SummUn$PMode <- posterior.mode(UnevennessAbund)
 
 ```
---->@
+
+For occurrence there is only one unevenness
+
+```{r}
+
+plot(density(UnevennessOcc), main="Occurrence Unevenness", xlab="Unevenness")
+
+```
 
 
-Swapping sites and soecies
+```{r}
+#| fig-height: 8
+#| fig-cap: Posterior modes and 95% HPDIs for unevenness of communities on sites
 
-"alpha diversity"
+At.y <- rank(SummUn$PMode)
+plot(SummUn$PMode, At.y, xlim=range(SummUn$HPD), xlab="Unevenness")
+segments(SummUn$HPD[,"lower"], At.y, SummUn$HPD[,"upper"], At.y)
 
-Variation between sites for one species., Mean: rarity/commonnness. Variance: specialisation
-
-Need z & lambda together to understand patterns. Should write them out.
-
-
-"beta diversity": environmental variance. Resilinace?
-
-Need to add traits explicitly. alpha_i Tr_j effect: what does it mean?
+```
 
