@@ -261,7 +261,9 @@ All of our diversity metrics are based on decomposing the distributions into:
 
 And looking at the means and variances of the parameters associated with these.
 
-## Means
+## Within-Site Diversity
+
+## Within-Site Means: $\beta$-mean diversity
 
 The overall means are probably rather boring, but we can look at the site means. For abundance we only average over the species that are present: for those we do not observe, we estimate presence.
 
@@ -334,7 +336,7 @@ PlotPars(SummRsiteAbund, At=At.mean, main="Mean Abundance")
 Not surprisingly, the posterior modes for species richness and mean occupancy are strongly correlated ($\rho$: `r round(cor(SummRsiteOcc$PMode, SummSpRichness$PMode), 2)`). But the occurrence and abundance are prett much uncorrelated ($\rho$: `r round(cor(SummRsiteOcc$PMode, SummRsiteAbund$PMode), 2)`).
 
 
-## Unevenness
+### Unevenness: α-var-diversity
 
 Our theory says that unevenness is $\text{Var}_j(k_{i,j})$, i.e. the variance in the species' effects on each site. For abundance this is related to measures such as Shannon's and Simpson's diversity: the more evenly distributed species' abundances are, the higher the abundance (an uneven distribution would mean one or a few species with high abundances, i.e. dominating the community). Our variance is a measure of unevenness: when it is zero, all species have the same abundance, so there is maximal diversity.
 
@@ -389,4 +391,132 @@ plot(SummUn$PMode, At.y, xlim=range(SummUn$HPD), xlab="Unevenness")
 segments(SummUn$HPD[,"lower"], At.y, SummUn$HPD[,"upper"], At.y)
 
 ```
+
+## Species Variation: $\beta$-mean diversity
+
+We can also look at species. 
+
+```{r}
+Sites <- 1:DataToJAGS$NSite
+Species <- 1:DataToJAGS$NSp
+
+# Function to Calculate mean occupancy or abundance for each site
+CalcSpMean <- function(sp, mc, Occ=TRUE) {
+# Extract relevant statistics from MCMC draws
+  mu <- mc[,grep(paste0("^logmu\\[.*,", sp, "]"), colnames(mc))]
+  inc <- mc[,grep(paste0("^Present\\[.*,", sp, "]"), colnames(mc))]
+  p <- mc[,grep(paste0("^p\\[.*,", sp, "]"), colnames(mc))]
+  
+  if(Occ) {
+    res <- apply(log(1/(1/p - 1)), 1, mean)
+  } else {
+    res <- sapply(1:nrow(mc), function(i, mu, pres) {
+      mean(mu[1,pres[i,]==1]) # mean for when presence=1
+    }, mu=mu, pres=inc)
+  }
+  res
+  
+}
+
+# Function to calculate species range (i.e. how many sites the species is present on)
+CalcSpRange <- function(sp, mc) {
+  inc <- mc[,grep(paste0("^Present\\[.*,", sp, "]"), colnames(mc))]
+  res <- apply(inc, 1, sum)
+  res
+}
+
+SpMeanOcc <- coda::as.mcmc(sapply(Species, CalcSpMean, Occ=TRUE, mc=DivPars))
+SpMeanAbund <- coda::as.mcmc(sapply(Species, CalcSpMean, Occ=FALSE, mc=DivPars))
+SpRange <- coda::as.mcmc(sapply(Species, CalcSpRange, mc=DivPars))
+
+SummSpMeanOcc <- CalcSumm(SpMeanOcc)
+SummSpMeanAbund <- CalcSumm(SpMeanAbund)
+SummSpRange <- CalcSumm(SpRange)
+
+```
+
+
+```{r}
+
+At.sp <- rank(SummSpMeanOcc$PMode, ties="random")
+par(mfrow=c(1,3), mar=c(2,2,4,1))
+PlotPars(SummSpMeanOcc, At=At.sp, main="Mean Occupancy")
+PlotPars(SummSpRange, At=At.sp, main="Range Size")
+PlotPars(SummSpMeanAbund, At=At.sp, main="Mean Abundance")
+
+```
+
+The posterior modes for range size and mean occupancy are strongly correlated ($\rho$: `r round(cor(SummSpMeanOcc$PMode, SummSpRange$PMode), 2)`). The occurrence and abundance have a low correlation ($\rho$: `r round(cor(SummSpMeanOcc$PMode, SummSpMeanAbund$PMode), 2)`).
+
+### Specificity: β-var-diversity
+
+In practice we calculate our abundance unevenness only using the species estimated to be present on the site.
+
+```{r}
+Sites <- 1:DataToJAGS$NSite
+Species <- 1:DataToJAGS$NSp
+
+CalcSpecificity <- function(sp, mc, Occ=TRUE) {
+  mu <- mc[,grep(paste0("^logmu\\[.*,", sp, "]"), colnames(mc))]
+  inc <- mc[,grep(paste0("^Present\\[.*,", sp, "]"), colnames(mc))]
+  p <- mc[,grep(paste0("^p\\[.*,", sp, "]"), colnames(mc))]
+  
+  if(Occ) {
+    res <- apply(log(p/(1-p)), 1, var)
+  } else {
+    res <- sapply(1:nrow(mc), function(i, mu, inc) {
+      mus <- mu[i,inc[i,]==1]
+      ifelse(length(mus)>1, var(mus), 0)
+    }, mu=mu, inc=inc)
+  }
+  res
+  
+}
+
+SpecificityOcc <- sapply(Species[1], CalcSpecificity, mc=DivPars)
+SpecificityAbund <- coda::as.mcmc(sapply(Species, CalcSpecificity, Occ=FALSE, mc=DivPars))
+
+
+thing <- CalcSpecificity(Species[58], Occ=FALSE, mc=DivPars)
+
+SummSpecAbund <- CalcSumm(SpecificityAbund)
+
+
+```
+
+For occurrence there is only one specificity
+
+```{r}
+
+plot(density(SpecificityOcc), main="Occurrence Specificity", xlab="Specificity")
+
+```
+
+We can plot the specificity for abundance. There is considerable uncertainty. The species are sorted by their posterior means.
+
+```{r}
+#| fig-height: 8
+#| fig-cap: Posterior modes and 95% HPDIs for specificty of species
+
+
+At.spec <- rank(SummSpecAbund$statistics[,"Mean"], ties="random")
+PlotPars(SummSpecAbund, At=At.sp, main="Mean Occupancy")
+
+
+```
+
+If we plot the densities, we see that most of them are bimodal, with a mode at or around 0. We get 0 if the species was present on one site.
+
+```{r}
+#| fig-height: 15
+#| fig-cap: "Posterior densities for species specificity in abundance"
+par(mfrow=c(15,4), mar=c(2,2,1,1), oma=c(2,2,0,0))
+sapply(Species, function(wh, mc) plot(density(mc[,wh]), main=""),
+       mc=SpecificityAbund)
+mtext("Specificity", 1, outer=TRUE)
+mtext("Density", 2, outer=TRUE)
+
+```
+
+# Beta Diversity
 

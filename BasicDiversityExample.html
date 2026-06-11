@@ -199,8 +199,11 @@ window.Quarto = {
 <li>Abundance</li>
 </ul>
 <p>And looking at the means and variances of the parameters associated with these.</p>
-<section id="means" class="level2">
-<h2 class="anchored" data-anchor-id="means">Means</h2>
+<section id="within-site-diversity" class="level2">
+<h2 class="anchored" data-anchor-id="within-site-diversity">Within-Site Diversity</h2>
+</section>
+<section id="within-site-means-beta-mean-diversity" class="level2">
+<h2 class="anchored" data-anchor-id="within-site-means-beta-mean-diversity">Within-Site Means: <span class="math inline">\(\beta\)</span>-mean diversity</h2>
 <p>The overall means are probably rather boring, but we can look at the site means. For abundance we only average over the species that are present: for those we do not observe, we estimate presence.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Sites <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSite</span>
@@ -268,8 +271,8 @@ window.Quarto = {
 <span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>At.mean <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummRsiteOcc<span class="sc">$</span>PMode, <span class="at">ties=</span><span class="st">"random"</span>)</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>))</span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummRsiteOcc, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummRsiteAbund, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpRichness, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Species Richness"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpRichness, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Species Richness"</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummRsiteAbund, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -280,87 +283,372 @@ window.Quarto = {
 </div>
 </div>
 <p>Not surprisingly, the posterior modes for species richness and mean occupancy are strongly correlated (<span class="math inline">\(\rho\)</span>: 0.92). But the occurrence and abundance are prett much uncorrelated (<span class="math inline">\(\rho\)</span>: -0.23).</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(SummRsiteOcc<span class="sc">$</span>PMode, SummSpRichness<span class="sc">$</span>PMode)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(SummRsiteOcc<span class="sc">$</span>PMode, SummRsiteAbund<span class="sc">$</span>PMode)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(SummRsiteOcc<span class="sc">$</span>PMode, SummRsiteAbund<span class="sc">$</span>PMode)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] -0.2320803</code></pre>
-</div>
-</div>
-</section>
-<section id="unevenness" class="level2">
-<h2 class="anchored" data-anchor-id="unevenness">Unevenness</h2>
+<section id="unevenness-α-var-diversity" class="level3">
+<h3 class="anchored" data-anchor-id="unevenness-α-var-diversity">Unevenness: α-var-diversity</h3>
 <p>Our theory says that unevenness is <span class="math inline">\(\text{Var}_j(k_{i,j})\)</span>, i.e.&nbsp;the variance in the species’ effects on each site. For abundance this is related to measures such as Shannon’s and Simpson’s diversity: the more evenly distributed species’ abundances are, the higher the abundance (an uneven distribution would mean one or a few species with high abundances, i.e.&nbsp;dominating the community). Our variance is a measure of unevenness: when it is zero, all species have the same abundance, so there is maximal diversity.</p>
 <p>In practice we calculate our abundance unevenness only using the species estimated to be present on the site.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Sites <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSite</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>Species <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSp</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>CalcUnevenness <span class="ot">&lt;-</span> <span class="cf">function</span>(site, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">/</span>p <span class="sc">-</span> <span class="dv">1</span>)), <span class="dv">1</span>, var)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, pres) {</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">var</span>(mu[<span class="dv">1</span>,pres[i,]<span class="sc">==</span><span class="dv">1</span>])</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">pres=</span>inc)</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>UnevennessOcc <span class="ot">&lt;-</span> <span class="fu">sapply</span>(Sites[<span class="dv">1</span>], CalcUnevenness, <span class="at">mc=</span>DivPars)</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>UnevennessAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Sites, CalcUnevenness, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MCMCglmm)</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>SummUn <span class="ot">&lt;-</span> <span class="fu">summary</span>(UnevennessAbund)</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>SummUn<span class="sc">$</span>HPD <span class="ot">&lt;-</span> <span class="fu">HPDinterval</span>(UnevennessAbund, <span class="at">prob=</span><span class="fl">0.95</span>)</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>SummUn<span class="sc">$</span>PMode <span class="ot">&lt;-</span> <span class="fu">posterior.mode</span>(UnevennessAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Sites <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSite</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>Species <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSp</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>CalcUnevenness <span class="ot">&lt;-</span> <span class="cf">function</span>(site, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">/</span>p <span class="sc">-</span> <span class="dv">1</span>)), <span class="dv">1</span>, var)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, pres) {</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">var</span>(mu[<span class="dv">1</span>,pres[i,]<span class="sc">==</span><span class="dv">1</span>])</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">pres=</span>inc)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  res</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>UnevennessOcc <span class="ot">&lt;-</span> <span class="fu">sapply</span>(Sites[<span class="dv">1</span>], CalcUnevenness, <span class="at">mc=</span>DivPars)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>UnevennessAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Sites, CalcUnevenness, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MCMCglmm)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>SummUn <span class="ot">&lt;-</span> <span class="fu">summary</span>(UnevennessAbund)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>SummUn<span class="sc">$</span>HPD <span class="ot">&lt;-</span> <span class="fu">HPDinterval</span>(UnevennessAbund, <span class="at">prob=</span><span class="fl">0.95</span>)</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>SummUn<span class="sc">$</span>PMode <span class="ot">&lt;-</span> <span class="fu">posterior.mode</span>(UnevennessAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For occurrence there is only one unevenness</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(UnevennessOcc), <span class="at">main=</span><span class="st">"Occurrence Unevenness"</span>, <span class="at">xlab=</span><span class="st">"Unevenness"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(UnevennessOcc), <span class="at">main=</span><span class="st">"Occurrence Unevenness"</span>, <span class="at">xlab=</span><span class="st">"Unevenness"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>At.y <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummUn<span class="sc">$</span>PMode)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(SummUn<span class="sc">$</span>PMode, At.y, <span class="at">xlim=</span><span class="fu">range</span>(SummUn<span class="sc">$</span>HPD), <span class="at">xlab=</span><span class="st">"Unevenness"</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(SummUn<span class="sc">$</span>HPD[,<span class="st">"lower"</span>], At.y, SummUn<span class="sc">$</span>HPD[,<span class="st">"upper"</span>], At.y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>At.y <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummUn<span class="sc">$</span>PMode)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(SummUn<span class="sc">$</span>PMode, At.y, <span class="at">xlim=</span><span class="fu">range</span>(SummUn<span class="sc">$</span>HPD), <span class="at">xlab=</span><span class="st">"Unevenness"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(SummUn<span class="sc">$</span>HPD[,<span class="st">"lower"</span>], At.y, SummUn<span class="sc">$</span>HPD[,<span class="st">"upper"</span>], At.y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
 <figcaption>Posterior modes and 95% HPDIs for unevenness of communities on sites</figcaption>
 </figure>
 </div>
 </div>
 </div>
 </section>
+</section>
+<section id="species-variation-beta-mean-diversity" class="level2">
+<h2 class="anchored" data-anchor-id="species-variation-beta-mean-diversity">Species Variation: <span class="math inline">\(\beta\)</span>-mean diversity</h2>
+<p>We can also look at species.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Sites <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSite</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>Species <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSp</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to Calculate mean occupancy or abundance for each site</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>CalcSpMean <span class="ot">&lt;-</span> <span class="cf">function</span>(sp, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract relevant statistics from MCMC draws</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">/</span>p <span class="sc">-</span> <span class="dv">1</span>)), <span class="dv">1</span>, mean)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, pres) {</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mean</span>(mu[<span class="dv">1</span>,pres[i,]<span class="sc">==</span><span class="dv">1</span>]) <span class="co"># mean for when presence=1</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">pres=</span>inc)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  res</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate species range (i.e. how many sites the species is present on)</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>CalcSpRange <span class="ot">&lt;-</span> <span class="cf">function</span>(sp, mc) {</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">apply</span>(inc, <span class="dv">1</span>, sum)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  res</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>SpMeanOcc <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpMean, <span class="at">Occ=</span><span class="cn">TRUE</span>, <span class="at">mc=</span>DivPars))</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>SpMeanAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpMean, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>SpRange <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpRange, <span class="at">mc=</span>DivPars))</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>SummSpMeanOcc <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpMeanOcc)</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>SummSpMeanAbund <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpMeanAbund)</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>SummSpRange <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpRange)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>At.sp <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummSpMeanOcc<span class="sc">$</span>PMode, <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpMeanOcc, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpRange, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Range Size"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpMeanAbund, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The posterior modes for range size and mean occupancy are strongly correlated (<span class="math inline">\(\rho\)</span>: 0.97). The occurrence and abundance have a low correlation (<span class="math inline">\(\rho\)</span>: 0.4).</p>
+<section id="specificity-β-var-diversity" class="level3">
+<h3 class="anchored" data-anchor-id="specificity-β-var-diversity">Specificity: β-var-diversity</h3>
+<p>In practice we calculate our abundance unevenness only using the species estimated to be present on the site.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Sites <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSite</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Species <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSp</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>CalcSpecificity <span class="ot">&lt;-</span> <span class="cf">function</span>(sp, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(p<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p)), <span class="dv">1</span>, var)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, inc) {</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      mus <span class="ot">&lt;-</span> mu[i,inc[i,]<span class="sc">==</span><span class="dv">1</span>]</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="fu">length</span>(mus)<span class="sc">&gt;</span><span class="dv">1</span>, <span class="fu">var</span>(mus), <span class="dv">0</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">inc=</span>inc)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  res</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>SpecificityOcc <span class="ot">&lt;-</span> <span class="fu">sapply</span>(Species[<span class="dv">1</span>], CalcSpecificity, <span class="at">mc=</span>DivPars)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>SpecificityAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpecificity, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>thing <span class="ot">&lt;-</span> <span class="fu">CalcSpecificity</span>(Species[<span class="dv">58</span>], <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>SummSpecAbund <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpecificityAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For occurrence there is only one specificity</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SpecificityOcc), <span class="at">main=</span><span class="st">"Occurrence Specificity"</span>, <span class="at">xlab=</span><span class="st">"Specificity"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can plot the specificity for abundance. There is considerable uncertainty. The species are sorted by their posterior means.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>At.spec <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummSpecAbund<span class="sc">$</span>statistics[,<span class="st">"Mean"</span>], <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpecAbund, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Posterior modes and 95% HPDIs for specificty of species</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>If we plot the densities, we see that most of them are bimodal, with a mode at or around 0. We get 0 if the species was present on one site.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">15</span>,<span class="dv">4</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(Species, <span class="cf">function</span>(wh, mc) <span class="fu">plot</span>(<span class="fu">density</span>(mc[,wh]), <span class="at">main=</span><span class="st">""</span>),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">mc=</span>SpecificityAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+NULL
+
+[[2]]
+NULL
+
+[[3]]
+NULL
+
+[[4]]
+NULL
+
+[[5]]
+NULL
+
+[[6]]
+NULL
+
+[[7]]
+NULL
+
+[[8]]
+NULL
+
+[[9]]
+NULL
+
+[[10]]
+NULL
+
+[[11]]
+NULL
+
+[[12]]
+NULL
+
+[[13]]
+NULL
+
+[[14]]
+NULL
+
+[[15]]
+NULL
+
+[[16]]
+NULL
+
+[[17]]
+NULL
+
+[[18]]
+NULL
+
+[[19]]
+NULL
+
+[[20]]
+NULL
+
+[[21]]
+NULL
+
+[[22]]
+NULL
+
+[[23]]
+NULL
+
+[[24]]
+NULL
+
+[[25]]
+NULL
+
+[[26]]
+NULL
+
+[[27]]
+NULL
+
+[[28]]
+NULL
+
+[[29]]
+NULL
+
+[[30]]
+NULL
+
+[[31]]
+NULL
+
+[[32]]
+NULL
+
+[[33]]
+NULL
+
+[[34]]
+NULL
+
+[[35]]
+NULL
+
+[[36]]
+NULL
+
+[[37]]
+NULL
+
+[[38]]
+NULL
+
+[[39]]
+NULL
+
+[[40]]
+NULL
+
+[[41]]
+NULL
+
+[[42]]
+NULL
+
+[[43]]
+NULL
+
+[[44]]
+NULL
+
+[[45]]
+NULL
+
+[[46]]
+NULL
+
+[[47]]
+NULL
+
+[[48]]
+NULL
+
+[[49]]
+NULL
+
+[[50]]
+NULL
+
+[[51]]
+NULL
+
+[[52]]
+NULL
+
+[[53]]
+NULL
+
+[[54]]
+NULL
+
+[[55]]
+NULL
+
+[[56]]
+NULL
+
+[[57]]
+NULL
+
+[[58]]
+NULL</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Specificity"</span>, <span class="dv">1</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Density"</span>, <span class="dv">2</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Posterior densities for species specificity in abundance</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="beta-diversity" class="level1">
+<h1>Beta Diversity</h1>
 </section>
 
 </main>
