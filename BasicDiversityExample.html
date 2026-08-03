@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,7 +69,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="BasicDiversityExample_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="BasicDiversityExample_files/libs/quarto-html/anchor.min.js"></script>
 <link href="BasicDiversityExample_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="BasicDiversityExample_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="BasicDiversityExample_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="BasicDiversityExample_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="BasicDiversityExample_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="BasicDiversityExample_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -137,25 +137,55 @@ window.Quarto = {
 </header>
 
 
+<p><strong>To DO</strong>:</p>
+<ul>
+<li>correct terminology to align with the manuscript</li>
+<li>align notation with rest of manuscript</li>
+<li>check this makes sense</li>
+</ul>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <p>This is an implementation of the diversity statistics, to demonstrate their calculation without any trait or environmental variables. We will use data where we can estimate both occurrence and abundance (conditional on occurrence).</p>
+<p>These are examples of an analysis, and whilst it in mainly to show how to use this approach, it also leads to the following ecological conclusions:</p>
+<ul>
+<li>diversity between sites is driven by variation between species</li>
+<li>diversity between species is driven by changes in rarity/commonness rather than specialisation on different sites</li>
+<li>abundance and species richness on sites are not related</li>
+<li>in contrast, more widespread species tend to also be more abundant</li>
+</ul>
 </section>
 <section id="the-community-model" class="level1">
 <h1>The Community Model</h1>
-<p>For species <span class="math inline">\(i\)</span> on site <span class="math inline">\(j\)</span> we denote occurrence as <span class="math inline">\(z_{ij} \in \{0,1\}\)</span> (where 1 is presence), and abundance as <span class="math inline">\(\lambda_{ij} &gt; 0\)</span>. We will link both of these to the general theory, where we assume the occurrence/abundance/whatever is <span class="math inline">\(k_ij\)</span> for species <span class="math inline">\(j\)</span> on site <span class="math inline">\(i\)</span>.</p>
+<p>For species <span class="math inline">\(j\)</span> on site <span class="math inline">\(i\)</span> we denote occurrence as <span class="math inline">\(z_{ij} \in \{0,1\}\)</span> (where 1 is presence), and abundance as <span class="math inline">\(\lambda_{ij} &gt; 0\)</span>. We will link both of these to the general theory, where we assume the occurrence/abundance/whatever is <span class="math inline">\(k_ij\)</span>.</p>
 <p>Fo occurrence we assume presence is a Bernoulli trial, then <span class="math inline">\(z_{ij} \sim \text{Bern}(p_{ij})\)</span>. with probability <span class="math inline">\(\text{logit}(\eta_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}\)</span>. This is equivalent to a threshold model, i.e.&nbsp;saying that we have a continuous random variable, <span class="math inline">\(\eta_{ij}^{(z)}\)</span>, and <span class="math inline">\(z_{ij} = 1\)</span> if <span class="math inline">\(\eta_{ij}^{(z)}&gt;0\)</span>. We will assume that <span class="math inline">\(\eta_{ij}^{(z)}\)</span> follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then</p>
 <p><span class="math display">\[
-\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \beta^{(z)}_j + \gamma^{(z)}_j x_i + \delta^{(z)}_{ij}.
+\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \beta^{(z)}_j + \delta^{(z)}_{ij}.
 \]</span></p>
-<p>And <span class="math inline">\(\delta^{(z)}_{ij}\)</span> follows a standard logistic distribution, which means it has a mean of 0 and variance <span class="math inline">\(\pi^2/3\)</span>. We can calculate statistics on <span class="math inline">\(\eta_{ij}^{(z)}\)</span>: note that <span class="math inline">\(z_{ij}|\eta_{ij}^{(z)}\)</span> is deterministic: the usual Bernoulli stochasticity is in <span class="math inline">\(\delta^{(z)}_{ij}\)</span>.</p>
+<p>And <span class="math inline">\(\delta^{(z)}_{ij}\)</span> follows a standard logistic distribution, which means it has a mean of 0 and variance <span class="math inline">\(\pi^2/3\)</span>. The species effect is thus <span class="math inline">\(\beta^{(z)}_j\)</span> (<span class="math inline">\(\eta^{(z)}_j\)</span> in Chrisophe’s notation), and <span class="math inline">\(\alpha^{(z)}_i\)</span> is the site effect (<span class="math inline">\(\lambda^{(z)}_j\)</span> in Chrisophe’s notation).</p>
+<p>We can calculate statistics on <span class="math inline">\(\eta_{ij}^{(z)}\)</span>: note that <span class="math inline">\(z_{ij}|\eta_{ij}^{(z)}\)</span> is deterministic: the usual Bernoulli stochasticity is in <span class="math inline">\(\delta^{(z)}_{ij}\)</span>.</p>
 <p>For abundance we assume a log-linear model:</p>
 <p><span class="math display">\[
-\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \beta^{(\lambda)}_j + \gamma^{(\lambda)}_j x_i + \delta^{(\lambda)}_{ij}
+\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \beta^{(\lambda)}_j + \delta^{(\lambda)}_{ij}
 \]</span></p>
-<p>Clearly <span class="math inline">\(\lambda_{ij}=0\)</span> if <span class="math inline">\(z_{ij}=0\)</span>.</p>
+<p>Where <span class="math inline">\(\alpha^{(\lambda)}_i\)</span>, <span class="math inline">\(\beta^{(\lambda)}_j\)</span> and <span class="math inline">\(\delta^{(\lambda)}_{ij}\)</span> are the site, species and inter action effects (if we assume the abundance follows a Poisson distribution, the interaction is an overdispersion term). Clearly <span class="math inline">\(\lambda_{ij}=0\)</span> if <span class="math inline">\(z_{ij}=0\)</span>.</p>
 <p>For both models we assume the effects are random effects, i.e.&nbsp;with a variance to be estimated. But to make the presentation easier to follow, we use the posterior estimates of the parameters to calculate variances from.</p>
-<p>The models are fitted with JAGS, so it is easier to estimate uncertainty. Detailsa re in the fold-out below.</p>
+<p>The interesting statistics are the means and variances:</p>
+<p>Means:</p>
+<ul>
+<li><span class="math inline">\(\bar{k}_{\cdot \cdot} = \mu\)</span>: the grand mean</li>
+<li><span class="math inline">\(\bar{k}_{i \cdot} = S_i = \mu + \alpha\)</span>: the site mean: species richness or average abundance/biomass</li>
+<li><span class="math inline">\(\bar{k}_{\cdot j} = O_j = \mu + \beta\)</span>: the species mean: prevelance etc.</li>
+</ul>
+<p>Variances:</p>
+<ul>
+<li><p><span class="math inline">\(P_j = \text{Var}_i(k_{ij})\)</span>: Pickiness [TERM CHANGED!!!]. The variance in site abundances (or incidence) for species <span class="math inline">\(j\)</span>. Related to specialisation.</p></li>
+<li><p><span class="math inline">\(U_i = \text{Var}_j(k_{ij})\)</span>: Unevenness. The variance in species abundances (or incidence) at site <span class="math inline">\(i\)</span>. For abundance, this is equivalent to alpha diversity (Hill numbers)</p></li>
+<li><p><span class="math inline">\(R = \bar{P}_j\)</span>: replacement. Mean pickiness</p></li>
+<li><p><span class="math inline">\(U = \bar{U}_i\)</span>: Mean Unevenness</p></li>
+<li><p><span class="math inline">\(D = \text{Var}(O_{j})\)</span>: Disparity. Variance over species in mean prevalence etc.</p></li>
+<li><p><span class="math inline">\(N = \text{Var}(S_{i})\)</span>: Nestedness. Variance over sites in mean prevalence, species richness</p></li>
+</ul>
+<p>The models are fitted with JAGS, so it is easier to estimate uncertainty. Details are in the fold-out below.</p>
 </section>
 <section id="an-example" class="level1">
 <h1>An Example</h1>
@@ -171,9 +201,7 @@ window.Quarto = {
 </div>
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>The data are counts of each species, and we model both presence/absence and counts. We have multiple replicate observations per site, so we assume the counts, <span class="math inline">\(n_{kj}\)</span> on replicate <span class="math inline">\(k\)</span> for species <span class="math inline">\(j\)</span>, follow a zero inflated Poisson lognormal distribution with mean <span class="math inline">\(\lambda_{ij}\)</span> (i.e.&nbsp;constant across replicates within a site). If the detection probability is constant within a species (but differing between species) this will change the <span class="math inline">\(\beta^{(\lambda)}_j\)</span> term. We have a Gaussian overdispersion term for excess variation within a replicate that represents sampling variation.</p>
-<section id="downloading-and-formatting-the-data" class="level2">
-<h2 class="anchored" data-anchor-id="downloading-and-formatting-the-data">Downloading and formatting the data</h2>
+<p>The data are counts of each species, and we model both presence/absence and counts. We have multiple replicate observations per site, so we assume the counts, <span class="math inline">\(n_{kj}\)</span> on replicate <span class="math inline">\(k\)</span> for species <span class="math inline">\(j\)</span>, follow a zero inflated Poisson lognormal distribution with mean <span class="math inline">\(\lambda_{ij}\)</span> (i.e.&nbsp;constant across replicates within a site). We have a Gaussian overdispersion term for excess variation within a replicate that represents sampling variation. For presences (i.e.&nbsp;to account for zero inflation) we use an occupancy model. ## Downloading and formatting the data</p>
 <p>The data are abundances (counts) on each location on a transect. There are 3 islands, each with 3 transects, each with 3 stations. Each station was sampled in 2 seasons, and has 3 replicates.</p>
 <p>The steps are: 1. import the data</p>
 <ol start="2" type="1">
@@ -185,8 +213,7 @@ window.Quarto = {
 <ol start="4" type="1">
 <li>Run the JAGS code</li>
 </ol>
-<p>We get some output, that we should probably check for convergence.</p>
-</section>
+<p>We get some output, which we will use to estimate our diversity statistics</p>
 </div>
 </div>
 </div>
@@ -199,146 +226,183 @@ window.Quarto = {
 <li>Abundance</li>
 </ul>
 <p>And looking at the means and variances of the parameters associated with these.</p>
-<p>We need some functions</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Diversity functions</summary>
+<summary>To calculate the statiastics need some functions, which are hidden away here</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Sites <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSite</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Species <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span>DataToJAGS<span class="sc">$</span>NSp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to Calculate mean occupancy or abundance for each site</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>CalcSiteMean <span class="ot">&lt;-</span> <span class="cf">function</span>(site, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract relevant statistics from MCMC draws</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">/</span>p <span class="sc">-</span> <span class="dv">1</span>)), <span class="dv">1</span>, mean)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, pres) {</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mean</span>(mu[i,pres[i,]<span class="sc">==</span><span class="dv">1</span>]) <span class="co"># mean for when presence=1</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">pres=</span>inc)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate species richness</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>CalcSR <span class="ot">&lt;-</span> <span class="cf">function</span>(site, mc) {</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">apply</span>(inc, <span class="dv">1</span>, sum)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to Calculate mean occupancy or abundance for each site</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>CalcSpMean <span class="ot">&lt;-</span> <span class="cf">function</span>(sp, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract relevant statistics from MCMC draws</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">/</span>p <span class="sc">-</span> <span class="dv">1</span>)), <span class="dv">1</span>, mean)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, pres) {</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mean</span>(mu[i,pres[i,]<span class="sc">==</span><span class="dv">1</span>]) <span class="co"># mean for when presence=1</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">pres=</span>inc)</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate species range (i.e. how many sites the species is present on)</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>CalcSpRange <span class="ot">&lt;-</span> <span class="cf">function</span>(sp, mc) {</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">apply</span>(inc, <span class="dv">1</span>, sum)</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to plot parameters</span></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>PlotPars <span class="ot">&lt;-</span> <span class="cf">function</span>(Summ, <span class="at">At=</span><span class="st">"Orig"</span>,...) {</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(At)<span class="sc">==</span><span class="fu">length</span>(Summ<span class="sc">$</span>PMode)) {</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    At.y <span class="ot">&lt;-</span> At</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    At.y <span class="ot">&lt;-</span> <span class="cf">switch</span>(At, </span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>                   <span class="at">Orig =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(Summ<span class="sc">$</span>PMode), </span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>                   <span class="at">rank =</span> <span class="fu">rank</span>(Summ<span class="sc">$</span>PMode, <span class="at">ties=</span><span class="st">"random"</span>)</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(Summ<span class="sc">$</span>PMode, At.y, <span class="at">xlim=</span><span class="fu">range</span>(Summ<span class="sc">$</span>HPD), ...)</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(Summ<span class="sc">$</span>HPD[,<span class="st">"lower"</span>], At.y, Summ<span class="sc">$</span>HPD[,<span class="st">"upper"</span>], At.y)</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate unevenness</span></span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>CalcUnevenness <span class="ot">&lt;-</span> <span class="cf">function</span>(site, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">["</span>, site, <span class="st">","</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
-<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(<span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">/</span>p <span class="sc">-</span> <span class="dv">1</span>)), <span class="dv">1</span>, var)</span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, pres) {</span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>      <span class="fu">var</span>(mu[i,pres[i,]<span class="sc">==</span><span class="dv">1</span>])</span>
-<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">pres=</span>inc)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to convert vector of data to matrix</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># vec: vector of values, should have names. </span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># varname: name of variable to extract</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># RowsFirstIndex: Should the first index be for rows or columns?</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># sortNumeric: Should the indices be converted to integer and then sorted? Warning: make sure they are integers!</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Details</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># For the variable of interest the name should be of the format "varname[i,j]" </span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#  where i and j are the row and column names (in either order). </span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">#  They will probably be integers.</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>VecToMatrix <span class="ot">&lt;-</span> <span class="cf">function</span>(vec, varname, <span class="at">RowsFirstIndex=</span><span class="cn">TRUE</span>, <span class="at">sortNumeric=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract variable and indices</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  variable <span class="ot">&lt;-</span> vec[<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^"</span>, varname, <span class="st">"</span><span class="sc">\\</span><span class="st">["</span>), <span class="fu">names</span>(vec))]</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  Index1 <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">",.*"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">".*</span><span class="sc">\\</span><span class="st">["</span>, <span class="st">""</span>, <span class="fu">names</span>(variable)))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  Index2 <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">]"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">".*,"</span>, <span class="st">""</span>, <span class="fu">names</span>(variable)))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># create matrix with row and column names </span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow=</span><span class="fu">length</span>(<span class="fu">unique</span>(Index1)), <span class="at">ncol=</span><span class="fu">length</span>(<span class="fu">unique</span>(Index2)),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">unique</span>(Index1), <span class="fu">unique</span>(Index2)))</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># fill in entries</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(variable))  mat[Index1[i], Index2[i]] <span class="ot">&lt;-</span> variable[i]</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># If the column name is the first index, transpose the matrix</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span>RowsFirstIndex) mat <span class="ot">&lt;-</span> <span class="fu">t</span>(mat)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the rows and columns, if requested</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(sortNumeric) {</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    mat2 <span class="ot">&lt;-</span> mat[<span class="fu">sort</span>(<span class="fu">as.numeric</span>(<span class="fu">rownames</span>(mat))), </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                <span class="fu">sort</span>(<span class="fu">as.numeric</span>(<span class="fu">colnames</span>(mat)))]</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(mat)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>MatrixToArray <span class="ot">&lt;-</span> <span class="cf">function</span>(mat, varname, <span class="at">RowsSecondIndex=</span><span class="cn">TRUE</span>, <span class="at">sortNumeric=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract variable and indices</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  variable <span class="ot">&lt;-</span> mat[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^"</span>, varname, <span class="st">"</span><span class="sc">\\</span><span class="st">["</span>), <span class="fu">colnames</span>(mat))]</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  Index1 <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">",.*"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">".*</span><span class="sc">\\</span><span class="st">["</span>, <span class="st">""</span>, <span class="fu">colnames</span>(variable)))</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  Index2 <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">]"</span>, <span class="st">""</span>, <span class="fu">gsub</span>(<span class="st">".*,"</span>, <span class="st">""</span>, <span class="fu">colnames</span>(variable)))</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co"># create matrix with row and column names </span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  arr <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, </span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>               <span class="at">dim =</span><span class="fu">c</span>(<span class="fu">nrow</span>(mat), <span class="fu">length</span>(<span class="fu">unique</span>(Index1)), <span class="fu">length</span>(<span class="fu">unique</span>(Index2))),</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>               <span class="at">dimnames=</span><span class="fu">list</span>(<span class="fu">rownames</span>(mat), <span class="fu">unique</span>(Index1), <span class="fu">unique</span>(Index2)))</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co"># fill in entries</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(variable[<span class="dv">1</span>,]))  arr[,Index1[i], Index2[i]] <span class="ot">&lt;-</span> variable[,i]</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co"># If the column name is the first index, transpose the matrix</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span>RowsSecondIndex) arr <span class="ot">&lt;-</span> <span class="fu">aperm</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">2</span>)</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the rows and columns, if requested</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(sortNumeric) {</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    arr <span class="ot">&lt;-</span> arr[,<span class="fu">sort</span>(<span class="fu">as.numeric</span>(<span class="fu">dimnames</span>(arr)[[<span class="dv">2</span>]])), </span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>                <span class="fu">sort</span>(<span class="fu">as.numeric</span>(<span class="fu">dimnames</span>(arr)[[<span class="dv">3</span>]]))]</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(arr)</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="co"># this is a function to calculate the summaries we want</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>CalcSumm <span class="ot">&lt;-</span> <span class="cf">function</span>(mc, ...) {</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span>(coda)</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span>(MCMCglmm)</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>  Summ <span class="ot">&lt;-</span> <span class="fu">summary</span>(mc)</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>  Summ<span class="sc">$</span>HPD <span class="ot">&lt;-</span> <span class="fu">HPDinterval</span>(mc, <span class="at">prob=</span><span class="fl">0.95</span>)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>  Summ<span class="sc">$</span>PMode <span class="ot">&lt;-</span> <span class="fu">posterior.mode</span>(mc, ...)</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>  Summ</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate summary stats from array: keep as mcmc object</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>CalcSummaryFromArray <span class="ot">&lt;-</span> <span class="cf">function</span>(arr, <span class="at">FUN=</span>mean, <span class="at">mcmc=</span><span class="cn">FALSE</span>, <span class="at">centre=</span><span class="cn">TRUE</span>) {</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>  Grand <span class="ot">&lt;-</span> <span class="fu">apply</span>(arr, <span class="st">"Iteration"</span>, FUN, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>  Sp <span class="ot">&lt;-</span> <span class="fu">apply</span>(arr, <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Species"</span>), FUN, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(Sp) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Species"</span>, <span class="fu">colnames</span>(Sp))</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>  Site <span class="ot">&lt;-</span> <span class="fu">apply</span>(arr, <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Site"</span>), FUN, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(Site) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Site"</span>, <span class="fu">colnames</span>(Site))</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(centre) {</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    Sp <span class="ot">&lt;-</span> <span class="fu">sweep</span>(Sp, <span class="dv">1</span>, Grand, <span class="st">"-"</span>)</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    Site <span class="ot">&lt;-</span> <span class="fu">sweep</span>(Site, <span class="dv">1</span>, Grand, <span class="st">"-"</span>)</span>
 <span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate specificity</span></span>
-<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>CalcSpecificity <span class="ot">&lt;-</span> <span class="cf">function</span>(sp, mc, <span class="at">Occ=</span><span class="cn">TRUE</span>) {</span>
-<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^logmu</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>  inc <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^Present</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> mc[,<span class="fu">grep</span>(<span class="fu">paste0</span>(<span class="st">"^p</span><span class="sc">\\</span><span class="st">[.*,"</span>, sp, <span class="st">"]"</span>), <span class="fu">colnames</span>(mc))]</span>
-<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(Occ) {</span>
-<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">apply</span>(<span class="fu">log</span>(p<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span>p)), <span class="dv">1</span>, var)</span>
-<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mc), <span class="cf">function</span>(i, mu, inc) {</span>
-<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>      mus <span class="ot">&lt;-</span> mu[i,inc[i,]<span class="sc">==</span><span class="dv">1</span>]</span>
-<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="fu">length</span>(mus)<span class="sc">&gt;</span><span class="dv">1</span>, <span class="fu">var</span>(mus), <span class="dv">0</span>)</span>
-<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">mu=</span>mu, <span class="at">inc=</span>inc)</span>
-<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>  res</span>
-<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>  res <span class="ot">&lt;-</span> <span class="fu">cbind</span>(Grand, Sp, Site)</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(mcmc) res <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(res)</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>  res</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate correlation between statistics in two data sets </span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="co">#   (err, that could be explained better)</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>CalcCorr <span class="ot">&lt;-</span> <span class="cf">function</span>(mcmc1, mcmc2, Name) {</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">nrow</span>(mcmc1)<span class="sc">!=</span><span class="fu">nrow</span>(mcmc2)) <span class="fu">stop</span>(<span class="st">"mcmc1 &amp; mcmc2 must have same number of rows"</span>)</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>  Use1 <span class="ot">&lt;-</span> <span class="fu">colnames</span>(mcmc1)[<span class="fu">grep</span>(Name, <span class="fu">colnames</span>(mcmc1))]</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>  Use2 <span class="ot">&lt;-</span> <span class="fu">colnames</span>(mcmc2)[<span class="fu">grep</span>(Name, <span class="fu">colnames</span>(mcmc2))]</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">any</span>(Use1<span class="sc">%notin%</span>Use2) <span class="sc">|</span> <span class="fu">any</span>(Use2<span class="sc">%notin%</span>Use1)) <span class="fu">stop</span>(<span class="fu">paste0</span>(<span class="st">"mcmc1 and mcmc2 should have same variables for "</span>, Name))</span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>  Cor <span class="ot">&lt;-</span>   <span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(mcmc1), <span class="cf">function</span>(i, mc1, mc2) {</span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cor</span>(mc1[i,], mc2[i,])</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">mc1 =</span> mcmc1[,Use1], <span class="at">mc2 =</span> mcmc2[,Use2])  </span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>  Cor</span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to plot parameters</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>PlotPars <span class="ot">&lt;-</span> <span class="cf">function</span>(Summ, <span class="at">At=</span><span class="st">"Orig"</span>, <span class="at">use=</span><span class="cn">NULL</span>, <span class="at">ave=</span><span class="cn">NULL</span>, <span class="at">Xlim=</span><span class="cn">NULL</span>, ...) {</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(use)) use <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(Summ<span class="sc">$</span>PMode)</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(At)<span class="sc">==</span><span class="fu">length</span>(use)) {</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>    At.y <span class="ot">&lt;-</span> At</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>    At.y <span class="ot">&lt;-</span> <span class="cf">switch</span>(At, </span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>                   <span class="at">Orig =</span> <span class="dv">1</span><span class="sc">:</span>use, </span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>                   <span class="at">rank =</span> <span class="fu">rank</span>(Summ<span class="sc">$</span>PMode[use], <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">is.null</span>(Xlim)) Xlim<span class="ot">=</span><span class="fu">range</span>(Summ<span class="sc">$</span>HPD[use,])</span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>(Summ<span class="sc">$</span>PMode[use], At.y, <span class="at">xlim=</span>Xlim, <span class="at">type=</span><span class="st">"n"</span>, ...)</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span><span class="fu">is.null</span>(ave)) {</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rect</span>(Summ<span class="sc">$</span>HPD[ave,<span class="st">"lower"</span>], <span class="sc">-</span><span class="dv">5</span>, Summ<span class="sc">$</span>HPD[ave,<span class="st">"upper"</span>], <span class="dv">2</span><span class="sc">*</span><span class="fu">max</span>(At.y), <span class="at">border =</span> <span class="cn">NA</span>, <span class="at">col=</span><span class="st">"pink"</span>)</span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v=</span>Summ<span class="sc">$</span>PMode[ave], <span class="at">col=</span><span class="dv">2</span>)</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">points</span>(Summ<span class="sc">$</span>PMode[use], At.y, ...)</span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(Summ<span class="sc">$</span>HPD[use,<span class="st">"lower"</span>], At.y, Summ<span class="sc">$</span>HPD[use,<span class="st">"upper"</span>], At.y)</span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<section id="gamma-mean-diversity" class="level2">
-<h2 class="anchored" data-anchor-id="gamma-mean-diversity"><span class="math inline">\(\gamma\)</span>-mean diversity</h2>
-<p>We don’t care. Do we?</p>
+<section id="diversity-means" class="level2">
+<h2 class="anchored" data-anchor-id="diversity-means">Diversity Means</h2>
 </section>
-<section id="within-site-diversity" class="level2">
-<h2 class="anchored" data-anchor-id="within-site-diversity">Within-Site Diversity</h2>
-</section>
-<section id="alpha-mean-diversity-species-richness-and-mean-abundance" class="level2">
-<h2 class="anchored" data-anchor-id="alpha-mean-diversity-species-richness-and-mean-abundance"><span class="math inline">\(\alpha\)</span>-mean diversity: Species richness and Mean Abundance</h2>
-<p>We have a few site means. For occupancy this relates to species richness. Because our fitted model is on the logit scale, we can caclulate <span class="math inline">\(R_i\)</span> for occupancy on that scale too, as well as species richness itself.</p>
+<section id="s_i-alpha-mean-diversity-species-richness-and-mean-abundance" class="level2">
+<h2 class="anchored" data-anchor-id="s_i-alpha-mean-diversity-species-richness-and-mean-abundance"><span class="math inline">\(S_i\)</span>, <span class="math inline">\(\alpha\)</span>-mean diversity: Species richness and Mean Abundance</h2>
+<p>For occupancy this relates to species richness. Because our fitted model is on the logit scale, we can calculate <span class="math inline">\(S_i\)</span> for occupancy on that scale too, as well as species richness itself.</p>
 <p>For abundance we only average over the species that are present: for those we do not observe, we estimate presence.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>RsiteOcc <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Sites, CalcSiteMean, <span class="at">Occ=</span><span class="cn">TRUE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>RsiteAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Sites, CalcSiteMean, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>SpRichness <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Sites, CalcSR, <span class="at">mc=</span>DivPars))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>SummRsiteOcc <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(RsiteOcc)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>SummRsiteAbund <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(RsiteAbund)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>SummSpRichness <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpRichness)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p.arr <span class="ot">&lt;-</span> <span class="fu">MatrixToArray</span>(DivPars, <span class="at">varname =</span> <span class="st">"p"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>lgtp.arr <span class="ot">&lt;-</span> <span class="fu">log</span>(p.arr<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">-</span> p.arr))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Present.arr <span class="ot">&lt;-</span> <span class="fu">MatrixToArray</span>(DivPars, <span class="at">varname =</span> <span class="st">"Present"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>abund.arr <span class="ot">&lt;-</span> <span class="fu">MatrixToArray</span>(DivPars, <span class="at">varname =</span> <span class="st">"logmu"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(<span class="fu">dimnames</span>(lgtp.arr)) <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">dimnames</span>(Present.arr)) <span class="ot">&lt;-</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(<span class="fu">dimnames</span>(abund.arr)) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Site"</span>, <span class="st">"Species"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>abund.arr[Present.arr<span class="sc">==</span><span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>lgtp.means <span class="ot">&lt;-</span> <span class="fu">CalcSummaryFromArray</span>(lgtp.arr, <span class="at">mcmc=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>Present.sum <span class="ot">&lt;-</span> <span class="fu">CalcSummaryFromArray</span>(Present.arr, <span class="at">FUN=</span>sum, <span class="at">mcmc=</span><span class="cn">TRUE</span>, <span class="at">centre =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>abund.means <span class="ot">&lt;-</span> <span class="fu">CalcSummaryFromArray</span>(abund.arr, <span class="at">mcmc=</span><span class="cn">TRUE</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>lgtp.means.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(lgtp.means)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>Present.sum.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(Present.sum)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>abund.means.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(abund.means)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>MeansCorrelations <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(<span class="fu">cbind</span>(</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">lgtp.abund.sp.cor =</span>  <span class="fu">CalcCorr</span>(<span class="at">mcmc1 =</span> lgtp.means, <span class="at">mcmc2 =</span> abund.means, <span class="at">Name =</span> <span class="st">"Species"</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">lgtp.Present.sp.cor =</span>  <span class="fu">CalcCorr</span>(<span class="at">mcmc1 =</span> lgtp.means, <span class="at">mcmc2 =</span> Present.sum, <span class="at">Name =</span> <span class="st">"Species"</span>),</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Present.abund.sp.cor =</span>  <span class="fu">CalcCorr</span>(<span class="at">mcmc1 =</span> Present.sum, <span class="at">mcmc2 =</span> abund.means, <span class="at">Name =</span> <span class="st">"Species"</span>),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">lgtp.abund.site.cor =</span>  <span class="fu">CalcCorr</span>(<span class="at">mcmc1 =</span> lgtp.means, <span class="at">mcmc2 =</span> abund.means, <span class="at">Name =</span> <span class="st">"Site"</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">lgtp.Present.site.cor =</span>  <span class="fu">CalcCorr</span>(<span class="at">mcmc1 =</span> lgtp.means, <span class="at">mcmc2 =</span> Present.sum, <span class="at">Name =</span> <span class="st">"Site"</span>),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">Present.abund.site.cor =</span>  <span class="fu">CalcCorr</span>(<span class="at">mcmc1 =</span> Present.sum, <span class="at">mcmc2 =</span> abund.means, <span class="at">Name =</span> <span class="st">"Site"</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>MeansCorrelations.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(MeansCorrelations)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>The estimates are plotted below, with the same site on the same row.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>At.mean <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummRsiteOcc<span class="sc">$</span>PMode, <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>At.mean <span class="ot">&lt;-</span> <span class="fu">rank</span>(Present.sum.summ<span class="sc">$</span>PMode[<span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(Present.sum.summ<span class="sc">$</span>PMode))], <span class="at">ties=</span><span class="st">"random"</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummRsiteOcc, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpRichness, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Species Richness"</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummRsiteAbund, <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(lgtp.means.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(lgtp.means.summ<span class="sc">$</span>PMode)), <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(Present.sum.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(Present.sum.summ<span class="sc">$</span>PMode)), <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Species Richness"</span>, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,DataToJAGS<span class="sc">$</span>NSp))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(abund.means.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(abund.means.summ<span class="sc">$</span>PMode)), <span class="at">At=</span>At.mean, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -349,31 +413,20 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Not surprisingly, the posterior modes for species richness and mean occupancy are strongly correlated (<span class="math inline">\(\rho\)</span>: 0.9). But the occurrence and abundance are pretty much uncorrelated (<span class="math inline">\(\rho\)</span>: -0.02).</p>
+<p>Not surprisingly, the posterior modes for species richness and mean occupancy are strongly correlated (posterior mode: 0.96, 95% CI: 0.93 - 0.97). But the occurrence and abundance are pretty much uncorrelated (posterior mode: 0.21, 95% CI: -0.04 - 0.36).</p>
 </section>
-<section id="beta-mean-diversity-variation-across-sites-for-each-species" class="level2">
-<h2 class="anchored" data-anchor-id="beta-mean-diversity-variation-across-sites-for-each-species"><span class="math inline">\(\beta\)</span>-mean diversity: Variation across sites for each species</h2>
-<p>We can also look at species.</p>
+<section id="o_j-beta-mean-diversity-variation-across-sites-for-each-species" class="level2">
+<h2 class="anchored" data-anchor-id="o_j-beta-mean-diversity-variation-across-sites-for-each-species"><span class="math inline">\(O_j\)</span>, <span class="math inline">\(\beta\)</span>-mean diversity: Variation across sites for each species</h2>
+<p>We can also look at species. We can see that most species are rare (an observation that will not get us in to <em>Nature</em>), but a few are ubiquitous.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>SpMeanOcc <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpMean, <span class="at">Occ=</span><span class="cn">TRUE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>SpMeanAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpMean, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>SpRange <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpRange, <span class="at">mc=</span>DivPars))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>SummSpMeanOcc <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpMeanOcc)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>SummSpMeanAbund <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpMeanAbund)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>SummSpRange <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpRange)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>At.sp <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummSpMeanOcc<span class="sc">$</span>PMode, <span class="at">ties=</span><span class="st">"random"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>))</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpMeanOcc, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpRange, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Range Size"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpMeanAbund, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>At.sp <span class="ot">&lt;-</span> <span class="fu">rank</span>(Present.sum.summ<span class="sc">$</span>PMode[<span class="fu">grep</span>(<span class="st">"Species"</span>, <span class="fu">names</span>(Present.sum.summ<span class="sc">$</span>PMode))], <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(lgtp.means.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"Species"</span>, <span class="fu">names</span>(lgtp.means.summ<span class="sc">$</span>PMode)), <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>) <span class="co">#, Xlim=c(-50,200))</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(Present.sum.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"Species"</span>, <span class="fu">names</span>(Present.sum.summ<span class="sc">$</span>PMode)), <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"(Local) Range Size"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">Xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,DataToJAGS<span class="sc">$</span>NSite), <span class="at">xaxs=</span><span class="st">"i"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(abund.means.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"Species"</span>, <span class="fu">names</span>(abund.means.summ<span class="sc">$</span>PMode)), <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Abundance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -383,297 +436,179 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>For about a third of the species the estimated range size is low, but has a high uncertainty.</p>
-<p>The posterior modes for range size and mean occupancy are strongly correlated (<span class="math inline">\(\rho\)</span>: 0.96). The occurrence and abundance have a moderate correlation (<span class="math inline">\(\rho\)</span>: 0.47).</p>
+<p>For about a third of the species the estimated range size is low, but has a high uncertainty: these species also have low estimated abundance, so it’s more likely to get a false negative.</p>
+<p>The posterior modes for range size and mean occupancy are strongly correlated (posterior mode: 0.79, 95% CI: 0.29 - 0.87). The occurrence and abundance have a moderate correlation (posterior mode: 0.79, 95% CI: 0.29 - 0.87).</p>
 </section>
-<section id="variances" class="level2">
-<h2 class="anchored" data-anchor-id="variances">Variances</h2>
-</section>
-<section id="gamma-var-diversity" class="level2">
-<h2 class="anchored" data-anchor-id="gamma-var-diversity"><span class="math inline">\(\gamma\)</span>-var Diversity</h2>
-<p>…?</p>
-</section>
-<section id="alpha-disparity" class="level2">
-<h2 class="anchored" data-anchor-id="alpha-disparity"><span class="math inline">\(\alpha\)</span> Disparity</h2>
-<p>Coming soon to a cinema near you</p>
-</section>
-<section id="beta-disparity" class="level2">
-<h2 class="anchored" data-anchor-id="beta-disparity"><span class="math inline">\(\beta\)</span> Disparity</h2>
-<p>Grand Opening!!! Soon!!!!!!</p>
-<section id="unevenness-alpha-var-diversity" class="level3">
-<h3 class="anchored" data-anchor-id="unevenness-alpha-var-diversity">Unevenness: <span class="math inline">\(\alpha\)</span>-var-diversity</h3>
-<p>Our theory says that unevenness is <span class="math inline">\(\text{Var}_j(k_{i,j})\)</span>, i.e.&nbsp;the variance in the species’ effects on each site. For abundance this is related to measures such as Shannon’s and Simpson’s diversity: the more evenly distributed species’ abundances are, the higher the abundance (an uneven distribution would mean one or a few species with high abundances, i.e.&nbsp;dominating the community). Our variance is a measure of unevenness: when it is zero, all species have the same abundance, so there is maximal diversity.</p>
-<p>In practice we calculate our abundance unevenness only using the species estimated to be present on the site.</p>
+<section id="diversity-variances" class="level2">
+<h2 class="anchored" data-anchor-id="diversity-variances">Diversity Variances</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>UnevennessOcc <span class="ot">&lt;-</span> <span class="fu">sapply</span>(Sites[<span class="dv">1</span>], CalcUnevenness, <span class="at">mc=</span>DivPars)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>UnevennessAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Sites, CalcUnevenness, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MCMCglmm)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>SummUn <span class="ot">&lt;-</span> <span class="fu">summary</span>(UnevennessAbund)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>SummUn<span class="sc">$</span>HPD <span class="ot">&lt;-</span> <span class="fu">HPDinterval</span>(UnevennessAbund, <span class="at">prob=</span><span class="fl">0.95</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>SummUn<span class="sc">$</span>PMode <span class="ot">&lt;-</span> <span class="fu">posterior.mode</span>(UnevennessAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lgtp.var <span class="ot">&lt;-</span> <span class="fu">CalcSummaryFromArray</span>(lgtp.arr, <span class="at">FUN=</span>sd, <span class="at">mcmc=</span><span class="cn">TRUE</span>, <span class="at">centre =</span> <span class="cn">FALSE</span>)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>Present.var <span class="ot">&lt;-</span> <span class="fu">CalcSummaryFromArray</span>(Present.arr, <span class="at">FUN=</span>sd, <span class="at">mcmc=</span><span class="cn">TRUE</span>, <span class="at">centre =</span> <span class="cn">FALSE</span>)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>abund.var <span class="ot">&lt;-</span> <span class="fu">CalcSummaryFromArray</span>(abund.arr, <span class="at">FUN=</span>sd, <span class="at">mcmc=</span><span class="cn">TRUE</span>, <span class="at">centre =</span> <span class="cn">FALSE</span>)<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>abund.var[<span class="fu">is.na</span>(abund.var)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Add on mean variances</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>lgtp.var <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(<span class="fu">cbind</span>(lgtp.var, </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">MeanSpecies =</span> <span class="fu">apply</span>(lgtp.var[,<span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">colnames</span>(lgtp.var))], <span class="dv">1</span>, mean),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">MeanSite =</span> <span class="fu">apply</span>(lgtp.var[,<span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">colnames</span>(lgtp.var))], <span class="dv">1</span>, mean)))</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>Present.var <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(<span class="fu">cbind</span>(Present.var, </span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">MeanSpecies =</span> <span class="fu">apply</span>(Present.var[,<span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">colnames</span>(Present.var))], <span class="dv">1</span>, mean),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">MeanSite =</span> <span class="fu">apply</span>(Present.var[,<span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">colnames</span>(Present.var))], <span class="dv">1</span>, mean)))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>abund.var <span class="ot">&lt;-</span> <span class="fu">as.mcmc</span>(<span class="fu">cbind</span>(abund.var, </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                           <span class="at">MeanSpecies =</span> <span class="fu">apply</span>(abund.var[,<span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">colnames</span>(abund.var))], <span class="dv">1</span>, mean),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                           <span class="at">MeanSite =</span> <span class="fu">apply</span>(abund.var[,<span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">colnames</span>(abund.var))], <span class="dv">1</span>, mean)))</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># lgtp.var.summ is horribly right skewed, so we need to change the defaults for the smoothing used to estimate the posterior mode</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>lgtp.var.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(lgtp.var, <span class="at">from=</span><span class="dv">0</span>, <span class="at">to=</span><span class="dv">1000</span>, <span class="at">bw=</span><span class="fl">0.1</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>Present.var.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(Present.var)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>abund.var.summ <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(abund.var)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
-<p>For occurrence there is only one unevenness</p>
+<section id="alpha-var-diversity-unevenness" class="level3">
+<h3 class="anchored" data-anchor-id="alpha-var-diversity-unevenness"><span class="math inline">\(\alpha\)</span>-var-diversity: Unevenness</h3>
+<p>Unevenness for each site is <span class="math inline">\(U_j = \text{Var}_i(k_{i,j})\)</span>, i.e.&nbsp;the variance in the species’ effects on each site. For abundance this is related to measures such as Shannon’s and Simpson’s diversity: the more evenly distributed species’ abundances are, the higher the diversity (an uneven distribution would mean one or a few species with high abundances, i.e.&nbsp;dominating the community). Our variance is a measure of unevenness: when it is zero, all species have the same abundance, so there is maximal diversity.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(UnevennessOcc), <span class="at">main=</span><span class="st">"Occurrence Unevenness"</span>, <span class="at">xlab=</span><span class="st">"Unevenness"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate mean unevenness</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>At.site <span class="ot">&lt;-</span> <span class="fu">rank</span>(Present.var.summ<span class="sc">$</span>PMode[<span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(Present.var.summ<span class="sc">$</span>PMode))], <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(lgtp.var.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(lgtp.var.summ<span class="sc">$</span>PMode)), </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">At=</span>At.site, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>, <span class="at">ave=</span><span class="st">"MeanSite"</span>) <span class="co">#log="x", </span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(Present.var.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(Present.var.summ<span class="sc">$</span>PMode)), </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">At=</span>At.site, <span class="at">main=</span><span class="st">"(Local) Range Size"</span>, <span class="at">ave=</span><span class="st">"MeanSite"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(abund.var.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Site"</span>, <span class="fu">names</span>(abund.var.summ<span class="sc">$</span>PMode)), </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">At=</span>At.site, <span class="at">main=</span><span class="st">"Unevenness in Abundance"</span>, <span class="at">ave=</span><span class="st">"MeanSite"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Variance"</span>, <span class="dv">1</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Site"</span>, <span class="dv">2</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="BasicDiversityExample_files/figure-html/PlotUnevenness-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>At.y <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummUn<span class="sc">$</span>PMode)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(SummUn<span class="sc">$</span>PMode, At.y, <span class="at">xlim=</span><span class="fu">range</span>(SummUn<span class="sc">$</span>HPD), <span class="at">xlab=</span><span class="st">"Unevenness"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(SummUn<span class="sc">$</span>HPD[,<span class="st">"lower"</span>], At.y, SummUn<span class="sc">$</span>HPD[,<span class="st">"upper"</span>], At.y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption>Posterior modes and 95% HPDIs for unevenness of communities on sites</figcaption>
-</figure>
-</div>
-</div>
-</div>
+<p>We can see that unevenness has some variation in abundance. For mean occupancy the unevenness variance is the same for all sites, for some reason I need to check. The variation in local range soze variance is thus because of changes in the mean.</p>
+<p>With a lot of rare species, occupancy is uncertain, so the unevenness is perhaps to be expected.</p>
 </section>
-<section id="specificity-beta-var-diversity" class="level3">
-<h3 class="anchored" data-anchor-id="specificity-beta-var-diversity">Specificity: <span class="math inline">\(\beta\)</span>-var-diversity</h3>
-<p>In practice we calculate our abundance unevenness only using the species estimated to be present on the site.</p>
+</section>
+<section id="sigma2_eta-alpha-disparity-and-its-decomposition.-what-was-pickiness." class="level2">
+<h2 class="anchored" data-anchor-id="sigma2_eta-alpha-disparity-and-its-decomposition.-what-was-pickiness."><span class="math inline">\(\sigma^2_\eta\)</span>, <span class="math inline">\(\alpha\)</span> Disparity, and its decomposition. What was pickiness.</h2>
+<p>This is the variance in <span class="math inline">\(O_j\)</span>, the average prevalence of a species.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>SpecificityOcc <span class="ot">&lt;-</span> <span class="fu">sapply</span>(Species[<span class="dv">1</span>], CalcSpecificity, <span class="at">mc=</span>DivPars)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>SpecificityAbund <span class="ot">&lt;-</span> coda<span class="sc">::</span><span class="fu">as.mcmc</span>(<span class="fu">sapply</span>(Species, CalcSpecificity, <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars))</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>thing <span class="ot">&lt;-</span> <span class="fu">CalcSpecificity</span>(Species[<span class="dv">58</span>], <span class="at">Occ=</span><span class="cn">FALSE</span>, <span class="at">mc=</span>DivPars)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>SummSpecAbund <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(SpecificityAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>For occurrence there is only one specificity</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SpecificityOcc), <span class="at">main=</span><span class="st">"Occurrence Specificity"</span>, <span class="at">xlab=</span><span class="st">"Specificity"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate mean unevenness</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>At.sp <span class="ot">&lt;-</span> <span class="fu">rank</span>(Present.var.summ<span class="sc">$</span>PMode[<span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">names</span>(Present.var.summ<span class="sc">$</span>PMode))], <span class="at">ties=</span><span class="st">"random"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(lgtp.var.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">names</span>(lgtp.var.summ<span class="sc">$</span>PMode)), </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>, <span class="at">ave=</span><span class="st">"MeanSpecies"</span>) <span class="co">#log="x", </span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(Present.var.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">names</span>(Present.var.summ<span class="sc">$</span>PMode)), </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"(Local) Range Size"</span>, <span class="at">ave=</span><span class="st">"MeanSpecies"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(abund.var.summ, <span class="at">use=</span><span class="fu">grep</span>(<span class="st">"^Species"</span>, <span class="fu">names</span>(abund.var.summ<span class="sc">$</span>PMode)), </span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Unevenness in Abundance"</span>, <span class="at">ave=</span><span class="st">"MeanSpecies"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Variance"</span>, <span class="dv">1</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Site"</span>, <span class="dv">2</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="BasicDiversityExample_files/figure-html/PlotWhatWasPickiness-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>We can plot the specificity for abundance. There is considerable uncertainty. The species are sorted by their posterior means.</p>
+<p>For incidence, it looks a but of a mess. For abundance, the species only present at a few sites have poor estimates: the others seem roughly similar.</p>
+</section>
+</section>
+<section id="gamma-diversity-and-its-decomposition" class="level1">
+<h1>Gamma Diversity and its decomposition</h1>
+<p>The statistics presented above are site or species specific. We can look at overall diversity by looking across sites, to get (reading from Erik’s figure)</p>
+<p><span class="math display">\[
+\begin{aligned}
+\sigma^2_\gamma &amp;= \sigma^2_\alpha + \sigma^2_\delta + \sigma^2_\beta \\
+&amp;= R + D \\
+\sigma^2_\gamma &amp;= \sigma^2_\beta + \sigma^2_\delta + \sigma^2_\alpha \\
+&amp;= U + N
+\end{aligned}
+\]</span></p>
+<p>where</p>
+<ul>
+<li><span class="math inline">\(R = \sigma^2_\alpha + \sigma^2_\delta = \bar{P}_j\)</span> is replacement</li>
+<li><span class="math inline">\(D = \sigma^2_\beta = \text{Var}(O_{j})\)</span> is disparity. Variance over species in mean prevalence etc.</li>
+<li><span class="math inline">\(U = \sigma^2_\beta + \sigma^2_\delta = \bar{U}_i\)</span> is mean unevenness</li>
+<li><span class="math inline">\(N = \sigma^2_\alpha = \text{Var}(S_{i})\)</span>: is nestedness. Variance over sites in mean prevalence, species richness</li>
+</ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>At.spec <span class="ot">&lt;-</span> <span class="fu">rank</span>(SummSpecAbund<span class="sc">$</span>statistics[,<span class="st">"Mean"</span>], <span class="at">ties=</span><span class="st">"random"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotPars</span>(SummSpecAbund, <span class="at">At=</span>At.sp, <span class="at">main=</span><span class="st">"Mean Occupancy"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption>Posterior modes and 95% HPDIs for specificty of species</figcaption>
-</figure>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># N &lt;- apply(abund.arr, c("Iteration", "Site"), mean)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># N &lt;- apply(apply(abund.arr, c("Iteration", "Site"), mean, na.rm=TRUE), "Iteration", sd)^2</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># D &lt;- apply(apply(abund.arr, c("Iteration", "Species"), mean, na.rm=TRUE), "Iteration", sd)^2</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>CalcGammaStats <span class="ot">&lt;-</span> <span class="cf">function</span>(arr) {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  GammaStats <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">U =</span> <span class="fu">apply</span>(<span class="fu">apply</span>(arr, <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Site"</span>), sd, <span class="at">na.rm=</span><span class="cn">TRUE</span>)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Iteration"</span>, mean, <span class="at">na.rm=</span><span class="cn">TRUE</span>)<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">R =</span> <span class="fu">apply</span>(<span class="fu">apply</span>(arr, <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Species"</span>), sd, <span class="at">na.rm=</span><span class="cn">TRUE</span>)<span class="sc">^</span><span class="dv">2</span>, </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Iteration"</span>, mean, <span class="at">na.rm=</span><span class="cn">TRUE</span>)<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">N =</span> <span class="fu">apply</span>(<span class="fu">apply</span>(arr, <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Site"</span>), mean, <span class="at">na.rm=</span><span class="cn">TRUE</span>), </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Iteration"</span>, sd, <span class="at">na.rm=</span><span class="cn">TRUE</span>)<span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">D =</span> <span class="fu">apply</span>(<span class="fu">apply</span>(arr, <span class="fu">c</span>(<span class="st">"Iteration"</span>, <span class="st">"Species"</span>), mean, <span class="at">na.rm=</span><span class="cn">TRUE</span>), </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Iteration"</span>, sd, <span class="at">na.rm=</span><span class="cn">TRUE</span>)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(GammaStats) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"U"</span>, <span class="st">"R"</span>, <span class="st">"N"</span>, <span class="st">"D"</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  GammaStats <span class="ot">&lt;-</span> <span class="fu">cbind</span>(GammaStats, </span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>                      <span class="at">PropN =</span> GammaStats[,<span class="st">"N"</span>]<span class="sc">/</span>(GammaStats[,<span class="st">"U"</span>]<span class="sc">+</span>GammaStats[,<span class="st">"N"</span>]),</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>                      <span class="at">PropD =</span> GammaStats[,<span class="st">"D"</span>]<span class="sc">/</span>(GammaStats[,<span class="st">"D"</span>]<span class="sc">+</span>GammaStats[,<span class="st">"R"</span>]))</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  GammaStats</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>Gamma.lgtp <span class="ot">&lt;-</span> <span class="fu">CalcGammaStats</span>(lgtp.arr)</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>Gamma.pres <span class="ot">&lt;-</span> <span class="fu">CalcGammaStats</span>(Present.arr)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>Gamma.abund <span class="ot">&lt;-</span> <span class="fu">CalcGammaStats</span>(abund.arr)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>Summ.Gamma.lgtp <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(<span class="fu">as.mcmc</span>(Gamma.lgtp))</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>Summ.Gamma.pres <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(<span class="fu">as.mcmc</span>(Gamma.pres))</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>Summ.Gamma.abund <span class="ot">&lt;-</span> <span class="fu">CalcSumm</span>(<span class="fu">as.mcmc</span>(Gamma.abund))</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>StatsForFigure <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">PMode =</span> <span class="fu">c</span>(Summ.Gamma.lgtp<span class="sc">$</span>PMode[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>)], </span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>             Summ.Gamma.pres<span class="sc">$</span>PMode[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>)], </span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>             Summ.Gamma.abund<span class="sc">$</span>PMode[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>)]), </span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">L95 =</span> <span class="fu">c</span>(Summ.Gamma.lgtp<span class="sc">$</span>HPD[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>),<span class="st">"lower"</span>], </span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>           Summ.Gamma.pres<span class="sc">$</span>HPD[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>),<span class="st">"lower"</span>], </span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>             Summ.Gamma.abund<span class="sc">$</span>HPD[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>),<span class="st">"lower"</span>]), </span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">U95 =</span> <span class="fu">c</span>(Summ.Gamma.lgtp<span class="sc">$</span>HPD[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>),<span class="st">"upper"</span>], </span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>           Summ.Gamma.pres<span class="sc">$</span>HPD[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>),<span class="st">"upper"</span>], </span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>             Summ.Gamma.abund<span class="sc">$</span>HPD[<span class="fu">c</span>(<span class="st">"PropN"</span>, <span class="st">"PropD"</span>),<span class="st">"upper"</span>]),</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">At.y =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">each=</span><span class="dv">2</span>),</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">Col =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">times=</span><span class="dv">3</span>)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-</div>
-</div>
-<p>If we plot the densities, we see that most of them are bimodal, with a mode at or around 0. We get 0 if the species was present on one site.</p>
+<p>From the plot we can see that nestedness is low for abundance and occupancy, so most variation is across sites is because of turnover, rather than changes in total numbers of species or numbers of individuals. In contrast, disparity is high across species, especially abundance, so variation between species in global occupancy and abundance (i.e.&nbsp;some are rare and others common) is driving diversity in these communities, rather than species having similar overall abundances but segregating between sites.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">15</span>,<span class="dv">4</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(Species, <span class="cf">function</span>(wh, mc) <span class="fu">plot</span>(<span class="fu">density</span>(mc[,wh]), <span class="at">main=</span><span class="st">""</span>),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">mc=</span>SpecificityAbund)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[[1]]
-NULL
-
-[[2]]
-NULL
-
-[[3]]
-NULL
-
-[[4]]
-NULL
-
-[[5]]
-NULL
-
-[[6]]
-NULL
-
-[[7]]
-NULL
-
-[[8]]
-NULL
-
-[[9]]
-NULL
-
-[[10]]
-NULL
-
-[[11]]
-NULL
-
-[[12]]
-NULL
-
-[[13]]
-NULL
-
-[[14]]
-NULL
-
-[[15]]
-NULL
-
-[[16]]
-NULL
-
-[[17]]
-NULL
-
-[[18]]
-NULL
-
-[[19]]
-NULL
-
-[[20]]
-NULL
-
-[[21]]
-NULL
-
-[[22]]
-NULL
-
-[[23]]
-NULL
-
-[[24]]
-NULL
-
-[[25]]
-NULL
-
-[[26]]
-NULL
-
-[[27]]
-NULL
-
-[[28]]
-NULL
-
-[[29]]
-NULL
-
-[[30]]
-NULL
-
-[[31]]
-NULL
-
-[[32]]
-NULL
-
-[[33]]
-NULL
-
-[[34]]
-NULL
-
-[[35]]
-NULL
-
-[[36]]
-NULL
-
-[[37]]
-NULL
-
-[[38]]
-NULL
-
-[[39]]
-NULL
-
-[[40]]
-NULL
-
-[[41]]
-NULL
-
-[[42]]
-NULL
-
-[[43]]
-NULL
-
-[[44]]
-NULL
-
-[[45]]
-NULL
-
-[[46]]
-NULL
-
-[[47]]
-NULL
-
-[[48]]
-NULL
-
-[[49]]
-NULL
-
-[[50]]
-NULL
-
-[[51]]
-NULL
-
-[[52]]
-NULL
-
-[[53]]
-NULL
-
-[[54]]
-NULL
-
-[[55]]
-NULL
-
-[[56]]
-NULL
-
-[[57]]
-NULL
-
-[[58]]
-NULL</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Specificity"</span>, <span class="dv">1</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mtext</span>(<span class="st">"Density"</span>, <span class="dv">2</span>, <span class="at">outer=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">6</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(StatsForFigure<span class="sc">$</span>PMode, StatsForFigure<span class="sc">$</span>At.y, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">yaxt=</span><span class="st">"n"</span>, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">col=</span>StatsForFigure<span class="sc">$</span>Col, <span class="at">pch=</span><span class="dv">16</span>, <span class="at">xlab=</span><span class="st">"Proportion"</span>, <span class="at">ylab=</span><span class="st">""</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">segments</span>(StatsForFigure<span class="sc">$</span>L95, StatsForFigure<span class="sc">$</span>At.y, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>         StatsForFigure<span class="sc">$</span>U95, StatsForFigure<span class="sc">$</span>At.y, <span class="at">col=</span>StatsForFigure<span class="sc">$</span>Col)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">2</span>, <span class="fu">c</span>(<span class="st">"Mean</span><span class="sc">\n</span><span class="st">Occupancy"</span>, <span class="st">"Range</span><span class="sc">\n</span><span class="st">Size"</span>, <span class="st">"Abundance"</span>), <span class="at">las=</span><span class="dv">1</span>, <span class="at">at=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="fl">0.21</span>,<span class="fl">2.7</span>, <span class="fu">c</span>(<span class="st">"Nestedness"</span>, <span class="st">"Disparity"</span>), <span class="at">col=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">lty=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 <div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
+<div>
 <figure class="figure">
-<p><img src="BasicDiversityExample_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
-<figcaption>Posterior densities for species specificity in abundance</figcaption>
+<p><img src="BasicDiversityExample_files/figure-html/PlotGammaStats-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-</section>
-</section>
-</section>
-<section id="beta-diversity" class="level1">
-<h1>Beta Diversity</h1>
 </section>
 
 </main>
