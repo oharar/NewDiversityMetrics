@@ -1,79 +1,18 @@
 ---
-title: "Basic Diversity Example"
+title: "German Butterfly Restoration"
 author: "Bob O'Hara"
-format:
-  html
-bibliography: references.bib
-execute: 
-  cache: true
+format: html
 ---
 
-**To DO**: 
+## Quarto
 
-- correct terminology to align with the manuscript
-- align notation with rest of manuscript
-- check this makes sense
-
-# Introduction
-
-This is an implementation of the diversity statistics, to demonstrate their calculation without any trait or environmental variables. We will use data where we can estimate both occurrence and abundance (conditional on occurrence).
-
-These are examples of an analysis, and whilst it in mainly to show how to use this approach, it also leads to the following ecological conclusions:
-
-- diversity between sites is driven by variation between species
-- diversity between species is driven by changes in rarity/commonness rather than specialisation on different sites
-- abundance and species richness on sites are not related
-- in contrast, more widespread species tend to also be more abundant
-
-
-# The Community Model
-
-For species $j$ on site $i$ we denote occurrence as $z_{ij} \in \{0,1\}$ (where 1 is presence), and abundance as $\lambda_{ij} > 0$. We will link both of these to the general theory, where we assume the occurrence/abundance/whatever is $k_ij$.
-
-Fo occurrence we assume presence is a Bernoulli trial, then $z_{ij} \sim \text{Bern}(p_{ij})$.  with probability $\text{logit}(\eta_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}$. This is equivalent to a threshold model, i.e. saying that we have a continuous random variable, $\eta_{ij}^{(z)}$, and $z_{ij} = 1$ if $\eta_{ij}^{(z)}>0$. We will assume that $\eta_{ij}^{(z)}$ follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then 
-
-$$
-\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \beta^{(z)}_j + \delta^{(z)}_{ij}.
-$$
-
-And $\delta^{(z)}_{ij}$ follows a standard logistic distribution, which means it has a mean of 0 and variance $\pi^2/3$. The species effect is thus $\beta^{(z)}_j$ ($\eta^{(z)}_j$ in Chrisophe's notation), and $\alpha^{(z)}_i$ is the site effect ($\lambda^{(z)}_j$ in Chrisophe's notation).
-
-We can calculate statistics on $\eta_{ij}^{(z)}$: note that $z_{ij}|\eta_{ij}^{(z)}$ is deterministic: the usual Bernoulli stochasticity is in $\delta^{(z)}_{ij}$. 
-
-
-For abundance we assume a log-linear model:
-
-$$
-\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \beta^{(\lambda)}_j + \delta^{(\lambda)}_{ij}
-$$
-
-Where $\alpha^{(\lambda)}_i$, $\beta^{(\lambda)}_j$ and $\delta^{(\lambda)}_{ij}$ are the site, species and inter action effects (if we assume the abundance follows a Poisson distribution, the interaction is an overdispersion term). Clearly $\lambda_{ij}=0$ if $z_{ij}=0$.
-
-For both models we assume the effects are random effects, i.e. with a variance to be estimated. But to make the presentation easier to follow, we use the posterior estimates of the parameters to calculate variances from. 
-
-The interesting statistics are the means and variances:
-
-Means: 
-
-- $\bar{k}_{\cdot \cdot} = \mu$: the grand mean
-- $\bar{k}_{i \cdot} = S_i = \mu + \alpha$: the site mean: species richness or average abundance/biomass
-- $\bar{k}_{\cdot j} = O_j = \mu + \beta$: the species mean: prevelance etc.
-
-Variances:
-
-- $P_j = \text{Var}_i(k_{ij})$: Pickiness [TERM CHANGED!!!]. The variance in site abundances (or incidence) for species $j$. Related to specialisation.
-- $U_i = \text{Var}_j(k_{ij})$: Unevenness. The variance in species abundances (or incidence) at site $i$. For abundance, this is equivalent to alpha diversity (Hill numbers)
-
-- $R = \bar{P}_j$: replacement. Mean pickiness
-- $U = \bar{U}_i$: Mean Unevenness
-- $D = \text{Var}(O_{j})$: Disparity. Variance over species in mean prevalence etc.
-- $N = \text{Var}(S_{i})$: Nestedness. Variance over sites in mean prevalence, species richness
+Data from Zenodo: https://zenodo.org/records/20763922
+Pangaea: https://doi.pangaea.de/10.1594/PANGAEA.982396
+Paper: https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2664.70513
 
 
 
-The models are fitted with JAGS, so it is easier to estimate uncertainty. Details are in the fold-out below.
 
-# An Example
 
 ::: {.callout-note collapse=true}
 
@@ -90,21 +29,38 @@ The steps are:
 ```{r}
 #| label: ImportData
 #| echo: false
-Env <- read.csv("data/waddenX.csv")
-Counts <- read.csv("data/waddenY.csv")
-Species <- names(Counts)[!names(Counts)%in%c("X", "measurementID")]
+butterfly_data_raw <- read.csv("data/data_butterfly_raw.csv")
 
-# Extract information about data
-Obs <- strsplit(Counts$measurementID, "_")
+# Remove April and "additionally found species" (not clear what these are.
+# Note that the original code does not remove them, as it removes "zuzatz")
+butterfly_data <- butterfly_data_raw[butterfly_data_raw$observation != "April" &
+                                       butterfly_data_raw$sub.transect != "Zusatz",]
+# change to make code easier to follow
+names(butterfly_data)[names(butterfly_data)=="observation"] <- "month"
 
-Counts$Island <- unlist(lapply(Obs, function(x) x[[1]]))
-Counts$Transect <- unlist(lapply(Obs, function(x) x[[2]]))
-Counts$Station <- unlist(lapply(Obs, function(x) x[[3]]))
-Counts$Season <- unlist(lapply(Obs, function(x) x[[4]]))
-Counts$Replicate <- unlist(lapply(Obs, function(x) x[[5]]))
+# change id.sub.transect so it is easier to parse with regular expressions
+butterfly_data$id.sub.transect <- paste(butterfly_data$id.site, butterfly_data$sub.transect, sep=".")
 
-Counts$Site <- factor(paste(Counts$Island, Counts$Transect, Counts$Station, Counts$Season, sep="_"))
+# For some reason there are multiple observations of species on the same transect/month. So add these up.
+# tabl <- table(butterfly_data$butterfly.name, butterfly_data$sub.transect)
+butterfly_data.agg <- aggregate(butterfly_data$butterfly.no, 
+                                by=list(id.sub.transect=butterfly_data$id.sub.transect, 
+                                        butterfly.name=butterfly_data$butterfly.name), FUN=sum)
 
+# Change from wide to long format
+Counts <- reshape(data=butterfly_data.agg, v.names = "x",
+                            idvar = "id.sub.transect", timevar = "butterfly.name", 
+                            direction="wide")
+Counts[is.na(Counts)] <- 0
+names(Counts) <- gsub("x.", "", names(Counts), fixed = TRUE)
+
+Counts$Site <- as.factor(gsub("\\..*", "", Counts$id.sub.transect))
+# Get species names
+Species <- unique(butterfly_data$butterfly.name)
+# Check to make sure these are also comumn names
+if(mean(Species%in%names(Counts))<1) message("Some species not in Count")
+
+# Get presence fromdata
 Present <- apply(Counts[,Species], 2, function(Spp, Site) 
   tapply(Spp, list(Site), function(a) c(NA,1)[1+any(a>0)]), 
                  Site = Counts$Site)
@@ -120,7 +76,7 @@ DataToJAGS <- list(
   Abund = as.matrix(Counts[,Species]), 
   Site = as.numeric(Counts$Site),
   Present = Present, 
-  temperature = as.vector(scale(tapply(Env$temperature, list(Counts$Site), mean))),
+#  temperature = as.vector(scale(tapply(Env$temperature, list(Counts$Site), mean))),
   # Island <- Counts$Island, # Might use these later
   # Transect <- Counts$Transect, 
   # Station <- Counts$Station, 
@@ -276,6 +232,11 @@ DivPars <- combine.mcmc(DivModel)
 We get some output, which we will use to estimate our diversity statistics
 
 :::
+
+
+
+
+
 
 # Diversity Output
 
@@ -481,14 +442,14 @@ Not surprisingly, the posterior modes for species richness and mean occupancy ar
 `r round(MeansCorrelations.summ$PMode["lgtp.Present.sp.cor"], 2)`, 95% CI: 
 `r round(MeansCorrelations.summ$quantiles["lgtp.Present.sp.cor","2.5%"], 2)` - 
 `r round(MeansCorrelations.summ$quantiles["lgtp.Present.sp.cor","97.5%"], 2)`). 
-But the occurrence and abundance are pretty much uncorrelated (posterior mode: 
+And occurrence and abundance have a weak uncorrelation (posterior mode: 
 `r round(MeansCorrelations.summ$PMode["lgtp.abund.sp.cor"], 2)`, 95% CI: 
 `r round(MeansCorrelations.summ$quantiles["lgtp.abund.sp.cor","2.5%"], 2)` - 
 `r round(MeansCorrelations.summ$quantiles["lgtp.abund.sp.cor","97.5%"], 2)`).
 
 ## $O_j$, $\beta$-mean diversity: Variation across sites for each species
 
-We can also look at species. We can see that most species are rare (an observation that will not get us in to *Nature*), but a few are ubiquitous.
+We can also look at species. We can see that most species are rare (an observation that will not get us in to *Nature*), but a few are more common.
 
 
 ```{r}
@@ -509,7 +470,7 @@ The posterior modes for range size and mean occupancy are strongly correlated (p
 `r round(MeansCorrelations.summ$PMode["lgtp.Present.site.cor"], 2)`, 95% CI: 
 `r round(MeansCorrelations.summ$quantiles["lgtp.Present.site.cor","2.5%"], 2)` - 
 `r round(MeansCorrelations.summ$quantiles["lgtp.Present.site.cor","97.5%"], 2)`). 
-The occurrence and abundance have a moderate correlation (posterior mode: 
+But the occurrence and abundance are uncorrelated (posterior mode: 
 `r round(MeansCorrelations.summ$PMode["lgtp.abund.site.cor"], 2)`, 95% CI: 
 `r round(MeansCorrelations.summ$quantiles["lgtp.abund.site.cor","2.5%"], 2)` - 
 `r round(MeansCorrelations.summ$quantiles["lgtp.abund.site.cor","97.5%"], 2)`).
@@ -666,7 +627,7 @@ StatsForFigure <- data.frame(
 
 ```
 
-From the plot we can see that nestedness is low for abundance and occupancy, so most variation is across sites is because of turnover, rather than changes in total numbers of species or numbers of individuals. In contrast, disparity is high across species, especially abundance, so variation between species in global occupancy and abundance (i.e. some are rare and others common) is driving diversity in these communities, rather than species having similar overall abundances but segregating between sites.
+From the plot we can see that nestedness is low, so most variation is across sites is because of turnover, rather than changes in total numbers of species or numbers of individuals. In contrast, disparity is high across species, especially abundance, so variation between species in global occupancy and abundance (i.e. some are rare and others common) is driving diversity in these communities, rather than species having similar overall abundances but segregating between sites.
 
 ```{r}
 #| label: PlotGammaStats
@@ -683,3 +644,4 @@ axis(2, c("Mean\nOccupancy", "Range\nSize", "Abundance"), las=1, at=1:3)
 legend(0.21,2.7, c("Nestedness", "Disparity"), col=1:2, lty=1)
 
 ```
+
