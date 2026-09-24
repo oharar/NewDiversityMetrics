@@ -1,0 +1,188 @@
+"id.site","obs.year","eco.name","region","mngm.type","hydrology","site.cwm.pres.oek.f","site.type","rest.meth","rest.meth.type","land.use.hist","rest.age","pH.site"
+"M_ALT","2022","Central European mixed forests","centre","mowing","moist",4.9825,"negative",NA,"negative",NA,NA,7.115
+"M_ASE","2023","Central European mixed forests","centre","both","fresh",4.22,"restored","res","res","arable land",2,7.29
+"M_BAD","2022","Central European mixed forests","centre","grazing","dry",3.1575,"restored","mga","mga","grassland",5,7.365
+"M_BAL","2023","Central European mixed forests","centre","none","fresh",4.2825,"negative",NA,"negative",NA,NA,6.95
+"M_BEE","2023","Central European mixed forests","centre","mowing","fresh",4.1825,"restored","cus","cus","arable land",25,6.915
+"M_BEN","2022","Central European mixed forests","centre","mowing","fresh",4.415,"restored","res","res","arable land",2,6.085
+"M_BIR","2023","Central European mixed forests","centre","mowing","fresh",4.73,"positive",NA,"positive",NA,NA,4.645
+"M_BOD","2023","Central European mixed forests","centre","both","fresh",4.3525,"negative",NA,"negative",NA,NA,7.145
+"M_BRA","2023","Central European mixed forests","centre","both","dry",3.9675,"restored","res","res","arable land",10,6.43
+"M_BUH","2022","Central European mixed forests","centre","both","fresh",4.56,"restored","res","res","arable land",3,6.89
+"M_CAL","2022","Central European mixed forests","centre","mowing","fresh",4.3775,"restored","res","res","arable land",6,7.22
+"M_CBE","2022","Central European mixed forests","centre","mowing","fresh",4.7,"negative",NA,"negative",NA,NA,7.15
+"M_DOB","2022","Central European mixed forests","centre","mowing","dry",3.91,"restored","res","res","arable land",6,7.41
+"M_DOR","2022","Central European mixed forests","centre","mowing","fresh",4.3125,"restored","cus","cus","arable land",27,7.14
+"M_EIC","2023","Central European mixed forests","centre","both","fresh",5.09,"negative",NA,"negative",NA,NA,4.815
+"M_FAL","2023","Central European mixed forests","centre","mowing","fresh",4.4975,"restored","res","res","arable land",6,6.18
+"M_FRB","2023","Central European mixed forests","centre","grazing","dry",3.7075,"restored","mga","mga","grassland",14,7.26
+"M_GRO","2022","Central European mixed forests","centre","both","fresh",4.5925,"restored","cus","cus","arable land",26,7.215
+"M_HAH","2023","Central European mixed forests","centre","none","dry",2.9,"positive",NA,"positive",NA,NA,7.18
+"M_HAI","2022","Western European broadleaf forests","centre","grazing","fresh",4.41,"restored","mga","mga","grassland",11,7.47
+"M_HAR","2023","Central European mixed forests","centre","mowing","fresh",4.1825,"restored","res","res","arable land",12,7.425
+"M_HIR","2022","Central European mixed forests","centre","grazing","dry",3.7975,"restored","mga","mga","grassland",9,7.37
+"M_HLI","2022","Western European broadleaf forests","centre","both","fresh",4.5375,"positive",NA,"positive",NA,NA,5.985
+"M_HNB","2023","Central European mixed forests","centre","grazing","dry",3.9375,"restored","mga","mga","grassland",2,7.05
+"M_HOH","2022","Central European mixed forests","centre","mowing","moist",5.67,"restored","cus","cus","arable land",26,7.32
+"M_ILB","2023","Central European mixed forests","centre","mowing","fresh",4.7875,"restored","res","res","arable land",12,7.4
+"M_JEP","2023","Central European mixed forests","centre","mowing","fresh",4.3325,"positive",NA,"positive",NA,NA,5.525
+"M_JER","2023","Central European mixed forests","centre","mowing","fresh",4.325,"restored","dih","dih","arable land",5,6.005
+"M_KAL","2022","Western European broadleaf forests","centre","grazing","fresh",3.87,"positive",NA,"positive",NA,NA,7.49
+"M_KAP","2023","Central European mixed forests","centre","mowing","fresh",5.2825,"negative",NA,"negative",NA,NA,5.645
+"M_KIF","2022","Central European mixed forests","centre","mowing","dry",3.615,"negative",NA,"negative",NA,NA,7.27
+"M_KOL","2023","Central European mixed forests","centre","mowing","dry",3.865,"restored","res","res","arable land",3,7.3
+"M_KOT","2022","Central European mixed forests","centre","mowing","fresh",4.615,"restored","res","res","arable land",4,7.4
+"M_KUH","2022","Central European mixed forests","centre","grazing","dry",3.46,"restored","mga","mga","grassland",4,7.375
+"M_LOB","2023","Central European mixed forests","centre","mowing","fresh",4.0725,"restored","cus","cus","arable land",25,7.155
+"M_MOZ","2023","Western European broadleaf forests","centre","mowing","moist",5.8175,"positive",NA,"positive",NA,NA,5.15
+"M_NEL","2022","Central European mixed forests","centre","grazing","dry",2.72,"restored","mga","mga","grassland",14,7.52
+"M_NIS","2022","Central European mixed forests","centre","none","dry",4.025,"negative",NA,"negative",NA,NA,7.45
+"M_PRA","2023","Central European mixed forests","centre","both","moist",4.9425,"restored","dih","dih","arable land",22,5.54
+"M_SKF","2022","Central European mixed forests","centre","both","fresh",4.3625,"restored","res","res","arable land",9,7.375
+"M_SMH","2023","Central European mixed forests","centre","none","dry",3.78,"negative",NA,"negative",NA,NA,6.88
+"M_SSB","2022","Central European mixed forests","centre","grazing","dry",2.75,"positive",NA,"positive",NA,NA,7.49
+"M_SSL","2023","Central European mixed forests","centre","none","dry",3.4775,"positive",NA,"positive",NA,NA,5.54
+"M_STA","2023","Central European mixed forests","centre","mowing","fresh",4.7,"restored","res","res","grassland",5,5.12
+"M_STF","2023","Central European mixed forests","centre","mowing","moist",5.0875,"restored","dih","dih","arable land",3,6.17
+"M_STI","2023","Central European mixed forests","centre","mowing","moist",4.6575,"restored","cus","cus","arable land",28,7.205
+"M_STN","2023","Central European mixed forests","centre","grazing","dry",3.3125,"restored","mga","mga","grassland",2,7.24
+"M_STP","2023","Central European mixed forests","centre","mowing","fresh",4.6725,"positive",NA,"positive",NA,NA,5.005
+"M_SUL","2022","Central European mixed forests","centre","both","fresh",4.8825,"negative",NA,"negative",NA,NA,7.405
+"M_TAN","2022","Central European mixed forests","centre","grazing","dry",3.1075,"restored","mga","mga","grassland",11,6.99
+"M_TRE","2023","Central European mixed forests","centre","mowing","fresh",4.4225,"restored","res","res","grassland",8,7.33
+"M_TRN","2023","Central European mixed forests","centre","mowing","moist",5.01,"negative",NA,"negative",NA,NA,7.37
+"M_TTH","2023","Central European mixed forests","centre","grazing","dry",3.0475,"restored","mga","mga","grassland",11,7.355
+"M_TTO","2022","Central European mixed forests","centre","grazing","dry",3.595,"positive",NA,"positive",NA,NA,7.58
+"M_TTP","2022","Central European mixed forests","centre","grazing","dry",3.345,"restored","mga","mga","grassland",13,7.425
+"M_VOC","2023","Central European mixed forests","centre","mowing","fresh",4.5425,"restored","dih","dih","arable land",8,6.08
+"M_WDG","2022","Central European mixed forests","centre","mowing","fresh",4.0925,"restored","res","res","arable land",6,6.855
+"M_WED","2023","Central European mixed forests","centre","mowing","moist",5.035,"restored","res","res","arable land",7,7.215
+"M_WEF","2022","Central European mixed forests","centre","mowing","moist",6.9775,"restored","mga","mga","grassland",13,7.38
+"M_WIM","2022","Western European broadleaf forests","centre","both","fresh",4.205,"restored","res","res","arable land",6,6.98
+"M_WLE","2022","Central European mixed forests","centre","mowing","moist",6.05,"negative",NA,"negative",NA,NA,7.49
+"M_WUG","2022","Central European mixed forests","centre","grazing","fresh",6.335,"restored","mga","mga","arable land",20,7.56
+"M_WUM","2022","Central European mixed forests","centre","grazing","fresh",6.0225,"restored","mga","mga","grassland",10,7.415
+"M_WUN","2022","Central European mixed forests","centre","mowing","fresh",5.9925,"negative",NA,"negative",NA,NA,7.635
+"M_WUP","2022","Central European mixed forests","centre","grazing","fresh",5.9975,"positive",NA,"positive",NA,NA,6.98
+"M_WUR","2022","Central European mixed forests","centre","mowing","moist",6.64,"positive",NA,"positive",NA,NA,7.35
+"N_AFE","2023","European Atlantic mixed forests","north","both","fresh",4.805,"restored","cus","cus","arable land",34,4.73
+"N_ALA","2022","European Atlantic mixed forests","north","mowing","fresh",5.1875,"restored","res","res","grassland",6,5.805
+"N_ARE","2022","European Atlantic mixed forests","north","mowing","fresh",4.805,"restored","res","res","arable land",3,4.945
+"N_BEB","2022","European Atlantic mixed forests","north","both","fresh",5.05,"restored","cus","cus","arable land",29,4.15
+"N_BEN","2023","European Atlantic mixed forests","north","mowing","fresh",5.365,"negative",NA,"negative",NA,NA,4.625
+"N_BIT","2022","European Atlantic mixed forests","north","grazing","fresh",4.71,"restored","dih","dih","grassland",4,4.44
+"N_BLE","2023","European Atlantic mixed forests","north","mowing","fresh",4.785,"positive",NA,"positive",NA,NA,5.175
+"N_BLU","2022","European Atlantic mixed forests","north","mowing","fresh",4.9875,"restored","cus","cus","arable land",28,5.165
+"N_BRD","2022","European Atlantic mixed forests","north","both","fresh",6.4525,"restored","dih","dih","grassland",3,4.11
+"N_BRE","2022","European Atlantic mixed forests","north","mowing","dry",4.005,"restored","res","res","arable land",4,4.595
+"N_BRO","2023","European Atlantic mixed forests","north","grazing","dry",3.8625,"restored","dih","dih","arable land",8,4.535
+"N_BU1","2022","European Atlantic mixed forests","north","grazing","fresh",5.4275,"negative",NA,"negative",NA,NA,4.435
+"N_BU2","2022","European Atlantic mixed forests","north","grazing","moist",6.2775,"negative",NA,"negative",NA,NA,5.67
+"N_CAM","2023","European Atlantic mixed forests","north","grazing","dry",3.7625,"positive",NA,"positive",NA,NA,4.595
+"N_CNI","2023","European Atlantic mixed forests","north","both","moist",4.24,"restored","mga","mga","grassland",16,5.32
+"N_DAM","2022","European Atlantic mixed forests","north","mowing","fresh",4.46,"restored","res","res","arable land",7,5.915
+"N_DUM","2023","European Atlantic mixed forests","north","mowing","moist",6.645,"positive",NA,"positive",NA,NA,5.08
+"N_EIC","2023","European Atlantic mixed forests","north","both","dry",4.1,"restored","dih","dih","grassland",6,4.395
+"N_ELB","2023","European Atlantic mixed forests","north","grazing","fresh",5.065,"restored","res","res","arable land",5,5.475
+"N_FLA","2023","European Atlantic mixed forests","north","mowing","moist",6.83,"negative",NA,"negative",NA,NA,4.99
+"N_GAM","2022","European Atlantic mixed forests","north","both","fresh",5.2775,"restored","cus","cus","arable land",30,5.42
+"N_GAR","2022","European Atlantic mixed forests","north","mowing","fresh",5.475,"restored","cus","cus","arable land",17,5.375
+"N_GBI","2022","European Atlantic mixed forests","north","mowing","moist",5.545,"positive",NA,"positive",NA,NA,6.7
+"N_GUT","2023","European Atlantic mixed forests","north","mowing","fresh",5.4625,"restored","res","res","arable land",8,6.35
+"N_HAI","2022","European Atlantic mixed forests","north","grazing","moist",5.885,"restored","mga","mga","grassland",3,4.745
+"N_HOH","2023","European Atlantic mixed forests","north","both","dry",4.29,"restored","mga","mga","arable land",7,4.56
+"N_HOR","2022","European Atlantic mixed forests","north","mowing","dry",4.2975,"restored","cus","cus","arable land",4,5.67
+"N_HOY","2022","European Atlantic mixed forests","north","both","moist",5.6825,"restored","mga","mga","arable land",3,6.055
+"N_ISE","2022","European Atlantic mixed forests","north","both","dry",4.9425,"positive",NA,"positive",NA,NA,4.55
+"N_JAS","2023","European Atlantic mixed forests","north","mowing","fresh",4.92,"restored","cus","cus","arable land",10,5.705
+"N_KAP","2023","European Atlantic mixed forests","north","mowing","fresh",5.215,"restored","dih","dih","arable land",7,5.255
+"N_KIR","2022","European Atlantic mixed forests","north","both","moist",5.82,"positive",NA,"positive",NA,NA,4.53
+"N_KRI","2022","European Atlantic mixed forests","north","mowing","fresh",5.245,"restored","cus","cus","arable land",12,5.76
+"N_LUB","2023","European Atlantic mixed forests","north","mowing","fresh",5.075,"restored","dih","dih","arable land",27,5.36
+"N_MAU","2023","European Atlantic mixed forests","north","mowing","dry",4.535,"restored","cus","cus","arable land",4,4.295
+"N_MEC","2023","European Atlantic mixed forests","north","mowing","fresh",4.945,"negative",NA,"negative",NA,NA,5.125
+"N_MOO","2023","European Atlantic mixed forests","north","mowing","fresh",4.8175,"restored","res","res","arable land",5,4.775
+"N_NLG","2023","European Atlantic mixed forests","north","mowing","moist",6.26,"restored","res","res","arable land",9,5.125
+"N_OCH","2023","European Atlantic mixed forests","north","mowing","dry",4.045,"restored","dih","dih","grassland",5,5.01
+"N_OLE","2023","European Atlantic mixed forests","north","mowing","fresh",5.3125,"negative",NA,"negative",NA,NA,5.685
+"N_PAN","2023","Baltic mixed forests","north","grazing","fresh",4.74,"restored","res","res","arable land",5,4.93
+"N_PEV","2022","European Atlantic mixed forests","north","both","dry",5.015,"restored","dih","dih","grassland",3,4.08
+"N_PFE","2023","European Atlantic mixed forests","north","mowing","moist",7.035,"restored","mga","mga","grassland",3,5.37
+"N_RAD","2022","European Atlantic mixed forests","north","mowing","moist",6.6675,"negative",NA,"negative",NA,NA,5.09
+"N_RET","2022","European Atlantic mixed forests","north","mowing","moist",5.7475,"restored","mga","mga","grassland",3,4.88
+"N_SCH","2022","European Atlantic mixed forests","north","mowing","moist",6.0875,"positive",NA,"positive",NA,NA,4.45
+"N_SMG","2022","European Atlantic mixed forests","north","mowing","fresh",5.4175,"negative",NA,"negative",NA,NA,4.59
+"N_STA","2023","European Atlantic mixed forests","north","mowing","fresh",5.09,"restored","cus","cus","arable land",17,4.76
+"N_STE","2022","European Atlantic mixed forests","north","both","moist",6.87,"positive",NA,"positive",NA,NA,5.175
+"N_TAN","2023","European Atlantic mixed forests","north","grazing","fresh",6.2525,"restored","mga","mga","grassland",3,4.845
+"N_TAS","2023","European Atlantic mixed forests","north","grazing","fresh",5.04,"restored","cus","cus","arable land",6,5.455
+"N_TRI","2023","European Atlantic mixed forests","north","mowing","fresh",5.67,"negative",NA,"negative",NA,NA,5.4
+"N_TUT","2022","European Atlantic mixed forests","north","grazing","dry",4.7475,"restored","mga","mga","arable land",3,5.015
+"N_UET","2022","European Atlantic mixed forests","north","both","fresh",5.1225,"negative",NA,"negative",NA,NA,4.375
+"N_VIE","2022","European Atlantic mixed forests","north","mowing","dry",4.2875,"positive",NA,"positive",NA,NA,4.67
+"N_VOG","2023","European Atlantic mixed forests","north","mowing","moist",6.1425,"restored","dih","dih","arable land",5,4.48
+"N_WAL","2023","European Atlantic mixed forests","north","mowing","moist",6.2425,"restored","dih","dih","grassland",8,5.295
+"N_WEN","2022","European Atlantic mixed forests","north","grazing","dry",5.045,"restored","dih","dih","grassland",5,4.165
+"N_WER","2023","European Atlantic mixed forests","north","mowing","moist",6.7275,"positive",NA,"positive",NA,NA,4.74
+"N_WIZ","2023","European Atlantic mixed forests","north",NA,"dry",4.2675,"positive",NA,"positive",NA,NA,4.985
+"N_ZDF","2022","European Atlantic mixed forests","north","mowing","fresh",5.3,"restored","res","res","arable land",5,5.76
+"S_ACR","2022","Western European broadleaf forests","south","mowing","dry",4.07,"restored","dih","dih","grassland",24,7.37
+"S_AFR","2023","Western European broadleaf forests","south","mowing","fresh",5.4475,"restored","res","res","grassland",7,5.55
+"S_AMP","2023","Western European broadleaf forests","south","mowing","moist",5.15,"positive",NA,"positive",NA,NA,7.16
+"S_AUH","2022","Western European broadleaf forests","south","mowing","dry",4.2275,"restored","dih","dih","arable land",26,7.49
+"S_AUL","2022","Western European broadleaf forests","south","mowing","fresh",4.8025,"restored","res","res","arable land",3,7.355
+"S_BUC","2022","Western European broadleaf forests","south","mowing","dry",4.625,"restored","dih","dih","arable land",8,5.57
+"S_DIE","2022","Western European broadleaf forests","south","mowing","dry",5.535,"negative",NA,"negative",NA,NA,7.26
+"S_ECH","2022","Western European broadleaf forests","south","mowing","dry",3.8175,"restored","res","res","arable land",10,6.98
+"S_EIT","2023","Western European broadleaf forests","south","mowing","fresh",5.395,"positive",NA,"positive",NA,NA,5.71
+"S_FCH","2022","Western European broadleaf forests","south","mowing","fresh",4.8225,"restored","dih","dih","grassland",23,7.445
+"S_FHZ","2022","Western European broadleaf forests","south","mowing","moist",6.9075,"restored","dih","dih","arable land",17,5.715
+"S_GIG","2022","Western European broadleaf forests","south","mowing","fresh",5.74,"restored","dih","dih","grassland",16,7.27
+"S_GSH","2022","Western European broadleaf forests","south","mowing","fresh",5.1125,"restored","res","res","arable land",2,6.265
+"S_GSR","2023","Western European broadleaf forests","south","mowing","fresh",5.3225,"restored","dih","dih","arable land",15,7.285
+"S_GTZ","2022","Western European broadleaf forests","south","mowing","moist",5.96,"restored","dih","dih","grassland",5,5.48
+"S_HBF","2023","Western European broadleaf forests","south","mowing","fresh",5.5825,"negative",NA,"negative",NA,NA,5.62
+"S_HGR","2022","Western European broadleaf forests","south","mowing","fresh",5.58,"negative",NA,"negative",NA,NA,7.125
+"S_HLZ","2022","Western European broadleaf forests","south","mowing","moist",5.7625,"restored","dih","dih","arable land",6,4.805
+"S_HTH","2023","Western European broadleaf forests","south","mowing","dry",4.27,"restored","dih","dih","arable land",3,7.005
+"S_HUB","2023","Western European broadleaf forests","south","mowing","dry",4.76,"restored","dih","dih","arable land",13,5.52
+"S_JAN","2022","Western European broadleaf forests","south","mowing","fresh",5.3175,"negative",NA,"negative",NA,NA,6.01
+"S_JAU","2022","Western European broadleaf forests","south","mowing","fresh",4.925,"restored","res","res","arable land",3,6.06
+"S_JHB","2023","Western European broadleaf forests","south","mowing","moist",5.8275,"restored","cus","cus","arable land",36,5.865
+"S_JOS","2022","Western European broadleaf forests","south","mowing","fresh",5.025,"restored","res","res","grassland",3,6.395
+"S_KDT","2023","Western European broadleaf forests","south","mowing","fresh",4.625,"positive",NA,"positive",NA,NA,7.15
+"S_KRT","2023","Western European broadleaf forests","south","both","dry",4.1375,"restored","dih","dih","grassland",13,7.3
+"S_LAP","2023","Western European broadleaf forests","south","mowing","fresh",5.405,"restored","res","res","grassland",20,7.16
+"S_LPI","2023","Western European broadleaf forests","south","mowing","dry",4.2575,"restored","dih","dih","arable land",3,7.41
+"S_MAS","2023","Western European broadleaf forests","south","mowing","moist",6.0125,"restored","cus","cus","grassland",20,7.275
+"S_MBM","2022","Western European broadleaf forests","south","mowing","moist",4.8725,"restored","dih","dih","arable land",15,7.39
+"S_MCH","2023","Western European broadleaf forests","south","mowing","fresh",4.3225,"restored","res","res","grassland",2,7.425
+"S_MHH","2023","Western European broadleaf forests","south","both","dry",4.24,"positive",NA,"positive",NA,NA,6.68
+"S_MTK","2023","Western European broadleaf forests","south","mowing","fresh",5.1475,"positive",NA,"positive",NA,NA,5.345
+"S_NOZ","2022","Western European broadleaf forests","south","mowing","fresh",4.87,"restored","res","res","arable land",2,6.985
+"S_OST","2023","Western European broadleaf forests","south","mowing","moist",5.2575,"restored","dih","dih","arable land",13,7.45
+"S_OSW","2023","Western European broadleaf forests","south","mowing","fresh",4.82,"restored","dih","dih","arable land",11,5.195
+"S_PEI","2022","Western European broadleaf forests","south","mowing","fresh",5.375,"restored","dih","dih","grassland",2,5.96
+"S_PEN","2022","Western European broadleaf forests","south","mowing","moist",5.8075,"negative",NA,"negative",NA,NA,6.43
+"S_POP","2023","Western European broadleaf forests","south","mowing","fresh",5.075,"restored","res","res","arable land",6,6.34
+"S_RUP","2023","Western European broadleaf forests","south","mowing","fresh",5.445,"negative",NA,"negative",NA,NA,6.47
+"S_SBA","2022","Western European broadleaf forests","south","mowing","dry",4.1525,"positive",NA,"positive",NA,NA,7.155
+"S_SBN","2022","Western European broadleaf forests","south","mowing","dry",4.2325,"restored","dih","dih","arable land",15,7.42
+"S_SHH","2022","Western European broadleaf forests","south","grazing","dry",4.285,"restored","dih","dih","arable land",22,5.915
+"S_SIM","2023","Western European broadleaf forests","south","mowing","fresh",4.5725,"positive",NA,"positive",NA,NA,6.405
+"S_SNF","2022","Western European broadleaf forests","south","mowing","moist",5.9475,"restored","dih","dih","arable land",4,5.515
+"S_STB","2023","Western European broadleaf forests","south","mowing","moist",5.16,"restored","dih","dih","arable land",17,5.125
+"S_STW","2022","Western European broadleaf forests","south","mowing","moist",6.4975,"positive",NA,"positive",NA,NA,7.345
+"S_TIE","2023","Western European broadleaf forests","south","mowing","fresh",4.8675,"restored","res","res","arable land",6,7.26
+"S_TRN","2023","Western European broadleaf forests","south","mowing","fresh",4.6425,"restored","dih","dih","arable land",3,6.16
+"S_UKB","2023","Western European broadleaf forests","south","mowing","fresh",5.205,"negative",NA,"negative",NA,NA,6.65
+"S_VIB","2023","Western European broadleaf forests","south","mowing","moist",5.5475,"negative",NA,"negative",NA,NA,6.06
+"S_VLP","2022","Western European broadleaf forests","south","mowing","moist",6.2525,"positive",NA,"positive",NA,NA,5.69
+"S_VLR","2022","Western European broadleaf forests","south","mowing","fresh",5.47,"restored","cus","cus","arable land",23,5.37
+"S_WGD","2022","Western European broadleaf forests","south","mowing","fresh",5.165,"restored","cus","cus","arable land",2,6.07
+"S_WLF","2023","Western European broadleaf forests","south","mowing","fresh",5.6025,"negative",NA,"negative",NA,NA,5.98
+"S_WNG","2023","Western European broadleaf forests","south","mowing","dry",4.09,"positive",NA,"positive",NA,NA,7.305
+"S_WNK","2023","Western European broadleaf forests","south","mowing","fresh",4.9875,"restored","dih","dih","grassland",11,5.405
+"S_WTB","2023","Western European broadleaf forests","south","mowing","fresh",5.51,"negative",NA,"negative",NA,NA,5.92
+"S_WTH","2022","Western European broadleaf forests","south","mowing","moist",5.26,"restored","dih","dih","grassland",20,7.16
+"S_WTZ","2023","Western European broadleaf forests","south","mowing","fresh",4.91,"restored","dih","dih","arable land",5,5.855

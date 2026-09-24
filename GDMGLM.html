@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Better GDM</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -59,7 +62,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -85,13 +87,13 @@ div.csl-indent {
 <script src="GDMGLM_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="GDMGLM_files/libs/quarto-html/anchor.min.js"></script>
 <link href="GDMGLM_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="GDMGLM_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="GDMGLM_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="GDMGLM_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="GDMGLM_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="GDMGLM_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="GDMGLM_files/libs/bootstrap/bootstrap-138a6193a3bd40baf1e627da441a4734.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -104,7 +106,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -187,7 +189,7 @@ window.Quarto = {
 <p><span class="math display">\[
 D_{12} = \lVert\boldsymbol{\eta}_1 - \boldsymbol{\eta}_2 \rVert =\sqrt{\sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2}
 \]</span></p>
-<p>So that</p>
+<p>So we can look at the squared differences:</p>
 <p><span class="math display">\[
 \begin{aligned}
 D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
@@ -210,7 +212,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(zen4R) <span class="co"># used to download SA data</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(zen4R) <span class="co"># used to download SA data</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gdm)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(taxize)</span>
@@ -312,7 +314,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>  <span class="fu">segments</span>(summ[,<span class="st">"0.025quant"</span>], At, </span>
 <span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>           summ[,<span class="st">"0.975quant"</span>], At)</span>
 <span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abline</span>(<span class="at">v=</span><span class="dv">0</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
-<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <section id="example-1-south-african-flora" class="level3">
@@ -321,7 +323,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|output: false</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|output: false</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Download the data, if it hasn't already been done. Cleans up afterwards, too </span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">file.exists</span>(<span class="st">"data/sa_species_data.csv"</span>)) {</span>
@@ -364,7 +366,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>SAData <span class="ot">&lt;-</span> <span class="fu">cbind</span>(SAData.long, ScCov)</span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="co"># SAData$Species &lt;- factor(SAData$Species)</span></span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>SAData<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">factor</span>(SAData<span class="sc">$</span>plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>SAData<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">factor</span>(SAData<span class="sc">$</span>plot)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>Covariates:</p>
@@ -382,7 +384,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create formula for INLA</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create formula for INLA</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>EnvForm <span class="ot">&lt;-</span> <span class="fu">sapply</span>(SA.EnvCov, <span class="cf">function</span>(var) {</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(var, <span class="st">".sc + f(Species."</span>, var, <span class="st">".sc, "</span>, var, </span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">".sc, hyper = PCHyper)"</span>)</span>
@@ -407,14 +409,14 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>SAinla <span class="ot">&lt;-</span> <span class="fu">inla</span>(SA.Formula, <span class="at">data=</span>SAData, <span class="at">control.compute=</span><span class="fu">list</span>(<span class="at">config =</span> <span class="cn">TRUE</span>), </span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">control.inla=</span><span class="fu">list</span>(<span class="at">int.strategy =</span> <span class="st">"ccd"</span>), <span class="at">lincomb =</span> SA.LCs)</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>SASumm <span class="ot">&lt;-</span><span class="fu">summary</span>(SAinla)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>SASumm <span class="ot">&lt;-</span><span class="fu">summary</span>(SAinla)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>From this we first need to calculate the statistics described above. Because the statistics are not linear, we need to simulate from the posterior. There is an approximation here because INLA will only simulate from the integration points of the hyperparameters, not from their full distribution. This might be fixable later.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>SAsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, SAinla)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>SAsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, SAinla)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>SAPosts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">sapply</span>(SAsamps, CalcPostVar, <span class="at">data=</span>SAData)))</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>Use <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">names</span>(SAPosts)<span class="sc">%in%</span><span class="fu">paste0</span>(<span class="st">"Precision.for."</span>, <span class="fu">c</span>(<span class="st">"Species"</span>, <span class="st">"plot"</span>))</span>
@@ -425,7 +427,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SA.PropVar<span class="sc">$</span>MeanDelta), <span class="at">main=</span><span class="st">"Mean Covariate"</span>)</span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SA.PropVar<span class="sc">$</span>VarDelta), <span class="at">main=</span><span class="st">"Variation in Covariate"</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SA.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SA.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -437,11 +439,11 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 </div>
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>SA.SummVars <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mode=</span>MCMCglmm<span class="sc">::</span><span class="fu">posterior.mode</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SA.PropVar)),</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  coda<span class="sc">::</span><span class="fu">HPDinterval</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SA.PropVar), <span class="at">prob =</span> <span class="fl">0.95</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We find that 5.14% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of 4.92% - 6.13%. So only a small fraction of the variation is due to the environment. The distribution for the variation in the covariate looks horrible because it is only drawn from the integration points, as noted above. This makes it a bit of a mess, but doesn’t change the overall message in any of the examples.</p>
@@ -449,7 +451,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot means</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot means</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(SASumm<span class="sc">$</span>fixed)))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Use.hyper <span class="ot">&lt;-</span> <span class="fu">sapply</span>(SA.EnvCov, <span class="cf">function</span>(x, y) <span class="fu">grep</span>(x, y),</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y=</span><span class="fu">names</span>(SAinla<span class="sc">$</span>marginals.hyperpar))</span>
@@ -458,7 +460,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotFixed</span>(<span class="at">fixed=</span>SASumm<span class="sc">$</span>fixed, <span class="at">use=</span>Use.fixed)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>SAHyperSDs, <span class="at">use=</span><span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>SAHyperSDs, <span class="at">use=</span><span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -473,7 +475,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>SA.RanEff <span class="ot">&lt;-</span> SAinla<span class="sc">$</span>summary.lincomb.derived</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>SA.RanEff <span class="ot">&lt;-</span> SAinla<span class="sc">$</span>summary.lincomb.derived</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>SA.UseSumRan <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Species</span><span class="sc">\\</span><span class="st">."</span>, <span class="fu">names</span>(SAinla<span class="sc">$</span>summary.random))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Xlims <span class="ot">&lt;-</span> <span class="fu">range</span>(SA.RanEff[,<span class="fu">c</span>(<span class="st">"0.025quant"</span>, <span class="st">"0.975quant"</span>)])</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -482,7 +484,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotEff</span>(<span class="at">summ=</span>RanEff[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(RanEff)),], </span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean=</span>SummFix[<span class="fu">paste0</span>(env, <span class="st">".sc"</span>),],</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">""</span>, <span class="at">xlab=</span><span class="st">""</span>, <span class="at">main=</span>env, ...)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>SA.RanEff, <span class="at">SummFix=</span>SASumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>SA.RanEff, <span class="at">SummFix=</span>SASumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -499,7 +501,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|output: false</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#|output: false</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>FamData <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/sa_family_data.csv"</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>FamNames <span class="ot">&lt;-</span> <span class="fu">names</span>(FamData)[<span class="sc">!</span><span class="fu">names</span>(FamData)<span class="sc">%in%</span><span class="fu">names</span>(Data)]</span>
@@ -528,14 +530,14 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>SAFamData <span class="ot">&lt;-</span> <span class="fu">cbind</span>(FamData.long, ScCov)</span>
 <span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>SAFamData<span class="sc">$</span>Family <span class="ot">&lt;-</span> <span class="fu">factor</span>(UseNames[SAFamData<span class="sc">$</span>FamilyID])</span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>SAFamData<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">factor</span>(SAFamData<span class="sc">$</span>plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>SAFamData<span class="sc">$</span>plot <span class="ot">&lt;-</span> <span class="fu">factor</span>(SAFamData<span class="sc">$</span>plot)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>The covariates are as before, as is the use of INLA and the priors:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create formula for INLA</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create formula for INLA</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>SAFam.Formula <span class="ot">&lt;-</span> <span class="fu">formula</span>(</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"Abund ~ f(Family, hyper = PCHyper) + f(plot, hyper = PCHyper) + "</span>, </span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>         <span class="fu">paste</span>(</span>
@@ -559,14 +561,14 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>SAFaminla <span class="ot">&lt;-</span> <span class="fu">inla</span>(SAFam.Formula, <span class="at">data=</span>SAFamData, </span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>                  <span class="at">control.compute=</span><span class="fu">list</span>(<span class="at">config =</span> <span class="cn">TRUE</span>), </span>
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>               <span class="at">control.inla=</span><span class="fu">list</span>(<span class="at">int.strategy =</span> <span class="st">"ccd"</span>), <span class="at">lincomb =</span> SAFam.LCs)</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>SAFamSumm <span class="ot">&lt;-</span><span class="fu">summary</span>(SAFaminla)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>SAFamSumm <span class="ot">&lt;-</span><span class="fu">summary</span>(SAFaminla)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>As before, we now calculate the statistics.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>SAFamsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, SAFaminla)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>SAFamsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, SAFaminla)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>SAFamPosts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">sapply</span>(SAFamsamps, CalcPostVar, <span class="at">data=</span>SAFamData)))</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>Use <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">names</span>(SAFamPosts)<span class="sc">%in%</span><span class="fu">paste0</span>(<span class="st">"Precision.for."</span>, <span class="fu">c</span>(<span class="st">"Family"</span>, <span class="st">"plot"</span>))</span>
@@ -577,7 +579,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SAFam.PropVar<span class="sc">$</span>MeanDelta), <span class="at">main=</span><span class="st">"Mean Covariate"</span>)</span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SAFam.PropVar<span class="sc">$</span>VarDelta), <span class="at">main=</span><span class="st">"Variation in Covariate"</span>)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SAFam.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SAFam.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -588,18 +590,18 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 </div>
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>SAFam.SummVars <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mode=</span>MCMCglmm<span class="sc">::</span><span class="fu">posterior.mode</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SAFam.PropVar)),</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  coda<span class="sc">::</span><span class="fu">HPDinterval</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SAFam.PropVar), <span class="at">prob =</span> <span class="fl">0.95</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We find that 11.5% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of 10.21% - 12.61%, so a bit more of the beta diversity at the family level is explained by the environmental covariates than at the species level. We can look at the individual covariates:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(SAFamSumm<span class="sc">$</span>fixed)))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(SAFamSumm<span class="sc">$</span>fixed)))</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Use.hyper <span class="ot">&lt;-</span> <span class="fu">sapply</span>(SA.EnvCov, <span class="cf">function</span>(x, y) <span class="fu">grep</span>(x, y),</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y=</span><span class="fu">names</span>(SAFaminla<span class="sc">$</span>marginals.hyperpar))</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -607,7 +609,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotFixed</span>(<span class="at">fixed=</span>SAFamSumm<span class="sc">$</span>fixed, <span class="at">use=</span>Use.fixed)</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>SAFamHyperSDs, <span class="at">use=</span><span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>SAFamHyperSDs, <span class="at">use=</span><span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -621,7 +623,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>SA.RanEff <span class="ot">&lt;-</span> SAinla<span class="sc">$</span>summary.lincomb.derived</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>SA.RanEff <span class="ot">&lt;-</span> SAinla<span class="sc">$</span>summary.lincomb.derived</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>SA.UseSumRan <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Species</span><span class="sc">\\</span><span class="st">."</span>, <span class="fu">names</span>(SAinla<span class="sc">$</span>summary.random))</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>Xlims <span class="ot">&lt;-</span> <span class="fu">range</span>(SA.RanEff[,<span class="fu">c</span>(<span class="st">"0.025quant"</span>, <span class="st">"0.975quant"</span>)])</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -636,7 +638,7 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">PlotEff</span>(<span class="at">summ=</span>RanEff[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(RanEff)),], </span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean=</span>SummFix[<span class="fu">paste0</span>(env, <span class="st">".sc"</span>),],</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">""</span>, <span class="at">xlab=</span><span class="st">""</span>, <span class="at">main=</span>env, ...)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>SAFam.RanEff, <span class="at">SummFix=</span>SAFamSumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>SAFam.RanEff, <span class="at">SummFix=</span>SAFamSumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -654,7 +656,15 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
   suggests that the spatial random effect contributes to the mean dissimilarity 
   more than the environmental covariates, even when considering the additive 
   effect of many environmental variables. </code></pre>
-<p>Here we don’t (yet) have a spatial term, but we can compare the covariate effects to the total variance in diversity, and see that at the species level almost all of the variation (88.5%) is unexplained, whilst at the family level about 11.5% of the variation is explained by the covaraites. We are both in broad agreement.</p>
+<p>Here we don’t (yet) have a spatial term, but we can compare the covariate effects to the total variance in diversity, and see that at the species level almost all of the variation (88.5%) is unexplained, whilst at the family level about 11.5% of the variation is explained by the covariates. We are both in broad agreement.</p>
+<p><span class="citation" data-cites="WhiteMEE2023">White et al. (<a href="#ref-WhiteMEE2023" role="doc-biblioref">2024</a>)</span> find that precipitation (<code>gmap</code>) is the most important variable, whereas we find temperature to be more important in both analyses. This is less of a conflict than it appears, as they state</p>
+<pre><code>Holding other covariates constant in the South Africa data, annual average 
+precipitation has almost no estimated impact on beta diversity until the 
+average exceeds 300 mm according to estimates from the spGDMM. Beyond 300 mm, 
+annual precipitation has a very strong impact on beta diversity. This suggests 
+that precipitation averages below 300 mm are effectively similar in terms of 
+beta diversity. </code></pre>
+<p>In the data only 7% of the locations have a rainfall over 300 mm, which suggests their results are being driven by a small part of the environmental space. This also suggests that non-linear terms might be worth exploring, although the variation may also be driven by linear effects of the species that prefer higher rainfall.</p>
 </section>
 </section>
 <section id="example-2-the-inevitable-bci-data" class="level3">
@@ -663,75 +673,75 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>BCI.Env <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/Panama_env.csv"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>BCI.Sp <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/Panama_species.csv"</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Stupid naming </span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># "species" is actually site. And the format of the names is different between files</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This is why "data scientist" has a lower job satisfaction than "statistician"</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>BCI.Sp<span class="sc">$</span>site.no. <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"P%02d"</span>, <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">"P"</span>, <span class="st">""</span>, BCI.Sp<span class="sc">$</span>species)))</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>BCI.Sp<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>BCI.EnvCov <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"precip"</span>, <span class="st">"elev"</span>, <span class="st">"age"</span>)</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>Pres <span class="ot">&lt;-</span> <span class="fu">apply</span>(BCI.Sp, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">sum</span>(x<span class="sc">&gt;</span><span class="dv">0</span>))</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>sp.tmp <span class="ot">&lt;-</span> BCI.Sp[,<span class="fu">which</span>(Pres<span class="sc">&gt;</span><span class="dv">10</span>)]</span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>dat.tmp <span class="ot">&lt;-</span> <span class="fu">cbind</span>(BCI.Env, sp.tmp)</span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>SpNames <span class="ot">&lt;-</span> <span class="fu">names</span>(sp.tmp)[<span class="sc">!</span><span class="fu">names</span>(sp.tmp)<span class="sc">%in%</span><span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"site.no."</span>)]</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>BCIData <span class="ot">&lt;-</span> <span class="fu">reshape</span>(dat.tmp, <span class="at">direction =</span> <span class="st">"long"</span>, <span class="at">varying =</span> SpNames, <span class="at">v.names =</span> <span class="st">"Count"</span>)</span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">factor</span>(SpNames[BCIData<span class="sc">$</span>time])</span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>Site <span class="ot">&lt;-</span> <span class="fu">factor</span>(BCIData<span class="sc">$</span>site.no.)</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>SiteSpecies <span class="ot">&lt;-</span> <span class="fu">paste0</span>(BCIData<span class="sc">$</span>Site, BCIData<span class="sc">$</span>Species)</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale env</span></span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>Scale.tmp <span class="ot">&lt;-</span> <span class="fu">apply</span>(BCIData[,BCI.EnvCov], <span class="dv">2</span>, scale)</span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(Scale.tmp) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">colnames</span>(Scale.tmp), <span class="st">".sc"</span>)</span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>BCIData <span class="ot">&lt;-</span> <span class="fu">cbind</span>(BCIData, Scale.tmp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>BCI.Env <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/Panama_env.csv"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>BCI.Sp <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/Panama_species.csv"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Stupid naming </span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># "species" is actually site. And the format of the names is different between files</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This is why "data scientist" has a lower job satisfaction than "statistician"</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>BCI.Sp<span class="sc">$</span>site.no. <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"P%02d"</span>, <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">"P"</span>, <span class="st">""</span>, BCI.Sp<span class="sc">$</span>species)))</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>BCI.Sp<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>BCI.EnvCov <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"precip"</span>, <span class="st">"elev"</span>, <span class="st">"age"</span>)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>Pres <span class="ot">&lt;-</span> <span class="fu">apply</span>(BCI.Sp, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">sum</span>(x<span class="sc">&gt;</span><span class="dv">0</span>))</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>sp.tmp <span class="ot">&lt;-</span> BCI.Sp[,<span class="fu">which</span>(Pres<span class="sc">&gt;</span><span class="dv">10</span>)]</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>dat.tmp <span class="ot">&lt;-</span> <span class="fu">cbind</span>(BCI.Env, sp.tmp)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>SpNames <span class="ot">&lt;-</span> <span class="fu">names</span>(sp.tmp)[<span class="sc">!</span><span class="fu">names</span>(sp.tmp)<span class="sc">%in%</span><span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"site.no."</span>)]</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>BCIData <span class="ot">&lt;-</span> <span class="fu">reshape</span>(dat.tmp, <span class="at">direction =</span> <span class="st">"long"</span>, <span class="at">varying =</span> SpNames, <span class="at">v.names =</span> <span class="st">"Count"</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">factor</span>(SpNames[BCIData<span class="sc">$</span>time])</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>Site <span class="ot">&lt;-</span> <span class="fu">factor</span>(BCIData<span class="sc">$</span>site.no.)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>SiteSpecies <span class="ot">&lt;-</span> <span class="fu">paste0</span>(BCIData<span class="sc">$</span>Site, BCIData<span class="sc">$</span>Species)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale env</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>Scale.tmp <span class="ot">&lt;-</span> <span class="fu">apply</span>(BCIData[,BCI.EnvCov], <span class="dv">2</span>, scale)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(Scale.tmp) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">colnames</span>(Scale.tmp), <span class="st">".sc"</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>BCIData <span class="ot">&lt;-</span> <span class="fu">cbind</span>(BCIData, Scale.tmp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We can fit the model in INLA:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>BCI.Formula <span class="ot">&lt;-</span> <span class="fu">formula</span>(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"Count ~ f(Species, hyper = PCHyper) + f(Site, hyper = PCHyper) + "</span>, </span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">paste</span>(</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="fu">paste0</span>(BCI.EnvCov, <span class="st">".sc"</span>), </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sapply</span>(<span class="fu">paste0</span>(BCI.EnvCov, <span class="st">".sc"</span>), <span class="cf">function</span>(eu) {</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>               <span class="fu">paste0</span>(<span class="st">"f(Species."</span>, eu, <span class="st">", "</span>, eu, <span class="st">", hyper = PCHyper)"</span>)</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>             })), <span class="at">collapse=</span><span class="st">" + "</span>), <span class="st">" + f(OD, hyper = PCHyper)"</span>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>BCIenvInd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">sapply</span>(BCI.EnvCov, <span class="cf">function</span>(nm, dat) <span class="fu">assign</span>(nm, dat), </span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                               <span class="at">dat=</span>BCIData<span class="sc">$</span>Species))</span>
-<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(BCIenvInd) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Species."</span>, <span class="fu">names</span>(BCIenvInd), <span class="st">".sc"</span>)</span>
-<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>BCIData <span class="ot">&lt;-</span> <span class="fu">cbind</span>(BCIData, BCIenvInd)</span>
-<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>OD <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(BCIData))</span>
-<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear combinations</span></span>
-<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Should improve code</span></span>
-<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>LCs.lst <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">paste0</span>(BCI.EnvCov, <span class="st">".sc"</span>), CreateLinComb, <span class="at">Levels=</span>BCIData<span class="sc">$</span>Species)</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>BCI.LCs <span class="ot">&lt;-</span> <span class="fu">do.call</span>(c, LCs.lst)</span>
-<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
-<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>BCIinla <span class="ot">&lt;-</span> <span class="fu">inla</span>(BCI.Formula, <span class="at">data=</span>BCIData, <span class="at">control.compute=</span><span class="fu">list</span>(<span class="at">config =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>                <span class="at">family=</span><span class="st">"poisson"</span>, <span class="at">lincomb =</span> BCI.LCs)</span>
-<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>BCISumm <span class="ot">&lt;-</span><span class="fu">summary</span>(BCIinla)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>BCI.Formula <span class="ot">&lt;-</span> <span class="fu">formula</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"Count ~ f(Species, hyper = PCHyper) + f(Site, hyper = PCHyper) + "</span>, </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">paste</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="fu">paste0</span>(BCI.EnvCov, <span class="st">".sc"</span>), </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sapply</span>(<span class="fu">paste0</span>(BCI.EnvCov, <span class="st">".sc"</span>), <span class="cf">function</span>(eu) {</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>               <span class="fu">paste0</span>(<span class="st">"f(Species."</span>, eu, <span class="st">", "</span>, eu, <span class="st">", hyper = PCHyper)"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>             })), <span class="at">collapse=</span><span class="st">" + "</span>), <span class="st">" + f(OD, hyper = PCHyper)"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>BCIenvInd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">sapply</span>(BCI.EnvCov, <span class="cf">function</span>(nm, dat) <span class="fu">assign</span>(nm, dat), </span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>                               <span class="at">dat=</span>BCIData<span class="sc">$</span>Species))</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(BCIenvInd) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Species."</span>, <span class="fu">names</span>(BCIenvInd), <span class="st">".sc"</span>)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>BCIData <span class="ot">&lt;-</span> <span class="fu">cbind</span>(BCIData, BCIenvInd)</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>BCIData<span class="sc">$</span>OD <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(BCIData))</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Linear combinations</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Should improve code</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>LCs.lst <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">paste0</span>(BCI.EnvCov, <span class="st">".sc"</span>), CreateLinComb, <span class="at">Levels=</span>BCIData<span class="sc">$</span>Species)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>BCI.LCs <span class="ot">&lt;-</span> <span class="fu">do.call</span>(c, LCs.lst)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>BCIinla <span class="ot">&lt;-</span> <span class="fu">inla</span>(BCI.Formula, <span class="at">data=</span>BCIData, <span class="at">control.compute=</span><span class="fu">list</span>(<span class="at">config =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>                <span class="at">family=</span><span class="st">"poisson"</span>, <span class="at">lincomb =</span> BCI.LCs)</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>BCISumm <span class="ot">&lt;-</span><span class="fu">summary</span>(BCIinla)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>BCIsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, BCIinla)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>BCI.Posts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">sapply</span>(BCIsamps, CalcPostVar, <span class="at">data=</span>BCIData)))</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Use <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">names</span>(BCI.Posts)<span class="sc">%in%</span><span class="fu">paste0</span>(<span class="st">"Precision.for."</span>, <span class="fu">c</span>(<span class="st">"Species"</span>, <span class="st">"Site"</span>))</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>BCI.PropVar <span class="ot">&lt;-</span> <span class="fu">sweep</span>(BCI.Posts[,Use], <span class="dv">1</span>, <span class="fu">rowSums</span>(BCI.Posts[,Use]), <span class="st">"/"</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(BCI.PropVar)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"VarEps"</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(BCI.PropVar<span class="sc">$</span>MeanDelta), <span class="at">main=</span><span class="st">"Mean Covariate"</span>)</span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(BCI.PropVar<span class="sc">$</span>VarDelta), <span class="at">main=</span><span class="st">"Variation in Covariate"</span>)</span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(BCI.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>BCIsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, BCIinla)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>BCI.Posts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">sapply</span>(BCIsamps, CalcPostVar, <span class="at">data=</span>BCIData)))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>Use <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">names</span>(BCI.Posts)<span class="sc">%in%</span><span class="fu">paste0</span>(<span class="st">"Precision.for."</span>, <span class="fu">c</span>(<span class="st">"Species"</span>, <span class="st">"Site"</span>))</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>BCI.PropVar <span class="ot">&lt;-</span> <span class="fu">sweep</span>(BCI.Posts[,Use], <span class="dv">1</span>, <span class="fu">rowSums</span>(BCI.Posts[,Use]), <span class="st">"/"</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(BCI.PropVar)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"VarEps"</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(BCI.PropVar<span class="sc">$</span>MeanDelta), <span class="at">main=</span><span class="st">"Mean Covariate"</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(BCI.PropVar<span class="sc">$</span>VarDelta), <span class="at">main=</span><span class="st">"Variation in Covariate"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(BCI.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -742,26 +752,26 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 </div>
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>BCI.SummVars <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mode=</span>MCMCglmm<span class="sc">::</span><span class="fu">posterior.mode</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(BCI.PropVar)),</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  coda<span class="sc">::</span><span class="fu">HPDinterval</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(BCI.PropVar), <span class="at">prob =</span> <span class="fl">0.95</span>)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>BCI.SummVars <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mode=</span>MCMCglmm<span class="sc">::</span><span class="fu">posterior.mode</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(BCI.PropVar)),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  coda<span class="sc">::</span><span class="fu">HPDinterval</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(BCI.PropVar), <span class="at">prob =</span> <span class="fl">0.95</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We find that 44.96% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of 37.19% - 60.5%.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot means</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(BCISumm<span class="sc">$</span>fixed)))</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>Use.hyper <span class="ot">&lt;-</span> <span class="fu">sapply</span>(BCI.EnvCov, <span class="cf">function</span>(x, y) <span class="fu">grep</span>(x, y),</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y=</span><span class="fu">names</span>(BCIinla<span class="sc">$</span>marginals.hyperpar))</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>BCIHyperSDs <span class="ot">&lt;-</span> <span class="fu">CalcHyperSDs</span>(BCIinla)</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotFixed</span>(<span class="at">fixed=</span>BCISumm<span class="sc">$</span>fixed, <span class="at">use=</span>Use.fixed)</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>BCIHyperSDs, <span class="at">use=</span>Use.hyper)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot means</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(BCISumm<span class="sc">$</span>fixed)))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>Use.hyper <span class="ot">&lt;-</span> <span class="fu">sapply</span>(BCI.EnvCov, <span class="cf">function</span>(x, y) <span class="fu">grep</span>(x, y),</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y=</span><span class="fu">names</span>(BCIinla<span class="sc">$</span>marginals.hyperpar))</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>BCIHyperSDs <span class="ot">&lt;-</span> <span class="fu">CalcHyperSDs</span>(BCIinla)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotFixed</span>(<span class="at">fixed=</span>BCISumm<span class="sc">$</span>fixed, <span class="at">use=</span>Use.fixed)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>BCIHyperSDs, <span class="at">use=</span>Use.hyper)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -775,17 +785,17 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>BCI.RanEff <span class="ot">&lt;-</span> BCIinla<span class="sc">$</span>summary.lincomb.derived</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>UseSumRan <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Species</span><span class="sc">\\</span><span class="st">."</span>, <span class="fu">names</span>(BCIinla<span class="sc">$</span>summary.random))</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>Xlims <span class="ot">&lt;-</span> <span class="fu">range</span>(BCI.RanEff[,<span class="fu">c</span>(<span class="st">"0.025quant"</span>, <span class="st">"0.975quant"</span>)])</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">2.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(BCI.EnvCov, <span class="cf">function</span>(env, RanEff, Fixed, ...) {</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">PlotEff</span>(<span class="at">summ=</span>RanEff[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(RanEff)),], </span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean=</span>Fixed[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(Fixed)),],</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">""</span>, <span class="at">xlab=</span><span class="st">""</span>, <span class="at">main=</span>env, ...)</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>BCI.RanEff, <span class="at">Fixed=</span>BCISumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>BCI.RanEff <span class="ot">&lt;-</span> BCIinla<span class="sc">$</span>summary.lincomb.derived</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>UseSumRan <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Species</span><span class="sc">\\</span><span class="st">."</span>, <span class="fu">names</span>(BCIinla<span class="sc">$</span>summary.random))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>Xlims <span class="ot">&lt;-</span> <span class="fu">range</span>(BCI.RanEff[,<span class="fu">c</span>(<span class="st">"0.025quant"</span>, <span class="st">"0.975quant"</span>)])</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">2.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(BCI.EnvCov, <span class="cf">function</span>(env, RanEff, Fixed, ...) {</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">PlotEff</span>(<span class="at">summ=</span>RanEff[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(RanEff)),], </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean=</span>Fixed[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(Fixed)),],</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">""</span>, <span class="at">xlab=</span><span class="st">""</span>, <span class="at">main=</span>env, ...)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>BCI.RanEff, <span class="at">Fixed=</span>BCISumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -803,78 +813,78 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"southwest"</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>SW.EnvCov <span class="ot">&lt;-</span> <span class="fu">names</span>(southwest)[<span class="sc">!</span><span class="fu">names</span>(southwest)<span class="sc">%in%</span><span class="fu">c</span>(<span class="st">"species"</span>,<span class="st">"site"</span>, <span class="st">"Lat"</span>, <span class="st">"Long"</span>)]</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>Pres <span class="ot">&lt;-</span> <span class="fu">table</span>(southwest<span class="sc">$</span>species)</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>sp.keep <span class="ot">&lt;-</span> <span class="fu">names</span>(Pres[Pres<span class="sc">&gt;</span><span class="dv">50</span>]) <span class="co">#reduce to 10?</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>southwest.small <span class="ot">&lt;-</span> southwest[southwest<span class="sc">$</span>species<span class="sc">%in%</span>sp.keep,]</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>southwest.small<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">factor</span>(southwest.small<span class="sc">$</span>species)</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>SW.pres <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">species=</span><span class="fu">unique</span>(southwest.small<span class="sc">$</span>species),</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">site=</span><span class="fu">unique</span>(southwest.small<span class="sc">$</span>site))</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>SW.pres<span class="sc">$</span>Presence <span class="ot">&lt;-</span> <span class="fu">apply</span>(SW.pres, <span class="dv">1</span>, <span class="cf">function</span>(wh, dat) {</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a> <span class="fu">any</span>(dat<span class="sc">$</span>site<span class="sc">==</span>wh[<span class="st">"site"</span>] <span class="sc">&amp;</span> dat<span class="sc">$</span>species<span class="sc">==</span>wh[<span class="st">"species"</span>])</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>}, <span class="at">dat=</span>southwest.small)</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract environmental variables</span></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>SWenv <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">apply</span>(southwest.small[,SW.EnvCov], <span class="dv">2</span>, <span class="cf">function</span>(x, dat) {</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tapply</span>(x, <span class="fu">list</span>(dat<span class="sc">$</span>site), <span class="cf">function</span>(xx) xx[<span class="dv">1</span>])</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>}, <span class="at">dat=</span>southwest.small))</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>env.site <span class="ot">&lt;-</span> <span class="fu">rownames</span>(SWenv)</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>SWenv <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">apply</span>(SWenv, <span class="dv">2</span>, scale))</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(SWenv) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">colnames</span>(SWenv), <span class="st">".sc"</span>)</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>SWenv<span class="sc">$</span>site <span class="ot">&lt;-</span> env.site</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>SW.data <span class="ot">&lt;-</span> <span class="fu">merge</span>(SW.pres, SWenv)</span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>SW.data<span class="sc">$</span>Presence <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(SW.data<span class="sc">$</span>Presence)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"southwest"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>SW.EnvCov <span class="ot">&lt;-</span> <span class="fu">names</span>(southwest)[<span class="sc">!</span><span class="fu">names</span>(southwest)<span class="sc">%in%</span><span class="fu">c</span>(<span class="st">"species"</span>,<span class="st">"site"</span>, <span class="st">"Lat"</span>, <span class="st">"Long"</span>)]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>Pres <span class="ot">&lt;-</span> <span class="fu">table</span>(southwest<span class="sc">$</span>species)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>sp.keep <span class="ot">&lt;-</span> <span class="fu">names</span>(Pres[Pres<span class="sc">&gt;</span><span class="dv">50</span>]) <span class="co">#reduce to 10?</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>southwest.small <span class="ot">&lt;-</span> southwest[southwest<span class="sc">$</span>species<span class="sc">%in%</span>sp.keep,]</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>southwest.small<span class="sc">$</span>species <span class="ot">&lt;-</span> <span class="fu">factor</span>(southwest.small<span class="sc">$</span>species)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>SW.pres <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">species=</span><span class="fu">unique</span>(southwest.small<span class="sc">$</span>species),</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">site=</span><span class="fu">unique</span>(southwest.small<span class="sc">$</span>site))</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>SW.pres<span class="sc">$</span>Presence <span class="ot">&lt;-</span> <span class="fu">apply</span>(SW.pres, <span class="dv">1</span>, <span class="cf">function</span>(wh, dat) {</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a> <span class="fu">any</span>(dat<span class="sc">$</span>site<span class="sc">==</span>wh[<span class="st">"site"</span>] <span class="sc">&amp;</span> dat<span class="sc">$</span>species<span class="sc">==</span>wh[<span class="st">"species"</span>])</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>}, <span class="at">dat=</span>southwest.small)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract environmental variables</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>SWenv <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">apply</span>(southwest.small[,SW.EnvCov], <span class="dv">2</span>, <span class="cf">function</span>(x, dat) {</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tapply</span>(x, <span class="fu">list</span>(dat<span class="sc">$</span>site), <span class="cf">function</span>(xx) xx[<span class="dv">1</span>])</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>}, <span class="at">dat=</span>southwest.small))</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>env.site <span class="ot">&lt;-</span> <span class="fu">rownames</span>(SWenv)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>SWenv <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">apply</span>(SWenv, <span class="dv">2</span>, scale))</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(SWenv) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="fu">colnames</span>(SWenv), <span class="st">".sc"</span>)</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>SWenv<span class="sc">$</span>site <span class="ot">&lt;-</span> env.site</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>SW.data <span class="ot">&lt;-</span> <span class="fu">merge</span>(SW.pres, SWenv)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>SW.data<span class="sc">$</span>Presence <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(SW.data<span class="sc">$</span>Presence)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We can fit the model in INLA:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>SW.Formula <span class="ot">&lt;-</span> <span class="fu">formula</span>(</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"Presence ~ f(species, hyper = PCHyper) + f(site, hyper = PCHyper) + "</span>, </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">paste</span>(</span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="fu">paste0</span>(SW.EnvCov, <span class="st">".sc"</span>), </span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sapply</span>(<span class="fu">paste0</span>(SW.EnvCov, <span class="st">".sc"</span>), <span class="cf">function</span>(eu) {</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>               <span class="fu">paste0</span>(<span class="st">"f(Species."</span>, eu, <span class="st">", "</span>, eu, <span class="st">", hyper = PCHyper)"</span>)</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>             })), <span class="at">collapse=</span><span class="st">" + "</span>))</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>SWenvInd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">sapply</span>(SW.EnvCov, <span class="cf">function</span>(nm, dat) <span class="fu">assign</span>(nm, dat), </span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                               <span class="at">dat=</span>SW.data<span class="sc">$</span>species))</span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(SWenvInd) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Species."</span>, <span class="fu">names</span>(SWenvInd), <span class="st">".sc"</span>)</span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>SW.data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(SW.data, SWenvInd)</span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create linear combinations</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>LCs.lst <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">paste0</span>(SW.EnvCov, <span class="st">".sc"</span>), CreateLinComb, <span class="at">Levels=</span>SW.data<span class="sc">$</span>species)</span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>SW.LCs <span class="ot">&lt;-</span> <span class="fu">do.call</span>(c, LCs.lst)</span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>SWinla <span class="ot">&lt;-</span> <span class="fu">inla</span>(SW.Formula, <span class="at">data=</span>SW.data, <span class="at">control.compute=</span><span class="fu">list</span>(<span class="at">config =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>                <span class="at">family=</span><span class="st">"binomial"</span>, <span class="at">Ntrials =</span> <span class="dv">1</span>, <span class="at">lincomb =</span> SW.LCs)</span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>SWSumm <span class="ot">&lt;-</span><span class="fu">summary</span>(SWinla)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>SW.Formula <span class="ot">&lt;-</span> <span class="fu">formula</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste0</span>(<span class="st">"Presence ~ f(species, hyper = PCHyper) + f(site, hyper = PCHyper) + "</span>, </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">paste</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="fu">paste0</span>(SW.EnvCov, <span class="st">".sc"</span>), </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sapply</span>(<span class="fu">paste0</span>(SW.EnvCov, <span class="st">".sc"</span>), <span class="cf">function</span>(eu) {</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>               <span class="fu">paste0</span>(<span class="st">"f(Species."</span>, eu, <span class="st">", "</span>, eu, <span class="st">", hyper = PCHyper)"</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>             })), <span class="at">collapse=</span><span class="st">" + "</span>))</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>SWenvInd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">sapply</span>(SW.EnvCov, <span class="cf">function</span>(nm, dat) <span class="fu">assign</span>(nm, dat), </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>                               <span class="at">dat=</span>SW.data<span class="sc">$</span>species))</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(SWenvInd) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"Species."</span>, <span class="fu">names</span>(SWenvInd), <span class="st">".sc"</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>SW.data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(SW.data, SWenvInd)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create linear combinations</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>LCs.lst <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">paste0</span>(SW.EnvCov, <span class="st">".sc"</span>), CreateLinComb, <span class="at">Levels=</span>SW.data<span class="sc">$</span>species)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>SW.LCs <span class="ot">&lt;-</span> <span class="fu">do.call</span>(c, LCs.lst)</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>SWinla <span class="ot">&lt;-</span> <span class="fu">inla</span>(SW.Formula, <span class="at">data=</span>SW.data, <span class="at">control.compute=</span><span class="fu">list</span>(<span class="at">config =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>                <span class="at">family=</span><span class="st">"binomial"</span>, <span class="at">Ntrials =</span> <span class="dv">1</span>, <span class="at">lincomb =</span> SW.LCs)</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>SWSumm <span class="ot">&lt;-</span><span class="fu">summary</span>(SWinla)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>And now…</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>SWsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, SWinla)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>SW.Posts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">sapply</span>(SWsamps, CalcPostVar, <span class="at">data=</span>SW.data)))</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>SW.Posts<span class="sc">$</span>logitVar <span class="ot">&lt;-</span> pi<span class="sc">/</span><span class="dv">3</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>Use <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">names</span>(SW.Posts)<span class="sc">%in%</span><span class="fu">paste0</span>(<span class="st">"Precision.for."</span>, <span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"site"</span>))</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>SW.PropVar <span class="ot">&lt;-</span> <span class="fu">sweep</span>(SW.Posts[,Use], <span class="dv">1</span>, <span class="fu">rowSums</span>(SW.Posts[,Use]), <span class="st">"/"</span>)</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(SW.PropVar)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"VarEps"</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SW.PropVar<span class="sc">$</span>MeanDelta), <span class="at">main=</span><span class="st">"Mean Covariate"</span>)</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SW.PropVar<span class="sc">$</span>VarDelta), <span class="at">main=</span><span class="st">"Variation in Covariate"</span>)</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SW.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>SWsamps <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(nsim, SWinla)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>SW.Posts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(<span class="fu">sapply</span>(SWsamps, CalcPostVar, <span class="at">data=</span>SW.data)))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>SW.Posts<span class="sc">$</span>logitVar <span class="ot">&lt;-</span> pi<span class="sc">/</span><span class="dv">3</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>Use <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">names</span>(SW.Posts)<span class="sc">%in%</span><span class="fu">paste0</span>(<span class="st">"Precision.for."</span>, <span class="fu">c</span>(<span class="st">"species"</span>, <span class="st">"site"</span>))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>SW.PropVar <span class="ot">&lt;-</span> <span class="fu">sweep</span>(SW.Posts[,Use], <span class="dv">1</span>, <span class="fu">rowSums</span>(SW.Posts[,Use]), <span class="st">"/"</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(SW.PropVar)[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="st">"VarEps"</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>))</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SW.PropVar<span class="sc">$</span>MeanDelta), <span class="at">main=</span><span class="st">"Mean Covariate"</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SW.PropVar<span class="sc">$</span>VarDelta), <span class="at">main=</span><span class="st">"Variation in Covariate"</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(SW.PropVar<span class="sc">$</span>VarEps), <span class="at">main=</span><span class="st">"Residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -885,26 +895,26 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 </div>
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>SW.SummVars <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mode=</span>MCMCglmm<span class="sc">::</span><span class="fu">posterior.mode</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SW.PropVar)),</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  coda<span class="sc">::</span><span class="fu">HPDinterval</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SW.PropVar), <span class="at">prob =</span> <span class="fl">0.95</span>)</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>SW.SummVars <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mode=</span>MCMCglmm<span class="sc">::</span><span class="fu">posterior.mode</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SW.PropVar)),</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  coda<span class="sc">::</span><span class="fu">HPDinterval</span>(coda<span class="sc">::</span><span class="fu">as.mcmc</span>(SW.PropVar), <span class="at">prob =</span> <span class="fl">0.95</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>We find that 96.43% of the variation in beta diversity is explained by the covariates, with a 95% HPDI of 95.42% - 97.16%.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot means</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(SWSumm<span class="sc">$</span>fixed)))</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>Use.hyper <span class="ot">&lt;-</span> <span class="fu">sapply</span>(SW.EnvCov, <span class="cf">function</span>(x, y) <span class="fu">grep</span>(x, y),</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y=</span><span class="fu">names</span>(SWinla<span class="sc">$</span>marginals.hyperpar))</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>SWHyperSDs <span class="ot">&lt;-</span> <span class="fu">CalcHyperSDs</span>(SWinla)</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotFixed</span>(<span class="at">fixed=</span>SWSumm<span class="sc">$</span>fixed, <span class="at">use=</span>Use.fixed)</span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>SWHyperSDs, <span class="at">use=</span>Use.hyper)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot means</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>Use.fixed <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">(Int"</span>, <span class="fu">rownames</span>(SWSumm<span class="sc">$</span>fixed)))</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>Use.hyper <span class="ot">&lt;-</span> <span class="fu">sapply</span>(SW.EnvCov, <span class="cf">function</span>(x, y) <span class="fu">grep</span>(x, y),</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y=</span><span class="fu">names</span>(SWinla<span class="sc">$</span>marginals.hyperpar))</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>SWHyperSDs <span class="ot">&lt;-</span> <span class="fu">CalcHyperSDs</span>(SWinla)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">4.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">oma=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotFixed</span>(<span class="at">fixed=</span>SWSumm<span class="sc">$</span>fixed, <span class="at">use=</span>Use.fixed)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a> <span class="fu">PlotHyper</span>(<span class="at">SDs=</span>SWHyperSDs, <span class="at">use=</span>Use.hyper)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -918,18 +928,18 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>SW.RanEff <span class="ot">&lt;-</span> SWinla<span class="sc">$</span>summary.lincomb.derived</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>UseSumRan <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Species</span><span class="sc">\\</span><span class="st">."</span>, <span class="fu">names</span>(SWinla<span class="sc">$</span>summary.random))</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>Xlims <span class="ot">&lt;-</span> <span class="fu">range</span>(SW.RanEff[,<span class="fu">c</span>(<span class="st">"0.025quant"</span>, <span class="st">"0.975quant"</span>)])</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">2.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">2</span>))</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(SW.EnvCov, <span class="cf">function</span>(env, RanEff, Fixed, ...) {</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">PlotEff</span>(<span class="at">summ=</span>RanEff[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(RanEff)),], </span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean=</span>Fixed[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(Fixed)),],</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">""</span>, <span class="at">xlab=</span><span class="st">""</span>, <span class="at">main=</span>env, ...)</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>SW.RanEff, <span class="at">Fixed=</span>SWSumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>SW.RanEff <span class="ot">&lt;-</span> SWinla<span class="sc">$</span>summary.lincomb.derived</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>UseSumRan <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"Species</span><span class="sc">\\</span><span class="st">."</span>, <span class="fu">names</span>(SWinla<span class="sc">$</span>summary.random))</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>Xlims <span class="ot">&lt;-</span> <span class="fu">range</span>(SW.RanEff[,<span class="fu">c</span>(<span class="st">"0.025quant"</span>, <span class="st">"0.975quant"</span>)])</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="fl">2.1</span>,<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">1</span>), <span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">2</span>))</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(SW.EnvCov, <span class="cf">function</span>(env, RanEff, Fixed, ...) {</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">PlotEff</span>(<span class="at">summ=</span>RanEff[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(RanEff)),], </span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">mean=</span>Fixed[<span class="fu">grep</span>(env, <span class="fu">rownames</span>(Fixed)),],</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab=</span><span class="st">""</span>, <span class="at">xlab=</span><span class="st">""</span>, <span class="at">main=</span>env, ...)</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>}, <span class="at">RanEff=</span>SW.RanEff, <span class="at">Fixed=</span>SWSumm<span class="sc">$</span>fixed, <span class="at">xlim=</span>Xlims)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -946,9 +956,9 @@ D^2_{12} &amp;= \sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2 \\
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
 <div id="ref-Condit2002" class="csl-entry" role="listitem">
-Condit, Richard, Nigel Pitman, Egbert G. Leigh, Jérôme Chave, John Terborgh, Robin B. Foster, Percy Núñez, et al. 2002. <span>“Beta-Diversity in Tropical Forest Trees.”</span> <em>Science</em> 295 (5555): 666–69. <a href="https://doi.org/10.1126/science.1066854">https://doi.org/10.1126/science.1066854</a>.
+Condit, Richard, Nigel Pitman, Egbert G. Leigh, et al. 2002. <span>“Beta-Diversity in Tropical Forest Trees.”</span> <em>Science</em> 295 (5555): 666–69. <a href="https://doi.org/10.1126/science.1066854">https://doi.org/10.1126/science.1066854</a>.
 </div>
 <div id="ref-Ferrier2002" class="csl-entry" role="listitem">
 Ferrier, Simon. 2002. <span>“<span class="nocase">Mapping Spatial Pattern in Biodiversity for Regional Conservation Planning: Where to from Here?</span>”</span> <em>Systematic Biology</em> 51 (2): 331–63. <a href="https://doi.org/10.1080/10635150252899806">https://doi.org/10.1080/10635150252899806</a>.
@@ -1009,13 +1019,14 @@ White, Philip A., Henry A. Frye, Jasper A. Slingsby, John A. Silander Jr, and Al
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

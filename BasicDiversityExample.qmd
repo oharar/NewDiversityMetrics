@@ -33,10 +33,10 @@ For species $j$ on site $i$ we denote occurrence as $z_{ij} \in \{0,1\}$ (where 
 Fo occurrence we assume presence is a Bernoulli trial, then $z_{ij} \sim \text{Bern}(p_{ij})$.  with probability $\text{logit}(\eta_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}$. This is equivalent to a threshold model, i.e. saying that we have a continuous random variable, $\eta_{ij}^{(z)}$, and $z_{ij} = 1$ if $\eta_{ij}^{(z)}>0$. We will assume that $\eta_{ij}^{(z)}$ follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then 
 
 $$
-\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \beta^{(z)}_j + \delta^{(z)}_{ij}.
+\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \gamma^{(z)}_j + \delta^{(z)}_{ij}.
 $$
 
-And $\delta^{(z)}_{ij}$ follows a standard logistic distribution, which means it has a mean of 0 and variance $\pi^2/3$. The species effect is thus $\beta^{(z)}_j$ ($\eta^{(z)}_j$ in Chrisophe's notation), and $\alpha^{(z)}_i$ is the site effect ($\lambda^{(z)}_j$ in Chrisophe's notation).
+And $\delta^{(z)}_{ij}$ follows a standard logistic distribution, which means it has a mean of 0 and variance $\pi^2/3$. The species effect is thus $\gamma^{(z)}_j$ ($\eta^{(z)}_j$ in Chrisophe's notation), and $\alpha^{(z)}_i$ is the site effect ($\lambda^{(z)}_j$ in Chrisophe's notation).
 
 We can calculate statistics on $\eta_{ij}^{(z)}$: note that $z_{ij}|\eta_{ij}^{(z)}$ is deterministic: the usual Bernoulli stochasticity is in $\delta^{(z)}_{ij}$. 
 
@@ -44,10 +44,10 @@ We can calculate statistics on $\eta_{ij}^{(z)}$: note that $z_{ij}|\eta_{ij}^{(
 For abundance we assume a log-linear model:
 
 $$
-\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \beta^{(\lambda)}_j + \delta^{(\lambda)}_{ij}
+\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \gamma^{(\lambda)}_j + \delta^{(\lambda)}_{ij}
 $$
 
-Where $\alpha^{(\lambda)}_i$, $\beta^{(\lambda)}_j$ and $\delta^{(\lambda)}_{ij}$ are the site, species and inter action effects (if we assume the abundance follows a Poisson distribution, the interaction is an overdispersion term). Clearly $\lambda_{ij}=0$ if $z_{ij}=0$.
+Where $\alpha^{(\lambda)}_i$, $\gamma^{(\lambda)}_j$ and $\delta^{(\lambda)}_{ij}$ are the site, species and inter action effects (if we assume the abundance follows a Poisson distribution, the interaction is an overdispersion term). Clearly $\lambda_{ij}=0$ if $z_{ij}=0$.
 
 For both models we assume the effects are random effects, i.e. with a variance to be estimated. But to make the presentation easier to follow, we use the posterior estimates of the parameters to calculate variances from. 
 
@@ -57,7 +57,7 @@ Means:
 
 - $\bar{k}_{\cdot \cdot} = \mu$: the grand mean
 - $\bar{k}_{i \cdot} = S_i = \mu + \alpha$: the site mean: species richness or average abundance/biomass
-- $\bar{k}_{\cdot j} = O_j = \mu + \beta$: the species mean: prevelance etc.
+- $\bar{k}_{\cdot j} = O_j = \mu + \gamma$: the species mean: prevelance etc.
 
 Variances:
 
@@ -603,9 +603,9 @@ The statistics presented above are site or species specific. We can look at over
 
 $$
 \begin{aligned}
-\sigma^2_\gamma &= \sigma^2_\alpha + \sigma^2_\delta + \sigma^2_\beta \\
+\sigma^2_\gamma &= \sigma^2_\alpha + \sigma^2_\delta + \sigma^2_\gamma \\
  &= R + D \\
-\sigma^2_\gamma &= \sigma^2_\beta + \sigma^2_\delta + \sigma^2_\alpha \\
+\sigma^2_\gamma &= \sigma^2_\gamma + \sigma^2_\delta + \sigma^2_\alpha \\
  &= U + N 
 \end{aligned}
 $$
@@ -613,8 +613,8 @@ $$
 where 
 
 - $R = \sigma^2_\alpha + \sigma^2_\delta = \bar{P}_j$ is replacement
-- $D = \sigma^2_\beta = \text{Var}(O_{j})$ is disparity. Variance over species in mean prevalence etc.
-- $U = \sigma^2_\beta + \sigma^2_\delta = \bar{U}_i$ is mean unevenness
+- $D = \sigma^2_\gamma = \text{Var}(O_{j})$ is disparity. Variance over species in mean prevalence etc.
+- $U = \sigma^2_\gamma + \sigma^2_\delta = \bar{U}_i$ is mean unevenness
 - $N = \sigma^2_\alpha = \text{Var}(S_{i})$: is nestedness. Variance over sites in mean prevalence, species richness
 
 ```{r}

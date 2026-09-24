@@ -1,0 +1,95 @@
+---
+title: "Diversity With Covariates"
+author: "Bob O'Hara"
+format: html
+---
+
+# The Community Model
+
+For species $j$ on site $i$ we denote occurrence as $z_{ij} \in \{0,1\}$ (where 1 is presence), and abundance as $\lambda_{ij} > 0$. We will link both of these to the general theory, where we assume the occurrence/abundance/whatever is $k_ij$.
+
+Fo occurrence we assume presence is a Bernoulli trial, then $z_{ij} \sim \text{Bern}(p_{ij})$.  with probability $\text{logit}(\eta_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}$. This is equivalent to a threshold model, i.e. saying that we have a continuous random variable, $\eta_{ij}^{(z)}$, and $z_{ij} = 1$ if $\eta_{ij}^{(z)}>0$. We will assume that $\eta_{ij}^{(z)}$ follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then 
+
+$$
+\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \gamma^{(z)}_j + \delta^{(z)}_{ij}.
+$$
+
+And $\delta^{(z)}_{ij}$ follows a standard logistic distribution, which means it has a mean of 0 and variance $\pi^2/3$. The species effect is thus $\gamma^{(z)}_j$ ($\eta^{(z)}_j$ in Chrisophe's notation), and $\alpha^{(z)}_i$ is the site effect ($\lambda^{(z)}_j$ in Chrisophe's notation).
+
+We can calculate statistics on $\eta_{ij}^{(z)}$: note that $z_{ij}|\eta_{ij}^{(z)}$ is deterministic: the usual Bernoulli stochasticity is in $\delta^{(z)}_{ij}$. 
+
+
+For abundance we assume a log-linear model:
+
+$$
+\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \gamma^{(\lambda)}_j + \delta^{(\lambda)}_{ij}
+$$
+
+Where $\alpha^{(\lambda)}_i$, $\gamma^{(\lambda)}_j$ and $\delta^{(\lambda)}_{ij}$ are the site, species and inter action effects (if we assume the abundance follows a Poisson distribution, the interaction is an overdispersion term). Clearly $\lambda_{ij}=0$ if $z_{ij}=0$.
+
+For both models we assume the effects are random effects, i.e. with a variance to be estimated. But to make the presentation easier to follow, we use the posterior estimates of the parameters to calculate variances from. 
+
+The interesting statistics are the means and variances:
+
+Means: 
+
+- $\bar{k}_{\cdot \cdot} = \mu$: the grand mean
+- $\bar{k}_{i \cdot} = S_i = \mu + \alpha$: the site mean: species richness or average abundance/biomass
+- $\bar{k}_{\cdot j} = O_j = \mu + \gamma$: the species mean: prevelance etc.
+
+Variances:
+
+- $P_j = \text{Var}_i(k_{ij})$: Pickiness [TERM CHANGED!!!]. The variance in site abundances (or incidence) for species $j$. Related to specialisation.
+- $U_i = \text{Var}_j(k_{ij})$: Unevenness. The variance in species abundances (or incidence) at site $i$. For abundance, this is equivalent to alpha diversity (Hill numbers)
+
+- $R = \bar{P}_j$: replacement. Mean pickiness
+- $U = \bar{U}_i$: Mean Unevenness
+- $D = \text{Var}(O_{j})$: Disparity. Variance over species in mean prevalence etc.
+- $N = \text{Var}(S_{i})$: Nestedness. Variance over sites in mean prevalence, species richness
+
+## Adding Traits and the Environment
+
+We can add traits ($t_j$, which vary between species), then  environment ($x_i$, which varies between sites) and an interaction between them (i.e. the fourth corner). For a single trait an environmental variables the model looks like this:
+
+$$
+\eta_{ij} = \mu + \alpha_i + \gamma_j + \theta_i t_j + \psi_j x_i + \beta t_j x_i + \delta_{ij}.
+$$
+
+With several covariates it is helpful to write this with vectors. We will also mean-centre, which helps the variance decomposition later:
+
+$$
+\eta_{ij} = \mu + \alpha_i + \gamma_j + 
+(\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 
+(\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  + 
+((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}-\boldsymbol{\bar{\beta}})  + \delta_{ij}.
+$$
+
+So we can collect terms:
+
+(NOTE: CHECK $(\bf{t}_j \bf{x}_i)^T$)
+
+$$
+\begin{align}
+\eta_{ij} &= \mu + \alpha_i + \gamma_j + 
+(\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 
+(\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  + 
+((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}}) + \delta_{ij} \\
+&= \mu + \alpha_i + \gamma_j  + \delta_{ij} + 
+\bf{t}_j^T \boldsymbol{\theta}_i -\bf{t}_j^T \boldsymbol{\bar{\theta}} - \bf{\bar{t}}^T \boldsymbol{\theta}_i + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} + 
+\bf{x}_i^T \boldsymbol{\psi}_j -\bf{x}_i^T \boldsymbol{\bar{\psi}} - \bf{\bar{x}}^T \boldsymbol{\psi}_j + \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} + 
+(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}})+ \delta_{ij} 
+(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \beta - 
+(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \boldsymbol{\bar{\beta}} \\
+
+&= \mu  + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} + \\
+& \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} \alpha_i  - \bf{\bar{t}}^T \boldsymbol{\theta}_i-\bf{x}_i^T \boldsymbol{\bar{\psi}} \\
+& \gamma_j  -\bf{t}_j^T \boldsymbol{\bar{\theta}}- \bf{\bar{x}}^T \boldsymbol{\psi}_j + \\
+& + \bf{t}_j^T \boldsymbol{\theta}_i + \bf{x}_i^T \boldsymbol{\psi}_j + \bf{t}_j^T \bf{x}_i 
+     + \delta_{ij} + \\
+& (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\beta - 
+ \boldsymbol{\bar{\beta}}) \\
+
+\end{align}
+$$
+
+This makes me weep.

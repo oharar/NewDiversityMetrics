@@ -63,7 +63,7 @@ $$
 D_{12} = \lVert\boldsymbol{\eta}_1 - \boldsymbol{\eta}_2 \rVert =\sqrt{\sum_{i=1}^S (\eta_{i1} - \eta_{i2})^2}
 $$
 
-So that
+So we can look at the squared differences:
 
 $$
 \begin{aligned}

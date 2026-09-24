@@ -1,0 +1,271 @@
+"butterfly.name","rang","family","subfamily.SegererHausmann2011","genus","rl.ger","larval.feeding.type","habitat.preference","disp","target.species"
+"Aglais","GEN","Nymphalidae","Nymphalinae","Aglais","NA","f",NA,NA,0
+"Aglais io","SPE","Nymphalidae","Nymphalinae","Aglais","*","f","U (M1)","6",0
+"Aglais urticae","SPE","Nymphalidae","Nymphalinae","Aglais","*","f","U (M1)","6",0
+"Anthocharis","GEN","Nymphalidae","Nymphalinae","Aglais","NA","f",NA,NA,0
+"Anthocharis cardamines","SPE","Pieridae","Pierinae","Anthocharis","*","f","M2","4",1
+"Apatura","GEN","Nymphalidae","Apaturinae","Apatura","NA","w",NA,NA,0
+"Apatura ilia","SPE","Nymphalidae","Apaturinae","Apatura","V","w","M3","4",0
+"Apatura iris","SPE","Nymphalidae","Apaturinae","Apatura","V","w","M3","3",0
+"Apaturinae","SF","Nymphalidae","Apaturinae",NA,"NA","w",NA,NA,0
+"Aphantopus","GEN","Nymphalidae","Satyrinae","Aphantopus","NA","g",NA,NA,0
+"Aphantopus hyperantus","SPE","Nymphalidae","Satyrinae","Aphantopus","*","g","M1","3",0
+"Aporia","GEN","Pieridae","Pierinae","Aporia","NA","w",NA,NA,0
+"Aporia crataegi","SPE","Pieridae","Pierinae","Aporia","*","w","M2","5",0
+"Araschnia","GEN","Nymphalidae","Nymphalinae","Araschnia","NA","f",NA,NA,0
+"Araschnia levana","SPE","Nymphalidae","Nymphalinae","Araschnia","*","f","M3","5",0
+"Arethusana","GEN","Nymphalidae","Satyrinae","Arethusana","NA","g",NA,NA,0
+"Arethusana arethusa","SPE","Nymphalidae","Satyrinae","Arethusana","0","g","X2","3",0
+"Argynnis","GEN","Nymphalidae","Heliconiinae","Argynnis","NA","f",NA,NA,0
+"Argynnis adippe","SPE","Nymphalidae","Heliconiinae","Argynnis","3","f","M2","4",1
+"Argynnis aglaja","SPE","Nymphalidae","Heliconiinae","Argynnis","V","f","M2","3",1
+"Argynnis laodice","SPE","Nymphalidae","Heliconiinae","Argynnis","1","f","T",NA,0
+"Argynnis niobe","SPE","Nymphalidae","Heliconiinae","Argynnis","2","f","M2","3",1
+"Argynnis paphia","SPE","Nymphalidae","Heliconiinae","Argynnis","*","f","M3","4",0
+"Aricia","GEN","Lycaenidae","Polyommatinae","Aricia","NA","f",NA,NA,0
+"Aricia agestis","SPE","Lycaenidae","Polyommatinae","Aricia","*","f","X1","4",1
+"Aricia agestis/artaxerxes-Komplex","AGG","Lycaenidae","Polyommatinae","Aricia","*/G","f",NA,NA,0
+"Aricia artaxerxes","SPE","Lycaenidae","Polyommatinae","Aricia","G","f","X1",NA,0
+"Aricia eumedon","SPE","Lycaenidae","Polyommatinae","Aricia","3","f","H/X2","3",1
+"Boloria","GEN","Nymphalidae","Heliconiinae","Boloria","NA","f",NA,NA,0
+"Boloria aquilonaris","SPE","Nymphalidae","Heliconiinae","Boloria","2","f","T","3",0
+"Boloria dia","SPE","Nymphalidae","Heliconiinae","Boloria","*","f","X2/M3","5",1
+"Boloria eunomia","SPE","Nymphalidae","Heliconiinae","Boloria","2","f","H","1",1
+"Boloria euphrosyne","SPE","Nymphalidae","Heliconiinae","Boloria","2","f","M2","3",1
+"Boloria selene","SPE","Nymphalidae","Heliconiinae","Boloria","V","f","H","3",1
+"Boloria thore","SPE","Nymphalidae","Heliconiinae","Boloria","G",NA,NA,NA,NA
+"Boloria titania","SPE","Nymphalidae","Heliconiinae","Boloria","V","f","A",NA,0
+"Brenthis","GEN","Nymphalidae","Heliconiinae","Brenthis","NA","f",NA,NA,0
+"Brenthis daphne","SPE","Nymphalidae","Heliconiinae","Brenthis","D","f","X2/M2","2",1
+"Brenthis ino","SPE","Nymphalidae","Heliconiinae","Brenthis","*","f","H/M1","2",1
+"Brintesia","GEN","Nymphalidae","Satyrinae","Brintesia","NA","g",NA,NA,0
+"Brintesia circe","SPE","Nymphalidae","Satyrinae","Brintesia","3","g","X2(X1)","4",1
+"Callophrys","GEN","Lycaenidae","Theclinae","Callophrys","NA","f",NA,NA,0
+"Callophrys rubi","SPE","Lycaenidae","Theclinae","Callophrys","V","f","M2","4",1
+"Carcharodus","GEN","Hesperiidae","Pyrginae","Carcharodus","NA","f",NA,NA,0
+"Carcharodus alceae","SPE","Hesperiidae","Pyrginae","Carcharodus","*","f","X2","6",0
+"Carcharodus flocciferus","SPE","Hesperiidae","Pyrginae","Carcharodus","2","f","M1",NA,0
+"Carcharodus lavatherae","SPE","Hesperiidae","Pyrginae","Carcharodus","1","f","X1","3",1
+"Carterocephalus","GEN","Hesperiidae","Heteropterinae","Carterocephalus","NA","g",NA,NA,0
+"Carterocephalus palaemon","SPE","Hesperiidae","Heteropterinae","Carterocephalus","*","g","M2/H","3",0
+"Carterocephalus silvicola","SPE","Hesperiidae","Heteropterinae","Carterocephalus","2","g","H","2",1
+"Celastrina","GEN","Lycaenidae","Polyommatinae","Celastrina","NA","f",NA,NA,0
+"Celastrina argiolus","SPE","Lycaenidae","Polyommatinae","Celastrina","*","w","M3","5",0
+"Chazara","GEN","Nymphalidae","Satyrinae","Chazara","NA","g",NA,NA,0
+"Chazara briseis","SPE","Nymphalidae","Satyrinae","Chazara","1","g","X1","3",1
+"Coenonympha","GEN","Nymphalidae","Satyrinae","Coenonympha","NA","g",NA,NA,0
+"Coenonympha arcania","SPE","Nymphalidae","Satyrinae","Coenonympha","*","g","M2","3",0
+"Coenonympha glycerion","SPE","Nymphalidae","Satyrinae","Coenonympha","V","g","H/X2","2",1
+"Coenonympha hero","SPE","Nymphalidae","Satyrinae","Coenonympha","2","g","M3","1",0
+"Coenonympha oedippus","SPE","Nymphalidae","Satyrinae","Coenonympha","1","g",NA,"1",1
+"Coenonympha pamphilus","SPE","Nymphalidae","Satyrinae","Coenonympha","*","g","(U) M1","3",0
+"Coenonympha tullia","SPE","Nymphalidae","Satyrinae","Coenonympha","2","g","T","2",0
+"Coliadinae","SF","Pieridae","Coliadinae",NA,"NA","f",NA,NA,0
+"Colias","GEN","Pieridae","Coliadinae","Colias","NA","f",NA,NA,0
+"Colias alfacariensis","SPE","Pieridae","Coliadinae","Colias","*","f","X1","4",1
+"Colias croceus","SPE","Pieridae","Coliadinae","Colias","*","f","U (M1)","8",0
+"Colias hyale","SPE","Pieridae","Coliadinae","Colias","*","f","M1","5",1
+"Colias hyale/alfacariensis-Komplex","AGG","Pieridae","Coliadinae","Colias","*/*","f",NA,NA,1
+"Colias myrmidone","SPE","Pieridae","Coliadinae","Colias","0","f","X2","3",1
+"Colias palaeno","SPE","Pieridae","Coliadinae","Colias","2","f","T","4",0
+"Cupido","GEN","Lycaenidae","Polyommatinae","Cupido","NA","f",NA,NA,0
+"Cupido alcetas","SPE","Lycaenidae","Polyommatinae","Cupido","nb","f",NA,NA,0
+"Cupido argiades","SPE","Lycaenidae","Polyommatinae","Cupido","V","f","X1/H","4",1
+"Cupido minimus","SPE","Lycaenidae","Polyommatinae","Cupido","*","f","X1","2",1
+"Cupido osiris","SPE","Lycaenidae","Polyommatinae","Cupido","0","f",NA,NA,0
+"Cyaniris","GEN","Lycaenidae","Polyommatinae","Cyaniris","NA","f",NA,NA,0
+"Cyaniris semiargus","SPE","Lycaenidae","Polyommatinae","Cyaniris","*","f","M2, H","4",1
+"Dismorphiinae","SF","Pieridae","Dismorphiinae",NA,"NA","f",NA,NA,0
+"Erebia","GEN","Nymphalidae","Satyrinae","Erebia","NA","g",NA,NA,0
+"Erebia aethiops","SPE","Nymphalidae","Satyrinae","Erebia","3","g","M3","3",0
+"Erebia epiphron","SPE","Nymphalidae","Satyrinae","Erebia","R","g","A","2",0
+"Erebia euryale","SPE","Nymphalidae","Satyrinae","Erebia","*","g","M3",NA,0
+"Erebia ligea","SPE","Nymphalidae","Satyrinae","Erebia","V","g","M3","4",0
+"Erebia medusa","SPE","Nymphalidae","Satyrinae","Erebia","V","g","M2","3",1
+"Erebia meolans","SPE","Nymphalidae","Satyrinae","Erebia","3","g","A","3",0
+"Erynnis","GEN","Hesperiidae","Erynnis","Erynnis","NA","f",NA,NA,0
+"Erynnis tages","SPE","Hesperiidae","Erynnis","Erynnis","*","f","X1","3",1
+"Euphydryas","GEN","Nymphalidae","Nymphalinae","Euphydryas","NA","f",NA,NA,0
+"Euphydryas aurinia","SPE","Nymphalidae","Nymphalinae","Euphydryas","2","f","H/X2","2",1
+"Euphydryas maturna","SPE","Nymphalidae","Nymphalinae","Euphydryas","1","f","M3","2",0
+"Favonius","GEN","Lycaenidae","Theclinae","Favonius","NA","w",NA,NA,0
+"Favonius quercus","SPE","Lycaenidae","Theclinae","Favonius","*","w","M3","1",0
+"Glaucopsyche","GEN","Lycaenidae","Polyommatinae","Glaucopsyche","NA","f",NA,NA,0
+"Glaucopsyche alexis","SPE","Lycaenidae","Polyommatinae","Glaucopsyche","3","f","X1","3",1
+"Gonepteryx","GEN","Pieridae","Coliadinae","Gonepteryx","NA","w",NA,NA,0
+"Gonepteryx rhamni","SPE","Pieridae","Coliadinae","Gonepteryx","*","w","M2","6",0
+"Hamearis","GEN","Riodinidae","Riodininae","Hamearis","NA","f",NA,NA,0
+"Hamearis lucina","SPE","Riodinidae","Riodininae","Hamearis","3","f","M2","2",1
+"Heliconiinae","SF","Nymphalidae","Heliconiinae",NA,"NA","f",NA,NA,0
+"Hesperia","GEN","Hesperiidae","Hesperiinae","Hesperia","NA","g",NA,NA,0
+"Hesperia comma","SPE","Hesperiidae","Hesperiinae","Hesperia","3","g","M1","3",1
+"Hesperiidae","FAM","Hesperiidae","Hesperiinae",NA,"NA","g",NA,NA,0
+"Hesperiinae","SF","Hesperiidae","Hesperiinae",NA,"NA","g",NA,NA,0
+"Heteropterinae","SF","Hesperiidae","Heteropterinae",NA,"NA","g",NA,NA,0
+"Heteropterus","GEN","Hesperiidae","Heteropterinae","Heteropterus","NA","g",NA,NA,0
+"Heteropterus morpheus","SPE","Hesperiidae","Heteropterinae","Heteropterus","*","g","H","2",0
+"Hipparchia","GEN","Nymphalidae","Satyrinae","Hipparchia","NA","g",NA,NA,0
+"Hipparchia fagi","SPE","Nymphalidae","Satyrinae","Hipparchia","2","g","X2","3",1
+"Hipparchia hermione","SPE","Nymphalidae","Satyrinae","Hipparchia","2","g","X1/M3","3",1
+"Hipparchia semele","SPE","Nymphalidae","Satyrinae","Hipparchia","3","g","X1/M2 (X2)","4",1
+"Hipparchia statilinus","SPE","Nymphalidae","Satyrinae","Hipparchia","1","g","X1","3",1
+"Hyponephele","GEN","Nymphalidae","Satyrinae","Hyponephele","NA","g",NA,NA,0
+"Hyponephele lycaon","SPE","Nymphalidae","Satyrinae","Hyponephele","2","g","X1","4",1
+"Iphiclides","GEN","Papilionidae","Papilioninae","Iphiclides","NA","w",NA,NA,0
+"Iphiclides podalirius","SPE","Papilionidae","Papilioninae","Iphiclides","3","w","X2","4",1
+"Issoria","GEN","Nymphalidae","Heliconiinae","Issoria","NA","f",NA,NA,0
+"Issoria lathonia","SPE","Nymphalidae","Heliconiinae","Issoria","*","f","M2","5",1
+"Lasiommata","GEN","Nymphalidae","Satyrinae","Lasiommata","NA","g",NA,NA,0
+"Lasiommata maera","SPE","Nymphalidae","Satyrinae","Lasiommata","V","g","X2/M3","3",1
+"Lasiommata megera","SPE","Nymphalidae","Satyrinae","Lasiommata","*","g","M1","4",0
+"Lasiommata petropolitana","SPE","Nymphalidae","Satyrinae","Lasiommata","3","g","M3","3",0
+"Leptidea","GEN","Pieridae","Dismorphiinae","Leptidea","NA","f",NA,NA,0
+"Leptidea juvernica","SPE","Pieridae","Dismorphiinae","Leptidea","D","f","M2",NA,0
+"Leptidea sinapis","SPE","Pieridae","Dismorphiinae","Leptidea","D","f","M2","4",1
+"Leptidea sinapis/juvernica-Komplex","AGG","Pieridae","Dismorphiinae","Leptidea","D/D","f",NA,NA,0
+"Limenitidinae","SF","Nymphalidae","Limenitidinae",NA,"NA","w",NA,NA,0
+"Limenitis","GEN","Nymphalidae","Limenitidinae","Limenitis","NA","w",NA,NA,0
+"Limenitis camilla","SPE","Nymphalidae","Limenitidinae","Limenitis","V","w","M3","3",0
+"Limenitis populi","SPE","Nymphalidae","Limenitidinae","Limenitis","2","w","M3","3",0
+"Limenitis reducta","SPE","Nymphalidae","Limenitidinae","Limenitis","1","w","X2","4",1
+"Lopinga","GEN","Nymphalidae","Satyrinae","Lopinga","NA","g",NA,NA,0
+"Lopinga achine","SPE","Nymphalidae","Satyrinae","Lopinga","2","g","M3","1",0
+"Lycaena","GEN","Lycaenidae","Lycaeninae","Lycaena","NA","f",NA,NA,0
+"Lycaena alciphron","SPE","Lycaenidae","Lycaeninae","Lycaena","2","f","H","4",1
+"Lycaena dispar","SPE","Lycaenidae","Lycaeninae","Lycaena","3","f","H","4",1
+"Lycaena helle","SPE","Lycaenidae","Lycaeninae","Lycaena","2","f","H","3",1
+"Lycaena hippothoe","SPE","Lycaenidae","Lycaeninae","Lycaena","3","f","H","3",1
+"Lycaena phlaeas","SPE","Lycaenidae","Lycaeninae","Lycaena","*","f","M1","4",1
+"Lycaena tityrus","SPE","Lycaenidae","Lycaeninae","Lycaena","*","f","M2","3",1
+"Lycaena virgaureae","SPE","Lycaenidae","Lycaeninae","Lycaena","V","f","H","4",1
+"Lycaenidae","FAM","Lycaenidae","Lycaeninae",NA,"NA","f",NA,NA,0
+"Lycaeninae","SF","Lycaenidae","Lycaeninae",NA,"NA","f",NA,NA,0
+"Maniola","GEN","Nymphalidae","Satyrinae","Maniola","NA","g",NA,NA,0
+"Maniola jurtina","SPE","Nymphalidae","Satyrinae","Maniola","*","g","U (M1)","4",0
+"Melanargia","GEN","Nymphalidae","Satyrinae","Melanargia","NA","g",NA,NA,0
+"Melanargia galathea","SPE","Nymphalidae","Satyrinae","Melanargia","*","g","M1","3",0
+"Melitaea","GEN","Nymphalidae","Nymphalinae","Melitaea","NA","f",NA,NA,0
+"Melitaea athalia","SPE","Nymphalidae","Nymphalinae","Melitaea","3","f","M/X/H","3",1
+"Melitaea athalia/aurelia/britomartin-Komplex","AGG","Nymphalidae","Nymphalinae","Melitaea","3/V/V","f",NA,NA,0
+"Melitaea aurelia","SPE","Nymphalidae","Nymphalinae","Melitaea","V","f","X1/H","3",1
+"Melitaea britomartis","SPE","Nymphalidae","Nymphalinae","Melitaea","V","f","M2/X2","2",1
+"Melitaea cinxia","SPE","Nymphalidae","Nymphalinae","Melitaea","3","f","M1","3",1
+"Melitaea diamina","SPE","Nymphalidae","Nymphalinae","Melitaea","3","f","H/X1","1",1
+"Melitaea didyma","SPE","Nymphalidae","Nymphalinae","Melitaea","2","f","X1","4",1
+"Melitaea parthenoides","SPE","Nymphalidae","Nymphalinae","Melitaea","2","f","H","2",1
+"Melitaea phoebe","SPE","Nymphalidae","Nymphalinae","Melitaea","2","f","X2","4",1
+"Minois","GEN","Nymphalidae","Satyrinae","Minois","NA","g",NA,NA,0
+"Minois dryas","SPE","Nymphalidae","Satyrinae","Minois","2","g","H/X2","3",1
+"Nymphalidae","FAM","Nymphalidae",NA,NA,"NA","f",NA,NA,0
+"Nymphalinae","SF","Nymphalidae","Nymphalinae",NA,"NA","f",NA,NA,0
+"Nymphalis","GEN","Nymphalidae","Nymphalinae","Nymphalis","NA","f",NA,NA,0
+"Nymphalis antiopa","SPE","Nymphalidae","Nymphalinae","Nymphalis","V","f","M3","6",0
+"Nymphalis polychloros","SPE","Nymphalidae","Nymphalinae","Nymphalis","V","f","M3","6",0
+"Nymphalis xanthomelas","SPE","Nymphalidae","Nymphalinae","Nymphalis","D","f","M3",NA,0
+"Ochlodes","GEN","Hesperiidae","Hesperiinae","Ochlodes","NA","g",NA,NA,0
+"Ochlodes sylvanus","SPE","Hesperiidae","Hesperiinae","Ochlodes","*","g","U (M1)","4",0
+"Papilio","GEN","Papilionidae","Papilioninae","Papilio","NA","f",NA,NA,0
+"Papilio machaon","SPE","Papilionidae","Papilioninae","Papilio","*","f","M1","5",1
+"Papilioninae","SF","Papilionidae","Papilioninae",NA,"NA","f",NA,NA,0
+"Papilionoidae","FAM","Papilionidae","Papilioninae",NA,"NA","f",NA,NA,0
+"Pararge","GEN","Nymphalidae","Satyrinae","Pararge","NA","g",NA,NA,0
+"Pararge aegeria","SPE","Nymphalidae","Satyrinae","Pararge","*","g","M3","4",0
+"Parnassiinae","SF","Papilionidae","Parnassiinae",NA,"NA","f",NA,NA,0
+"Parnassius","GEN","Papilionidae","Parnassiinae","Parnassius","NA","f",NA,NA,0
+"Parnassius apollo","SPE","Papilionidae","Parnassiinae","Parnassius","2","f","X1","3",1
+"Parnassius mnemosyne","SPE","Papilionidae","Parnassiinae","Parnassius","2","f","M3","3",0
+"Phengaris","GEN","Lycaenidae","Polyommatinae","Phengaris","NA","f",NA,NA,0
+"Phengaris alcon ssp. alcon","SPE","Lycaenidae","Polyommatinae","Phengaris","2","f","H","2",1
+"Phengaris alcon ssp. rebeli","SPE","Lycaenidae","Polyommatinae","Phengaris","3","f","X2",NA,0
+"Phengaris arion","SPE","Lycaenidae","Polyommatinae","Phengaris","3","f","X1","3",1
+"Phengaris nausithous","SPE","Lycaenidae","Polyommatinae","Phengaris","V","f","H","1",1
+"Phengaris teleius","SPE","Lycaenidae","Polyommatinae","Phengaris","2","f","H","2",1
+"Pieridae","FAM","Pieridae","Pierinae",NA,"NA","f",NA,NA,0
+"Pierinae","SF","Pieridae","Pierinae",NA,"NA","f",NA,NA,0
+"Pieris","GEN","Pieridae","Pierinae","Pieris","NA","f",NA,NA,0
+"Pieris brassicae","SPE","Pieridae","Pierinae","Pieris","*","f","U (M1)","7",0
+"Pieris mannii","SPE","Pieridae","Pierinae","Pieris","nb","f",NA,NA,0
+"Pieris napi","SPE","Pieridae","Pierinae","Pieris","*","f","U (M2)","5",1
+"Pieris rapae","SPE","Pieridae","Pierinae","Pieris","*","f","U (M1)","6",0
+"Plebeius","GEN","Lycaenidae","Polyommatinae","Plebeius","NA","f",NA,NA,0
+"Plebejus argus","SPE","Lycaenidae","Polyommatinae","Plebeius","*","f","M1/M2","3",1
+"Plebejus argus/idas/argyrognomon-Komplex","AGG","Lycaenidae","Polyommatinae","Plebeius","*/3/*","f",NA,NA,1
+"Plebejus argyrognomon","SPE","Lycaenidae","Polyommatinae","Plebeius","*","f","X1","4",1
+"Plebejus idas","SPE","Lycaenidae","Polyommatinae","Plebeius","3","f","M1/M2","3",1
+"Plebejus optilete","SPE","Lycaenidae","Polyommatinae","Plebeius","2","f","T","3",0
+"Polygonia","GEN","Nymphalidae","Nymphalinae","Polygonia","NA","f",NA,NA,0
+"Polygonia c-album","SPE","Nymphalidae","Nymphalinae","Polygonia","*","f","M3","6",0
+"Polyommatinae","SF","Lycaenidae","Polyommatinae",NA,"NA","f",NA,NA,0
+"Polyommatus","GEN","Lycaenidae","Polyommatinae","Polyommatus","NA","f",NA,NA,0
+"Polyommatus amandus","SPE","Lycaenidae","Polyommatinae","Polyommatus","*","f","U (M1)","4",1
+"Polyommatus bellargus","SPE","Lycaenidae","Polyommatinae","Polyommatus","3","f","X1","3",1
+"Polyommatus coridon","SPE","Lycaenidae","Polyommatinae","Polyommatus","*","f","X1","4",1
+"Polyommatus damon","SPE","Lycaenidae","Polyommatinae","Polyommatus","1","f","X1","4",1
+"Polyommatus daphnis","SPE","Lycaenidae","Polyommatinae","Polyommatus","3","f","X1","6",0
+"Polyommatus dorylas","SPE","Lycaenidae","Polyommatinae","Polyommatus","2","f","X1","4",1
+"Polyommatus icarus","SPE","Lycaenidae","Polyommatinae","Polyommatus","*","f","U (M1)","4",1
+"Polyommatus thersites","SPE","Lycaenidae","Polyommatinae","Polyommatus","3","f","X1","3",1
+"Pontia","GEN","Pieridae","Pierinae","Pontia","NA","f",NA,NA,0
+"Pontia edusa","SPE","Pieridae","Pierinae","Pontia","*","f","X1","6",0
+"Pseudophilotes","GEN","Lycaenidae","Polyommatinae","Pseudophilotes","NA","f",NA,NA,0
+"Pseudophilotes baton","SPE","Lycaenidae","Polyommatinae","Pseudophilotes","2","f","X1","3",1
+"Pseudophilotes vicrama","SPE","Lycaenidae","Polyommatinae","Pseudophilotes","1","f","X1",NA,0
+"Pyrginae","SF","Hesperiidae","Pyrginae",NA,"NA","f",NA,NA,0
+"Pyrgus","GEN","Hesperiidae","Pyrginae","Pyrgus","NA","f",NA,NA,0
+"Pyrgus alveus ssp. accretus","SPE","Hesperiidae","Pyrginae","Pyrgus","1","f","X1",NA,0
+"Pyrgus alveus ssp. alveus","SPE","Hesperiidae","Pyrginae","Pyrgus","2","f","M2","4",1
+"Pyrgus alveus ssp. trebevicensis","SPE","Hesperiidae","Pyrginae","Pyrgus","D","f","X2",NA,0
+"Pyrgus alveus-Komplex","AGG","Hesperiidae","Pyrginae","Pyrgus","NA","f",NA,NA,0
+"Pyrgus armoricanus","SPE","Hesperiidae","Pyrginae","Pyrgus","3","f","X2","3",1
+"Pyrgus carthami","SPE","Hesperiidae","Pyrginae","Pyrgus","2","f","X1","3",1
+"Pyrgus cirsii","SPE","Hesperiidae","Pyrginae","Pyrgus","1","f","X1","4",1
+"Pyrgus malvae","SPE","Hesperiidae","Pyrginae","Pyrgus","V","f","M2","3",1
+"Pyrgus onopordi","SPE","Hesperiidae","Pyrginae","Pyrgus","0","f",NA,NA,0
+"Pyrgus serratulae","SPE","Hesperiidae","Pyrginae","Pyrgus","2","f","X2","3",1
+"Pyronia","GEN","Nymphalidae","Satyrinae","Pyronia","NA","g",NA,NA,0
+"Pyronia tithonus","SPE","Nymphalidae","Satyrinae","Pyronia","*","g","X2","3",0
+"Riodinidae","FAM","Riodinidae",NA,NA,"NA","g",NA,NA,0
+"Riodininae","SF","Riodinidae","Riodininae",NA,"NA","g",NA,NA,0
+"Satyrinae","SF","Lycaenidae","Theclinae",NA,"NA","w",NA,NA,0
+"Satyrium","GEN","Lycaenidae","Theclinae","Satyrium","NA","w",NA,NA,0
+"Satyrium acaciae","SPE","Lycaenidae","Theclinae","Satyrium","V","w","X2","2",1
+"Satyrium ilicis","SPE","Lycaenidae","Theclinae","Satyrium","2","w","X2","3",1
+"Satyrium pruni","SPE","Lycaenidae","Theclinae","Satyrium","*","w","X2","1",0
+"Satyrium spini","SPE","Lycaenidae","Theclinae","Satyrium","3","w","X2","3",1
+"Satyrium w-album","SPE","Lycaenidae","Theclinae","Satyrium","*","w","M3","1",0
+"Scolitantides","GEN","Lycaenidae","Polyommatinae","Scolitantides","NA","f",NA,NA,0
+"Scolitantides orion","SPE","Lycaenidae","Polyommatinae","Scolitantides","2","f","X1","2",1
+"Spalia","GEN","Hesperiidae","Pyrginae","Spalia","NA","f",NA,NA,0
+"Spialia sertorius","SPE","Hesperiidae","Pyrginae","Spalia","*","f","X1","2",1
+"Thecla","GEN","Lycaenidae","Theclinae","Thecla","NA","w",NA,NA,0
+"Thecla betulae","SPE","Lycaenidae","Theclinae","Thecla","*","w","M2","3",0
+"Theclinae","SF","Lycaenidae","Theclinae",NA,"NA","w",NA,NA,0
+"Thymelicus","GEN","Hesperiidae","Hesperiinae","Thymelicus","NA","g",NA,NA,0
+"Thymelicus acteon","SPE","Hesperiidae","Hesperiinae","Thymelicus","3","g","X1","3",1
+"Thymelicus lineola","SPE","Hesperiidae","Hesperiinae","Thymelicus","*","g","M1","4",0
+"Thymelicus sylvestris","SPE","Hesperiidae","Hesperiinae","Thymelicus","*","g","M2","3",0
+"Unbekannt_01",NA,NA,NA,NA,"NA",NA,NA,NA,NA
+"Unbekannt_02",NA,NA,NA,NA,"NA",NA,NA,NA,NA
+"Unbekannt_03",NA,NA,NA,NA,"NA",NA,NA,NA,NA
+"Unbekannt_04",NA,NA,NA,NA,"NA",NA,NA,NA,NA
+"Unbekannt_05",NA,NA,NA,NA,"NA",NA,NA,NA,NA
+"Vanessa","GEN","Nymphalidae","Nymphalinae","Vanessa","NA","f",NA,NA,0
+"Vanessa atalanta","SPE","Nymphalidae","Nymphalinae","Vanessa","*","f","U (M1)","9",0
+"Vanessa cardui","SPE","Nymphalidae","Nymphalinae","Vanessa","*","f","U (M1)","8",0
+"Zygaena","GEN","Zygaenidae","Zygaeninae","Zygaena","NA","f",NA,NA,1
+"Zygaena angelicae","SPE","Zygaenidae","Zygaeninae","Zygaena","2","f",NA,NA,1
+"Zygaena carniolica","SPE","Zygaenidae","Zygaeninae","Zygaena","V","f",NA,NA,1
+"Zygaena cynarae","SPE","Zygaenidae","Zygaeninae","Zygaena","0","f",NA,NA,1
+"Zygaena ephialtes","SPE","Zygaenidae","Zygaeninae","Zygaena","*","f",NA,NA,1
+"Zygaena exulans","SPE","Zygaenidae","Zygaeninae","Zygaena","1","f",NA,NA,1
+"Zygaena fausta","SPE","Zygaenidae","Zygaeninae","Zygaena","3","f",NA,NA,1
+"Zygaena filipendulae","SPE","Zygaenidae","Zygaeninae","Zygaena","*","f",NA,NA,1
+"Zygaena lonicerae","SPE","Zygaenidae","Zygaeninae","Zygaena","V","f",NA,NA,1
+"Zygaena loti","SPE","Zygaenidae","Zygaeninae","Zygaena","*","f",NA,NA,1
+"Zygaena minos","SPE","Zygaenidae","Zygaeninae","Zygaena","3","f",NA,NA,1
+"Zygaena osterodensis","SPE","Zygaenidae","Zygaeninae","Zygaena","2","f",NA,NA,1
+"Zygaena purpuralis","SPE","Zygaenidae","Zygaeninae","Zygaena","V","f",NA,NA,1
+"Zygaena purpuralis/minos-Komplex","AGG","Zygaenidae","Zygaeninae","Zygaena","NA","f",NA,NA,1
+"Zygaena transalpina","SPE","Zygaenidae","Zygaeninae","Zygaena","V","f",NA,NA,1
+"Zygaena trifolii","SPE","Zygaenidae","Zygaeninae","Zygaena","3","f",NA,NA,1
+"Zygaena viciae","SPE","Zygaenidae","Zygaeninae","Zygaena","*","f",NA,NA,1
