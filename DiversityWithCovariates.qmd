@@ -75,7 +75,6 @@ So we can collect terms:
 
 (NOTE: CHECK ALL OF THIS. WANT TO FIND WHAT IS INDEXED BY I, J, AND BOTH I & J)
 
-
 \begin{align}
 \eta_{ij} &= \mu + \alpha_i + \gamma_j + 
 (\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 

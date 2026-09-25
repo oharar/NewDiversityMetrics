@@ -1,0 +1,686 @@
+---
+title: "Basic Diversity Example"
+author: "Bob O'Hara"
+format:
+  html
+bibliography: references.bib
+execute: 
+  cache: true
+---
+
+**To DO**: 
+
+- correct terminology to align with the manuscript
+- align notation with rest of manuscript
+- check this makes sense
+
+# Introduction
+
+This is an implementation of the diversity statistics, to demonstrate their calculation without any trait or environmental variables. We will use data where we can estimate both occurrence and abundance (conditional on occurrence).
+
+These are examples of an analysis, and whilst it in mainly to show how to use this approach, it also leads to the following ecological conclusions:
+
+- diversity between sites is driven by variation between species
+- diversity between species is driven by changes in rarity/commonness rather than specialisation on different sites
+- abundance and species richness on sites are not related
+- in contrast, more widespread species tend to also be more abundant
+
+
+# The Community Model
+
+For species $j$ on site $i$ we denote occurrence as $z_{ij} \in \{0,1\}$ (where 1 is presence), and abundance as $\lambda_{ij} > 0$. We will link both of these to the general theory, where we assume the occurrence/abundance/whatever is $k_ij$.
+
+Fo occurrence we assume presence is a Bernoulli trial, then $z_{ij} \sim \text{Bern}(p_{ij})$.  with probability $\text{logit}(\eta_{ij}) = \log\frac{p_{ij}}{1-p_{ij}}$. This is equivalent to a threshold model, i.e. saying that we have a continuous random variable, $\eta_{ij}^{(z)}$, and $z_{ij} = 1$ if $\eta_{ij}^{(z)}>0$. We will assume that $\eta_{ij}^{(z)}$ follows a logistic distribution, which is equivalent to using a logit link in a GLM. Then 
+
+$$
+\eta_{ij}^{(z)} = \mu^{(z)} + \alpha^{(z)}_i + \gamma^{(z)}_j + \delta^{(z)}_{ij}.
+$$
+
+And $\delta^{(z)}_{ij}$ follows a standard logistic distribution, which means it has a mean of 0 and variance $\pi^2/3$. The species effect is thus $\gamma^{(z)}_j$ ($\eta^{(z)}_j$ in Chrisophe's notation), and $\alpha^{(z)}_i$ is the site effect ($\lambda^{(z)}_j$ in Chrisophe's notation).
+
+We can calculate statistics on $\eta_{ij}^{(z)}$: note that $z_{ij}|\eta_{ij}^{(z)}$ is deterministic: the usual Bernoulli stochasticity is in $\delta^{(z)}_{ij}$. 
+
+
+For abundance we assume a log-linear model:
+
+$$
+\log(\lambda_{ij}|z_{ij}=1) = \eta_{ij}^{(\lambda)} = \mu^{(\lambda)} + \alpha^{(\lambda)}_i + \gamma^{(\lambda)}_j + \delta^{(\lambda)}_{ij}
+$$
+
+Where $\alpha^{(\lambda)}_i$, $\gamma^{(\lambda)}_j$ and $\delta^{(\lambda)}_{ij}$ are the site, species and inter action effects (if we assume the abundance follows a Poisson distribution, the interaction is an overdispersion term). Clearly $\lambda_{ij}=0$ if $z_{ij}=0$.
+
+For both models we assume the effects are random effects, i.e. with a variance to be estimated. But to make the presentation easier to follow, we use the posterior estimates of the parameters to calculate variances from. 
+
+The interesting statistics are the means and variances:
+
+Means: 
+
+- $\bar{k}_{\cdot \cdot} = \mu$: the grand mean
+- $\bar{k}_{i \cdot} = S_i = \mu + \alpha$: the site mean: species richness or average abundance/biomass
+- $\bar{k}_{\cdot j} = O_j = \mu + \gamma$: the species mean: prevelance etc.
+
+Variances:
+
+- $P_j = \text{Var}_i(k_{ij})$: Pickiness [TERM CHANGED!!!]. The variance in site abundances (or incidence) for species $j$. Related to specialisation.
+- $U_i = \text{Var}_j(k_{ij})$: Unevenness. The variance in species abundances (or incidence) at site $i$. For abundance, this is equivalent to alpha diversity (Hill numbers)
+
+- $R = \bar{P}_j$: replacement. Mean pickiness
+- $U = \bar{U}_i$: Mean Unevenness
+- $D = \text{Var}(O_{j})$: Disparity. Variance over species in mean prevalence etc.
+- $N = \text{Var}(S_{i})$: Nestedness. Variance over sites in mean prevalence, species richness
+
+
+
+The models are fitted with JAGS, so it is easier to estimate uncertainty. Details are in the fold-out below.
+
+# An Example
+
+::: {.callout-note collapse=true}
+
+## Observation Model
+
+The data are counts of each species, and we model both presence/absence and counts. We have multiple replicate observations per site, so we assume the counts, $n_{kj}$ on replicate $k$ for species $j$, follow a zero inflated Poisson lognormal distribution with mean $\lambda_{ij}$ (i.e. constant across replicates within a site). We have a Gaussian overdispersion term for excess variation within a replicate that represents sampling variation. For presences (i.e. to account for zero inflation) we use an occupancy model. 
+## Downloading and formatting the data
+
+The data are abundances (counts) on each location on a transect. There are 3 islands, each with 3 transects, each with 3 stations. Each station was sampled in 2 seasons, and has 3 replicates.
+
+The steps are:
+1. import the data
+
+```{r}
+#| label: ImportData
+#| echo: false
+Env <- read.csv("data/waddenX.csv")
+Counts <- read.csv("data/waddenY.csv")
+Species <- names(Counts)[!names(Counts)%in%c("X", "measurementID")]
+
+# Extract information about data
+Obs <- strsplit(Counts$measurementID, "_")
+
+Counts$Island <- unlist(lapply(Obs, function(x) x[[1]]))
+Counts$Transect <- unlist(lapply(Obs, function(x) x[[2]]))
+Counts$Station <- unlist(lapply(Obs, function(x) x[[3]]))
+Counts$Season <- unlist(lapply(Obs, function(x) x[[4]]))
+Counts$Replicate <- unlist(lapply(Obs, function(x) x[[5]]))
+
+Counts$Site <- factor(paste(Counts$Island, Counts$Transect, Counts$Station, Counts$Season, sep="_"))
+
+Present <- apply(Counts[,Species], 2, function(Spp, Site) 
+  tapply(Spp, list(Site), function(a) c(NA,1)[1+any(a>0)]), 
+                 Site = Counts$Site)
+
+```
+
+2. Format the data for JAGS.
+
+```{r}
+#| label: FormatForJAGS
+#| echo: false
+DataToJAGS <- list(
+  Abund = as.matrix(Counts[,Species]), 
+  Site = as.numeric(Counts$Site),
+  Present = Present, 
+  temperature = as.vector(scale(tapply(Env$temperature, list(Counts$Site), mean))),
+  # Island <- Counts$Island, # Might use these later
+  # Transect <- Counts$Transect, 
+  # Station <- Counts$Station, 
+  # Season <- Counts$Season
+
+  NSp = length(Species),
+  NSite = nlevels(Counts$Site),
+  NRep = nrow(Counts)
+)
+
+# Function to simulate initial values
+GetInits <- function(data, corr=FALSE) {
+  res <- list(
+    mu.be.lam = rnorm(1, 0, 0.1),
+    mu.be.z = rnorm(1, 0, 0.1),
+    mu.al.lam = rnorm(1, 0, 0.1),
+    mu.al.z = rnorm(1, 0, 0.1),
+    mu.lam = rnorm(1, 0, 0.1),
+    mu.z = rnorm(1, 0, 0.1),
+    
+    sd.be.lam = rgamma(1, 100, 500),
+    sd.be.z = rgamma(1, 100, 500),
+    sd.al.lam = rgamma(1, 100, 500),
+    sdOD = rgamma(1, 100, 500),
+    sd.al.z = rgamma(1, 100, 500))
+  if(exists("temperature", data)) {
+    res$mu.gam.lam = rnorm(1, 0, 1)
+    res$sd.gam.lam = rgamma(1, 100, 500)
+    res$mu.gam.z = rnorm(1, 0, 0.5)
+    res$sd.gam.z = rgamma(1, 100, 500)
+  }
+  if(corr) {
+    res$rho = rnorm(data$NSp, 0, 0.1)
+    res$VarSiteOD = matrix(rgamma(2*data$NSp, 100, 100), ncol=2)
+  }
+  res
+}
+
+```
+
+3. Write the model in JAGS code
+
+```{r}
+#| label: JAGScode
+#| echo: false
+cat("
+model {
+  for(sp in 1:NSp) {
+    for(rep in 1:NRep) {
+      Abund[rep, sp] ~ dpois(lambda[rep, sp])
+      lambda[rep, sp] <- mu[rep, sp]*Present[Site[rep], sp]
+      OD[rep, sp] ~ dnorm(0, tauOD)
+      log(mu[rep, sp]) <- logmu[Site[rep], sp] + OD[rep, sp]
+    }
+    for(site in 1:NSite) {
+      Present[site, sp] ~ dbern(p[site, sp])
+      SiteOD[site, sp] ~ dmnorm(0, tauSiteOD)
+      logmu[site, sp] <- mu.lam + al.lamST[site] + be.lamST[sp] + SiteOD[site, sp]
+      logit(p[site, sp]) <- mu.z + al.zST[site] + be.zST[sp]
+    }
+    be.zST[sp] ~ dnorm(mu.be.z, tau.be.z)
+    be.lamST[sp] ~ dnorm(mu.be.lam, tau.be.lam)
+
+    be.lam[sp] <- be.lamST[sp] - mean(be.lamST[])
+    be.z[sp] <- be.zST[sp] - mean(be.zST[])
+  }
+  for(site in 1:NSite) {
+    al.lamST[site] ~ dnorm(mu.al.lam, tau.al.lam)
+    al.zST[site] ~ dnorm(mu.al.z, tau.al.z)
+    al.lam[site] <- al.lamST[site] - mean(al.lamST[])
+    al.z[site] <- al.zST[site] - mean(al.zST[])
+    SR[site] <- sum(Present[site, ])
+  }
+    
+  mu.be.lam ~ dnorm(0, 1)
+  mu.be.z ~ dnorm(0, 1)
+  mu.al.lam ~ dnorm(0, 1)
+  mu.al.z ~ dnorm(0, 1)
+  mu.lam ~ dnorm(0, 1)
+  mu.z ~ dnorm(0, 1)
+
+  Mean.lam <- mu.lam + mean(al.lamST[]) + mean(be.lamST[])
+  Mean.z <- mu.z + mean(al.zST[]) + mean(be.zST[])
+
+  tau.be.lam <- pow(sd.be.lam, -2); sd.be.lam ~ dexp(1)
+  tau.be.z <- pow(sd.be.z, -2); sd.be.z ~ dexp(1)
+  tau.al.lam <- pow(sd.al.lam, -2); sd.al.lam ~ dexp(1)
+  tau.al.z <- pow(sd.al.z, -2); sd.al.z ~ dexp(1)
+
+  tauOD <- pow(sdOD, -2); sdOD ~ dexp(1)
+  tauSiteOD <- pow(sdSiteOD, -2); sdSiteOD ~ dexp(1)
+
+# Finite population variances
+  StdDev.be.lam <- sd(be.lamST[])
+  StdDev.be.z <- sd(be.zST[])
+  StdDev.al.lam  <- sd(al.lamST[])
+  StdDev.al.z <- sd(al.zST[])
+
+  StdDevSiteOD <- sd(SiteOD[, ])
+  StdDevDelta.lam <- sd(SiteOD[, ]) # interaction
+  StdDevDelta.z <- sqrt(3.289868) # interaction
+  StdDevOD <- sd(OD[, ]) # observation level OD
+  StdDevTotal.z <- sqrt(StdDev.al.z^2 + StdDev.be.z^2 + StdDevDelta.z^2)
+  StdDevTotal.lam <- sqrt(StdDev.al.lam^2 + StdDev.be.lam^2 + StdDevDelta.lam^2)
+
+}", file="BeatingBetaCode.jag")
+
+```
+
+
+
+4. Run the JAGS code
+
+```{r}
+#| label: FitModel
+#| warning: false
+#| message: false
+#| output: false
+#| echo: false
+library(runjags)
+library(coda)
+
+ToMonitor.z <- c("Mean.z", "SR", "sd.al.z", "sd.be.z", "al.z")
+ToMonitor.lam <- c("Mean.lam", "sd.al.lam", "sd.be.lam", "sdSiteOD", "sdOD", "StdDevDelta")
+ToMonitor.gam <- c("mu.gam.lam", "sd.gam.lam", "sd.gam.z", "mu.gam.z", 
+                   "gamma.lam", "gamma.z", "Mean.gam.lam", "Mean.gam.z")
+ToMonitor.means <- c("logmu", "Present", "p") # if we want everything
+ToMonitor.DivStats <- c("Unevenness", "UnevennessOcc")
+ToMonitor.Unevenness <- c("be.lam", "SiteOD", "Present")
+
+ToMonitor <- unique(c(ToMonitor.z, ToMonitor.lam, ToMonitor.gam, ToMonitor.means,
+                      ToMonitor.DivStats))
+# Add to this as we go on
+ToMonitor <- unique(c(ToMonitor.means))
+
+Inits <- replicate(2, GetInits(DataToJAGS), simplify = FALSE)
+
+DivModel <- run.jags(model = "BeatingBetaCode.jag", monitor=ToMonitor, data=DataToJAGS,
+                  inits = Inits, method="parallel", silent.jags=TRUE,
+#         n.chains = 2, adapt = 1e2, burnin = 0, sample = 150)
+#         n.chains = 4, adapt = 1e3, burnin = 0, sample = 5e3)
+         n.chains = 6, adapt = 1e3, burnin = 0, sample = 1e3)
+# Summ <- summary(DivModel, vars= c(ToMonitor.z, ToMonitor.lam, ToMonitor.gam))
+# Summ <- summary(DivModel, vars= ToMonitor)
+
+# Combine MCMC into one data fame, so it's easier to work with below
+DivPars <- combine.mcmc(DivModel)
+
+
+
+```
+
+We get some output, which we will use to estimate our diversity statistics
+
+:::
+
+# Diversity Output
+
+All of our diversity metrics are based on decomposing the distributions into:
+
+- Occurrence
+- Abundance
+
+And looking at the means and variances of the parameters associated with these.
+
+```{r}
+#| label: DiversityFunctions
+#| code-fold: true
+#| code-summary: To calculate the statiastics need some functions, which are hidden away here
+
+Sites <- 1:DataToJAGS$NSite
+Species <- 1:DataToJAGS$NSp
+
+# Function to convert vector of data to matrix
+
+# vec: vector of values, should have names. 
+# varname: name of variable to extract
+# RowsFirstIndex: Should the first index be for rows or columns?
+# sortNumeric: Should the indices be converted to integer and then sorted? Warning: make sure they are integers!
+
+# Details
+# For the variable of interest the name should be of the format "varname[i,j]" 
+#  where i and j are the row and column names (in either order). 
+#  They will probably be integers.
+VecToMatrix <- function(vec, varname, RowsFirstIndex=TRUE, sortNumeric=TRUE) {
+  # extract variable and indices
+  variable <- vec[grep(paste0("^", varname, "\\["), names(vec))]
+  Index1 <- gsub(",.*", "", gsub(".*\\[", "", names(variable)))
+  Index2 <- gsub("\\]", "", gsub(".*,", "", names(variable)))
+
+# create matrix with row and column names 
+  mat <- matrix(NA, nrow=length(unique(Index1)), ncol=length(unique(Index2)),
+                dimnames=list(unique(Index1), unique(Index2)))
+# fill in entries
+  for(i in seq_along(variable))  mat[Index1[i], Index2[i]] <- variable[i]
+# If the column name is the first index, transpose the matrix
+  if(!RowsFirstIndex) mat <- t(mat)
+# Sort the rows and columns, if requested
+  if(sortNumeric) {
+    mat2 <- mat[sort(as.numeric(rownames(mat))), 
+                sort(as.numeric(colnames(mat)))]
+  }
+  return(mat)
+}
+
+
+MatrixToArray <- function(mat, varname, RowsSecondIndex=TRUE, sortNumeric=TRUE) {
+  # extract variable and indices
+  variable <- mat[,grep(paste0("^", varname, "\\["), colnames(mat))]
+  Index1 <- gsub(",.*", "", gsub(".*\\[", "", colnames(variable)))
+  Index2 <- gsub("\\]", "", gsub(".*,", "", colnames(variable)))
+
+# create matrix with row and column names 
+  arr <- array(NA, 
+               dim =c(nrow(mat), length(unique(Index1)), length(unique(Index2))),
+               dimnames=list(rownames(mat), unique(Index1), unique(Index2)))
+# fill in entries
+  for(i in seq_along(variable[1,]))  arr[,Index1[i], Index2[i]] <- variable[,i]
+# If the column name is the first index, transpose the matrix
+  if(!RowsSecondIndex) arr <- aperm(1,3,2)
+# Sort the rows and columns, if requested
+  if(sortNumeric) {
+    arr <- arr[,sort(as.numeric(dimnames(arr)[[2]])), 
+                sort(as.numeric(dimnames(arr)[[3]]))]
+  }
+  return(arr)
+}
+
+
+
+# this is a function to calculate the summaries we want
+CalcSumm <- function(mc, ...) {
+  require(coda)
+  require(MCMCglmm)
+  Summ <- summary(mc)
+  Summ$HPD <- HPDinterval(mc, prob=0.95)
+  Summ$PMode <- posterior.mode(mc, ...)
+  Summ
+}
+
+# Calculate summary stats from array: keep as mcmc object
+CalcSummaryFromArray <- function(arr, FUN=mean, mcmc=FALSE, centre=TRUE) {
+  Grand <- apply(arr, "Iteration", FUN, na.rm=TRUE)
+  Sp <- apply(arr, c("Iteration", "Species"), FUN, na.rm=TRUE)
+  colnames(Sp) <- paste0("Species", colnames(Sp))
+  Site <- apply(arr, c("Iteration", "Site"), FUN, na.rm=TRUE)
+  colnames(Site) <- paste0("Site", colnames(Site))
+  if(centre) {
+    Sp <- sweep(Sp, 1, Grand, "-")
+    Site <- sweep(Site, 1, Grand, "-")
+  }
+  res <- cbind(Grand, Sp, Site)
+  if(mcmc) res <- coda::as.mcmc(res)
+  res
+}
+
+# Calculate correlation between statistics in two data sets 
+#   (err, that could be explained better)
+CalcCorr <- function(mcmc1, mcmc2, Name) {
+  if(nrow(mcmc1)!=nrow(mcmc2)) stop("mcmc1 & mcmc2 must have same number of rows")
+  Use1 <- colnames(mcmc1)[grep(Name, colnames(mcmc1))]
+  Use2 <- colnames(mcmc2)[grep(Name, colnames(mcmc2))]
+  if(any(Use1%notin%Use2) | any(Use2%notin%Use1)) stop(paste0("mcmc1 and mcmc2 should have same variables for ", Name))
+  
+  Cor <-   sapply(1:nrow(mcmc1), function(i, mc1, mc2) {
+    cor(mc1[i,], mc2[i,])
+  }, mc1 = mcmc1[,Use1], mc2 = mcmc2[,Use2])  
+  Cor
+}
+
+
+# Function to plot parameters
+PlotPars <- function(Summ, At="Orig", use=NULL, ave=NULL, Xlim=NULL, ...) {
+  if(is.null(use)) use <- 1:length(Summ$PMode)
+  if(length(At)==length(use)) {
+    At.y <- At
+  } else {
+    At.y <- switch(At, 
+                   Orig = 1:use, 
+                   rank = rank(Summ$PMode[use], ties="random")
+    )
+  }
+  if(is.null(Xlim)) Xlim=range(Summ$HPD[use,])
+  plot(Summ$PMode[use], At.y, xlim=Xlim, type="n", ...)
+  if(!is.null(ave)) {
+  rect(Summ$HPD[ave,"lower"], -5, Summ$HPD[ave,"upper"], 2*max(At.y), border = NA, col="pink")
+  abline(v=Summ$PMode[ave], col=2)
+    
+  }
+  points(Summ$PMode[use], At.y, ...)
+  segments(Summ$HPD[use,"lower"], At.y, Summ$HPD[use,"upper"], At.y)
+  
+}
+
+
+```
+
+## Diversity Means
+
+## $S_i$, $\alpha$-mean diversity: Species richness and Mean Abundance
+
+For occupancy this relates to species richness. Because our fitted model is on the logit scale, we can calculate $S_i$ for occupancy on that scale too, as well as species richness itself.
+
+For abundance we only average over the species that are present: for those we do not observe, we estimate presence.
+
+```{r}
+#| label: CalcAlphaMeanDiv
+#| code-fold: true
+
+p.arr <- MatrixToArray(DivPars, varname = "p")
+lgtp.arr <- log(p.arr/(1 - p.arr))
+Present.arr <- MatrixToArray(DivPars, varname = "Present")
+abund.arr <- MatrixToArray(DivPars, varname = "logmu")
+names(dimnames(lgtp.arr)) <- names(dimnames(Present.arr)) <- 
+  names(dimnames(abund.arr)) <- c("Iteration", "Site", "Species")
+abund.arr[Present.arr==0] <- NA
+
+
+lgtp.means <- CalcSummaryFromArray(lgtp.arr, mcmc=TRUE)
+Present.sum <- CalcSummaryFromArray(Present.arr, FUN=sum, mcmc=TRUE, centre = FALSE)
+abund.means <- CalcSummaryFromArray(abund.arr, mcmc=TRUE)
+
+lgtp.means.summ <- CalcSumm(lgtp.means)
+Present.sum.summ <- CalcSumm(Present.sum)
+abund.means.summ <- CalcSumm(abund.means)
+
+MeansCorrelations <- as.mcmc(cbind(
+  lgtp.abund.sp.cor =  CalcCorr(mcmc1 = lgtp.means, mcmc2 = abund.means, Name = "Species"),
+  lgtp.Present.sp.cor =  CalcCorr(mcmc1 = lgtp.means, mcmc2 = Present.sum, Name = "Species"),
+  Present.abund.sp.cor =  CalcCorr(mcmc1 = Present.sum, mcmc2 = abund.means, Name = "Species"),
+  
+  lgtp.abund.site.cor =  CalcCorr(mcmc1 = lgtp.means, mcmc2 = abund.means, Name = "Site"),
+  lgtp.Present.site.cor =  CalcCorr(mcmc1 = lgtp.means, mcmc2 = Present.sum, Name = "Site"),
+  Present.abund.site.cor =  CalcCorr(mcmc1 = Present.sum, mcmc2 = abund.means, Name = "Site")
+))
+MeansCorrelations.summ <- CalcSumm(MeansCorrelations)
+
+```
+
+The estimates are plotted below, with the same site on the same row.
+
+```{r}
+#| label: PlotAlphaMeanDiv
+#| code-fold: true
+#| fig-height: 8
+#| fig-cap: Posterior modes and 95% HPDIs for unevenness of communities on sites
+
+At.mean <- rank(Present.sum.summ$PMode[grep("^Site", names(Present.sum.summ$PMode))], ties="random")
+par(mfrow=c(1,3), mar=c(2,2,4,1))
+PlotPars(lgtp.means.summ, use=grep("^Site", names(lgtp.means.summ$PMode)), At=At.mean, main="Mean Occupancy")
+PlotPars(Present.sum.summ, use=grep("^Site", names(Present.sum.summ$PMode)), At=At.mean, main="Species Richness", 
+         Xlim=c(0,DataToJAGS$NSp))
+PlotPars(abund.means.summ, use=grep("^Site", names(abund.means.summ$PMode)), At=At.mean, main="Mean Abundance")
+
+```
+
+Not surprisingly, the posterior modes for species richness and mean occupancy are strongly correlated (posterior mode: 
+`r round(MeansCorrelations.summ$PMode["lgtp.Present.sp.cor"], 2)`, 95% CI: 
+`r round(MeansCorrelations.summ$quantiles["lgtp.Present.sp.cor","2.5%"], 2)` - 
+`r round(MeansCorrelations.summ$quantiles["lgtp.Present.sp.cor","97.5%"], 2)`). 
+But the occurrence and abundance are pretty much uncorrelated (posterior mode: 
+`r round(MeansCorrelations.summ$PMode["lgtp.abund.sp.cor"], 2)`, 95% CI: 
+`r round(MeansCorrelations.summ$quantiles["lgtp.abund.sp.cor","2.5%"], 2)` - 
+`r round(MeansCorrelations.summ$quantiles["lgtp.abund.sp.cor","97.5%"], 2)`).
+
+## $O_j$, $\beta$-mean diversity: Variation across sites for each species
+
+We can also look at species. We can see that most species are rare (an observation that will not get us in to *Nature*), but a few are ubiquitous.
+
+
+```{r}
+#| label: PlotBetaMeanDiv
+#| code-fold: true
+
+At.sp <- rank(Present.sum.summ$PMode[grep("Species", names(Present.sum.summ$PMode))], ties="random")
+par(mfrow=c(1,3), mar=c(2,2,4,1))
+PlotPars(lgtp.means.summ, use=grep("Species", names(lgtp.means.summ$PMode)), At=At.sp, main="Mean Occupancy") #, Xlim=c(-50,200))
+PlotPars(Present.sum.summ, use=grep("Species", names(Present.sum.summ$PMode)), At=At.sp, main="(Local) Range Size",
+         Xlim=c(0,DataToJAGS$NSite), xaxs="i")
+PlotPars(abund.means.summ, use=grep("Species", names(abund.means.summ$PMode)), At=At.sp, main="Mean Abundance")
+```
+
+For about a third of the species the estimated range size is low, but has a high uncertainty: these species also have low estimated abundance, so it's more likely to get a false negative.
+
+The posterior modes for range size and mean occupancy are strongly correlated (posterior mode: 
+`r round(MeansCorrelations.summ$PMode["lgtp.Present.site.cor"], 2)`, 95% CI: 
+`r round(MeansCorrelations.summ$quantiles["lgtp.Present.site.cor","2.5%"], 2)` - 
+`r round(MeansCorrelations.summ$quantiles["lgtp.Present.site.cor","97.5%"], 2)`). 
+The occurrence and abundance have a moderate correlation (posterior mode: 
+`r round(MeansCorrelations.summ$PMode["lgtp.abund.site.cor"], 2)`, 95% CI: 
+`r round(MeansCorrelations.summ$quantiles["lgtp.abund.site.cor","2.5%"], 2)` - 
+`r round(MeansCorrelations.summ$quantiles["lgtp.abund.site.cor","97.5%"], 2)`).
+
+
+## Diversity Variances
+
+```{r}
+#| label: CalculateVariances
+#| code-fold: true
+lgtp.var <- CalcSummaryFromArray(lgtp.arr, FUN=sd, mcmc=TRUE, centre = FALSE)^2
+Present.var <- CalcSummaryFromArray(Present.arr, FUN=sd, mcmc=TRUE, centre = FALSE)^2
+abund.var <- CalcSummaryFromArray(abund.arr, FUN=sd, mcmc=TRUE, centre = FALSE)^2
+abund.var[is.na(abund.var)] <- 0
+
+# Add on mean variances
+lgtp.var <- as.mcmc(cbind(lgtp.var, 
+                          MeanSpecies = apply(lgtp.var[,grep("^Species", colnames(lgtp.var))], 1, mean),
+                          MeanSite = apply(lgtp.var[,grep("^Site", colnames(lgtp.var))], 1, mean)))
+Present.var <- as.mcmc(cbind(Present.var, 
+                             MeanSpecies = apply(Present.var[,grep("^Species", colnames(Present.var))], 1, mean),
+                             MeanSite = apply(Present.var[,grep("^Site", colnames(Present.var))], 1, mean)))
+abund.var <- as.mcmc(cbind(abund.var, 
+                           MeanSpecies = apply(abund.var[,grep("^Species", colnames(abund.var))], 1, mean),
+                           MeanSite = apply(abund.var[,grep("^Site", colnames(abund.var))], 1, mean)))
+
+# lgtp.var.summ is horribly right skewed, so we need to change the defaults for the smoothing used to estimate the posterior mode
+lgtp.var.summ <- CalcSumm(lgtp.var, from=0, to=1000, bw=0.1)
+Present.var.summ <- CalcSumm(Present.var)
+abund.var.summ <- CalcSumm(abund.var)
+
+```
+
+
+### $\alpha$-var-diversity: Unevenness
+
+Unevenness for each site is $U_j = \text{Var}_i(k_{i,j})$, i.e. the variance in the species' effects on each site. For abundance this is related to measures such as Shannon's and Simpson's diversity: the more evenly distributed species' abundances are, the higher the diversity (an uneven distribution would mean one or a few species with high abundances, i.e. dominating the community). Our variance is a measure of unevenness: when it is zero, all species have the same abundance, so there is maximal diversity.
+
+```{r}
+#| label: PlotUnevenness
+#| code-fold: true
+#| warning: false
+
+# Calculate mean unevenness
+At.site <- rank(Present.var.summ$PMode[grep("^Site", names(Present.var.summ$PMode))], ties="random")
+par(mfrow=c(1,3), mar=c(2,2,4,1), oma=c(2,2,0,0))
+PlotPars(lgtp.var.summ, use=grep("^Site", names(lgtp.var.summ$PMode)), 
+         At=At.site, main="Mean Occupancy", ave="MeanSite") #log="x", 
+PlotPars(Present.var.summ, use=grep("^Site", names(Present.var.summ$PMode)), 
+         At=At.site, main="(Local) Range Size", ave="MeanSite")
+PlotPars(abund.var.summ, use=grep("^Site", names(abund.var.summ$PMode)), 
+         At=At.site, main="Unevenness in Abundance", ave="MeanSite")
+mtext("Variance", 1, outer=TRUE)
+mtext("Site", 2, outer=TRUE)
+
+```
+
+We can see that unevenness has some variation in abundance. For mean occupancy the unevenness variance is the same for all sites, for some reason I need to check. The variation in local range soze variance is thus because of changes in the mean.
+
+With a lot of rare species, occupancy is uncertain, so the unevenness is perhaps to be expected.
+
+## $\sigma^2_\eta$, $\alpha$ Disparity, and its decomposition. What was pickiness.
+
+This is the variance in $O_j$, the average prevalence of a species.
+
+```{r}
+#| label: PlotWhatWasPickiness
+#| code-fold: true
+#| warning: false
+
+# Calculate mean unevenness
+At.sp <- rank(Present.var.summ$PMode[grep("^Species", names(Present.var.summ$PMode))], ties="random")
+par(mfrow=c(1,3), mar=c(2,2,4,1), oma=c(2,2,0,0))
+PlotPars(lgtp.var.summ, use=grep("^Species", names(lgtp.var.summ$PMode)), 
+         At=At.sp, main="Mean Occupancy", ave="MeanSpecies") #log="x", 
+PlotPars(Present.var.summ, use=grep("^Species", names(Present.var.summ$PMode)), 
+         At=At.sp, main="(Local) Range Size", ave="MeanSpecies")
+PlotPars(abund.var.summ, use=grep("^Species", names(abund.var.summ$PMode)), 
+         At=At.sp, main="Unevenness in Abundance", ave="MeanSpecies")
+mtext("Variance", 1, outer=TRUE)
+mtext("Site", 2, outer=TRUE)
+
+```
+
+For incidence, it looks a but of a mess. For abundance, the species only present at a few sites have poor estimates: the others seem roughly similar.
+
+
+# Gamma Diversity and its decomposition
+
+The statistics presented above are site or species specific. We can look at overall diversity by looking across sites, to get (reading from Erik's figure)
+
+$$
+\begin{aligned}
+\sigma^2_\gamma &= \sigma^2_\alpha + \sigma^2_\delta + \sigma^2_\gamma \\
+ &= R + D \\
+\sigma^2_\gamma &= \sigma^2_\gamma + \sigma^2_\delta + \sigma^2_\alpha \\
+ &= U + N 
+\end{aligned}
+$$
+
+where 
+
+- $R = \sigma^2_\alpha + \sigma^2_\delta = \bar{P}_j$ is replacement
+- $D = \sigma^2_\gamma = \text{Var}(O_{j})$ is disparity. Variance over species in mean prevalence etc.
+- $U = \sigma^2_\gamma + \sigma^2_\delta = \bar{U}_i$ is mean unevenness
+- $N = \sigma^2_\alpha = \text{Var}(S_{i})$: is nestedness. Variance over sites in mean prevalence, species richness
+
+```{r}
+#| label: CalcGammaStats
+#| code-fold: true
+#| warning: false
+
+# N <- apply(abund.arr, c("Iteration", "Site"), mean)
+# N <- apply(apply(abund.arr, c("Iteration", "Site"), mean, na.rm=TRUE), "Iteration", sd)^2
+# D <- apply(apply(abund.arr, c("Iteration", "Species"), mean, na.rm=TRUE), "Iteration", sd)^2
+CalcGammaStats <- function(arr) {
+  GammaStats <- cbind(U = apply(apply(arr, c("Iteration", "Site"), sd, na.rm=TRUE)^2, 
+                                "Iteration", mean, na.rm=TRUE)^2,
+                      R = apply(apply(arr, c("Iteration", "Species"), sd, na.rm=TRUE)^2, 
+                                "Iteration", mean, na.rm=TRUE)^2,
+                      N = apply(apply(arr, c("Iteration", "Site"), mean, na.rm=TRUE), 
+                                "Iteration", sd, na.rm=TRUE)^2,
+                      D = apply(apply(arr, c("Iteration", "Species"), mean, na.rm=TRUE), 
+                                "Iteration", sd, na.rm=TRUE)^2)
+  colnames(GammaStats) <- c("U", "R", "N", "D")
+  GammaStats <- cbind(GammaStats, 
+                      PropN = GammaStats[,"N"]/(GammaStats[,"U"]+GammaStats[,"N"]),
+                      PropD = GammaStats[,"D"]/(GammaStats[,"D"]+GammaStats[,"R"]))
+  GammaStats
+  
+}
+
+Gamma.lgtp <- CalcGammaStats(lgtp.arr)
+Gamma.pres <- CalcGammaStats(Present.arr)
+Gamma.abund <- CalcGammaStats(abund.arr)
+
+Summ.Gamma.lgtp <- CalcSumm(as.mcmc(Gamma.lgtp))
+Summ.Gamma.pres <- CalcSumm(as.mcmc(Gamma.pres))
+Summ.Gamma.abund <- CalcSumm(as.mcmc(Gamma.abund))
+
+StatsForFigure <- data.frame(
+  PMode = c(Summ.Gamma.lgtp$PMode[c("PropN", "PropD")], 
+             Summ.Gamma.pres$PMode[c("PropN", "PropD")], 
+             Summ.Gamma.abund$PMode[c("PropN", "PropD")]), 
+  L95 = c(Summ.Gamma.lgtp$HPD[c("PropN", "PropD"),"lower"], 
+           Summ.Gamma.pres$HPD[c("PropN", "PropD"),"lower"], 
+             Summ.Gamma.abund$HPD[c("PropN", "PropD"),"lower"]), 
+  U95 = c(Summ.Gamma.lgtp$HPD[c("PropN", "PropD"),"upper"], 
+           Summ.Gamma.pres$HPD[c("PropN", "PropD"),"upper"], 
+             Summ.Gamma.abund$HPD[c("PropN", "PropD"),"upper"]),
+  At.y = rep(1:3, each=2),
+  Col = rep(1:2, times=3)
+)
+
+```
+
+From the plot we can see that nestedness is low for abundance and occupancy, so most variation is across sites is because of turnover, rather than changes in total numbers of species or numbers of individuals. In contrast, disparity is high across species, especially abundance, so variation between species in global occupancy and abundance (i.e. some are rare and others common) is driving diversity in these communities, rather than species having similar overall abundances but segregating between sites.
+
+```{r}
+#| label: PlotGammaStats
+#| code-fold: true
+#| warning: false
+
+
+par(mfrow=c(1,1), mar=c(4.1,6,1,1))
+plot(StatsForFigure$PMode, StatsForFigure$At.y, xlim=c(0,1), yaxt="n", 
+     col=StatsForFigure$Col, pch=16, xlab="Proportion", ylab="")
+segments(StatsForFigure$L95, StatsForFigure$At.y, 
+         StatsForFigure$U95, StatsForFigure$At.y, col=StatsForFigure$Col)
+axis(2, c("Mean\nOccupancy", "Range\nSize", "Abundance"), las=1, at=1:3)
+legend(0.21,2.7, c("Nestedness", "Disparity"), col=1:2, lty=1)
+
+```
+
