@@ -55,20 +55,27 @@ $$
 \eta_{ij} = \mu + \alpha_i + \gamma_j + \theta_i t_j + \psi_j x_i + \beta t_j x_i + \delta_{ij}.
 $$
 
-With several covariates it is helpful to write this with vectors. We will also mean-centre, which helps the variance decomposition later:
+With several covariates it is helpful to write this with vectors. We will also mean-centre, which helps the variance decomposition later (if I've got this right):
 
-$$
-\eta_{ij} = \mu + \alpha_i + \gamma_j + 
+
+\begin{align}
+\eta_{ij} &= \mu + \alpha_i + \gamma_j + 
+(\bf{t}_j - \bf{\bar{t}})^T \boldsymbol{\theta}_i + 
+(\bf{x}_i-\bf{\bar{x}})^T \boldsymbol{\psi}_j  + 
+((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T \boldsymbol{\beta}  + \delta_{ij} \\
+&= \mu + \alpha_i + \gamma_j - 
+(\bf{t}_j - \bf{\bar{t}})^T \boldsymbol{\bar{\theta}} - (\bf{x}_i-\bf{\bar{x}}))^T \boldsymbol{\bar{\beta}} + 
 (\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 
 (\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  + 
 ((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}-\boldsymbol{\bar{\beta}})  + \delta_{ij}.
-$$
+\end{align}
+
 
 So we can collect terms:
 
-(NOTE: CHECK $(\bf{t}_j \bf{x}_i)^T$)
+(NOTE: CHECK ALL OF THIS. WANT TO FIND WHAT IS INDEXED BY I, J, AND BOTH I & J)
 
-$$
+
 \begin{align}
 \eta_{ij} &= \mu + \alpha_i + \gamma_j + 
 (\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 
@@ -88,8 +95,7 @@ $$
      + \delta_{ij} + \\
 & (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\beta - 
  \boldsymbol{\bar{\beta}}) \\
-
 \end{align}
-$$
+
 
 This makes me weep.
