@@ -52,47 +52,19 @@ Variances:
 We can add traits ($t_j$, which vary between species), then  environment ($x_i$, which varies between sites) and an interaction between them (i.e. the fourth corner). For a single trait an environmental variables the model looks like this:
 
 $$
-\eta_{ij} = \mu + \alpha_i + \gamma_j + \theta_i t_j + \psi_j x_i + \beta t_j x_i + \delta_{ij}.
+\eta_{ij} = \mu + \alpha_i + \gamma_j + \boldsymbol{\psi} \textbf{x}_i^\top + \textbf{x}_i^\top \boldsymbol{\beta} \textbf{t}_j   + \textbf{x}_i^\top\boldsymbol{\beta}_j,
 $$
+where $\boldsymbol{\psi}$ are the species mean effects for the  environmental variables, $\boldsymbol{\beta}$ is the fourth-corner matrix of interaction coefficients for traits and environmental variables, and $\boldsymbol{\beta}_j$ is a residual term for species responses to the environment. Consequently, compared to the model before, $\alpha_i = \alpha_i + \boldsymbol{\psi} \textbf{x}_i^\top$ are site effects, $\gamma_j$ is unchanged, and $\delta_{ij} = \textbf{x}_i^\top \boldsymbol{\beta} t_j   + \textbf{x}_i^\top\boldsymbol{\beta}_j$.
 
-With several covariates it is helpful to write this with vectors. We will also mean-centre, which helps the variance decomposition later (if I've got this right):
+With several covariates we can mean centre, which throws more stuff into  $\alpha_i$ and/or $\mu$ and $\gamma_j$:
 
+\begin{align*}
+\eta_{ij} &= \mu + \alpha_i + \gamma_j + \boldsymbol{\psi} (\textbf{x}_i - \bar{\textbf{x}})^\top+ (\textbf{x}_i - \bar{\textbf{x}})^\top \boldsymbol{\beta} (\textbf{t}_j-\bar{\textbf{t}})   + (\textbf{x}_i-\bar{\textbf{x}})^\top\boldsymbol{\beta}_j\\
+&= \mu + \alpha_i + \gamma_j  - \boldsymbol{\psi}\bar{\textbf{x}}^\top + \boldsymbol{\psi} \textbf{x}_i^\top+ \textbf{x}_i^\top \boldsymbol{\beta} (\textbf{t}_j-\bar{\textbf{t}})  - \bar{\textbf{x}}^\top\boldsymbol{\beta} (\textbf{t}_j-\bar{\textbf{t}}) -\bar{\textbf{x}}^\top\boldsymbol{\beta}_j + \textbf{x}_i^\top\boldsymbol{\beta}_j\\
+&= \mu + \alpha_i + \gamma_j  - \boldsymbol{\psi}\bar{\textbf{x}}^\top + \boldsymbol{\psi} \textbf{x}_i^\top+ \textbf{x}_i^\top \boldsymbol{\beta} \textbf{t}_j - \textbf{x}_i^\top \boldsymbol{\beta} \bar{\textbf{t}} - \bar{\textbf{x}}^\top\boldsymbol{\beta} \textbf{t}_j + \bar{\textbf{x}}^\top\boldsymbol{\beta} \bar{\textbf{t}}-\bar{\textbf{x}}^\top\boldsymbol{\beta}_j + \textbf{x}_i^\top\boldsymbol{\beta}_j\\
 
-\begin{align}
-\eta_{ij} &= \mu + \alpha_i + \gamma_j + 
-(\bf{t}_j - \bf{\bar{t}})^T \boldsymbol{\theta}_i + 
-(\bf{x}_i-\bf{\bar{x}})^T \boldsymbol{\psi}_j  + 
-((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T \boldsymbol{\beta}  + \delta_{ij} \\
-&= \mu + \alpha_i + \gamma_j - 
-(\bf{t}_j - \bf{\bar{t}})^T \boldsymbol{\bar{\theta}} - (\bf{x}_i-\bf{\bar{x}}))^T \boldsymbol{\bar{\beta}} + 
-(\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 
-(\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  + 
-((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}-\boldsymbol{\bar{\beta}})  + \delta_{ij}.
-\end{align}
+\\
+&= \mu^* + \alpha_i^* + \gamma_j^* + \boldsymbol{\psi} \textbf{x}_i^\top + \textbf{x}_i^\top \boldsymbol{\beta} \textbf{t}_j   + \textbf{x}_i^\top\boldsymbol{\beta}_j,
+\end{align*}
 
-
-So we can collect terms:
-
-(NOTE: CHECK ALL OF THIS. WANT TO FIND WHAT IS INDEXED BY I, J, AND BOTH I & J)
-
-\begin{align}
-\eta_{ij} &= \mu + \alpha_i + \gamma_j + 
-(\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) + 
-(\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  + 
-((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}}) + \delta_{ij} \\
-&= \mu + \alpha_i + \gamma_j  + \delta_{ij} + 
-\bf{t}_j^T \boldsymbol{\theta}_i -\bf{t}_j^T \boldsymbol{\bar{\theta}} - \bf{\bar{t}}^T \boldsymbol{\theta}_i + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} + 
-\bf{x}_i^T \boldsymbol{\psi}_j -\bf{x}_i^T \boldsymbol{\bar{\psi}} - \bf{\bar{x}}^T \boldsymbol{\psi}_j + \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} + 
-(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}})+ \delta_{ij} 
-(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \beta - 
-(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \boldsymbol{\bar{\beta}} \\
-&= \mu  + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} + \\
-& \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} \alpha_i  - \bf{\bar{t}}^T \boldsymbol{\theta}_i-\bf{x}_i^T \boldsymbol{\bar{\psi}} \\
-& \gamma_j  -\bf{t}_j^T \boldsymbol{\bar{\theta}}- \bf{\bar{x}}^T \boldsymbol{\psi}_j + \\
-& + \bf{t}_j^T \boldsymbol{\theta}_i + \bf{x}_i^T \boldsymbol{\psi}_j + \bf{t}_j^T \bf{x}_i 
-     + \delta_{ij} + \\
-& (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\beta - 
- \boldsymbol{\bar{\beta}}) \\
-\end{align}
-
-This makes me weep. If I knew how to use LLMs I could probably get one of them to weep too.
+where $\mu^* = \mu - \boldsymbol{\psi}\bar{\textbf{x}}^\top +\bar{\textbf{x}}^\top\boldsymbol{\beta}\bar{\textbf{t}}$, $\alpha_i^* = \alpha_i - \textbf{x}_i^\top\boldsymbol{\beta}\bar{\textbf{t}}$ and $\gamma_j^* = \gamma_j -\bar{\textbf{x}}^\top\boldsymbol{\beta}\textbf{t}_j-\bar{\textbf{x}}^\top\boldsymbol{\beta}_j$
