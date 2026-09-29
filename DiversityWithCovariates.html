@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,16 +10,10 @@
 
 <title>Diversity With Covariates</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
+code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: 1.5em;}
-div.column{flex: auto;}
-@media screen {
-div.columns{gap: min(4vw, 1.5em);}
-div.column{overflow-x: auto;}
-}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -33,17 +27,18 @@ ul.task-list li input[type="checkbox"] {
 <script src="DiversityWithCovariates_files/libs/clipboard/clipboard.min.js"></script>
 <script src="DiversityWithCovariates_files/libs/quarto-html/quarto.js" type="module"></script>
 <script src="DiversityWithCovariates_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="DiversityWithCovariates_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="DiversityWithCovariates_files/libs/quarto-html/popper.min.js"></script>
 <script src="DiversityWithCovariates_files/libs/quarto-html/tippy.umd.min.js"></script>
 <script src="DiversityWithCovariates_files/libs/quarto-html/anchor.min.js"></script>
 <link href="DiversityWithCovariates_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="DiversityWithCovariates_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="DiversityWithCovariates_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="DiversityWithCovariates_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="DiversityWithCovariates_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="DiversityWithCovariates_files/libs/bootstrap/bootstrap-917079515d91bccb85b543faf8aa8bb6.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="DiversityWithCovariates_files/libs/bootstrap/bootstrap-40a0d184d9c75806061af4ca4c949d88.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -140,42 +135,18 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="adding-traits-and-the-environment">Adding Traits and the Environment</h2>
 <p>We can add traits (<span class="math inline">\(t_j\)</span>, which vary between species), then environment (<span class="math inline">\(x_i\)</span>, which varies between sites) and an interaction between them (i.e.&nbsp;the fourth corner). For a single trait an environmental variables the model looks like this:</p>
 <p><span class="math display">\[
-\eta_{ij} = \mu + \alpha_i + \gamma_j + \theta_i t_j + \psi_j x_i + \beta t_j x_i + \delta_{ij}.
-\]</span></p>
-<p>With several covariates it is helpful to write this with vectors. We will also mean-centre, which helps the variance decomposition later (if I’ve got this right):</p>
-<p><span class="math display">\[\begin{align}
-\eta_{ij} &amp;= \mu + \alpha_i + \gamma_j +
-(\bf{t}_j - \bf{\bar{t}})^T \boldsymbol{\theta}_i +
-(\bf{x}_i-\bf{\bar{x}})^T \boldsymbol{\psi}_j  +
-((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T \boldsymbol{\beta}  + \delta_{ij} \\
-&amp;= \mu + \alpha_i + \gamma_j -
-(\bf{t}_j - \bf{\bar{t}})^T \boldsymbol{\bar{\theta}} - (\bf{x}_i-\bf{\bar{x}}))^T \boldsymbol{\bar{\beta}} +
-(\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) +
-(\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  +
-((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}-\boldsymbol{\bar{\beta}})  + \delta_{ij}.
-\end{align}\]</span></p>
-<p>So we can collect terms:</p>
-<p>(NOTE: CHECK ALL OF THIS. WANT TO FIND WHAT IS INDEXED BY I, J, AND BOTH I &amp; J)</p>
-<p><span class="math display">\[\begin{align}
-\eta_{ij} &amp;= \mu + \alpha_i + \gamma_j +
-(\bf{t}_j - \bf{\bar{t}})^T (\boldsymbol{\theta}_i - \boldsymbol{\bar{\theta}}) +
-(\bf{x}_i-\bf{\bar{x}})^T (\boldsymbol{\psi}_j - \boldsymbol{\bar{\psi}})  +
-((\bf{t}_j - \bf{\bar{t}}) (\bf{x}_i-\bf{\bar{x}}))^T (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}}) + \delta_{ij} \\
-&amp;= \mu + \alpha_i + \gamma_j  + \delta_{ij} +
-\bf{t}_j^T \boldsymbol{\theta}_i -\bf{t}_j^T \boldsymbol{\bar{\theta}} - \bf{\bar{t}}^T \boldsymbol{\theta}_i + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} +
-\bf{x}_i^T \boldsymbol{\psi}_j -\bf{x}_i^T \boldsymbol{\bar{\psi}} - \bf{\bar{x}}^T \boldsymbol{\psi}_j + \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} +
-(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}})+ \delta_{ij}
-(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \beta -
-(\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \boldsymbol{\bar{\beta}} \\
-&amp;= \mu  + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} + \\
-&amp; \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} \alpha_i  - \bf{\bar{t}}^T \boldsymbol{\theta}_i-\bf{x}_i^T \boldsymbol{\bar{\psi}} \\
-&amp; \gamma_j  -\bf{t}_j^T \boldsymbol{\bar{\theta}}- \bf{\bar{x}}^T \boldsymbol{\psi}_j + \\
-&amp; + \bf{t}_j^T \boldsymbol{\theta}_i + \bf{x}_i^T \boldsymbol{\psi}_j + \bf{t}_j^T \bf{x}_i
-     + \delta_{ij} + \\
-&amp; (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\beta -
-\boldsymbol{\bar{\beta}}) \\
-\end{align}\]</span></p>
-<p>This makes me weep. If I knew how to use LLMs I could probably get one of them to weep too.</p>
+\eta_{ij} = \mu + \alpha_i + \gamma_j + \boldsymbol{\psi} \textbf{x}_i^\top + \textbf{x}_i^\top \boldsymbol{\beta} \textbf{t}_j   + \textbf{x}_i^\top\boldsymbol{\beta}_j,
+\]</span> where <span class="math inline">\(\boldsymbol{\psi}\)</span> are the species mean effects for the environmental variables, <span class="math inline">\(\boldsymbol{\beta}\)</span> is the fourth-corner matrix of interaction coefficients for traits and environmental variables, and <span class="math inline">\(\boldsymbol{\beta}_j\)</span> is a residual term for species responses to the environment. Consequently, compared to the model before, <span class="math inline">\(\alpha_i = \alpha_i + \boldsymbol{\psi} \textbf{x}_i^\top\)</span> are site effects, <span class="math inline">\(\gamma_j\)</span> is unchanged, and <span class="math inline">\(\delta_{ij} = \textbf{x}_i^\top \boldsymbol{\beta} t_j   + \textbf{x}_i^\top\boldsymbol{\beta}_j\)</span>.</p>
+<p>With several covariates we can mean centre, which throws more stuff into <span class="math inline">\(\alpha_i\)</span> and/or <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\gamma_j\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+\eta_{ij} &amp;= \mu + \alpha_i + \gamma_j + \boldsymbol{\psi} (\textbf{x}_i - \bar{\textbf{x}})^\top+ (\textbf{x}_i - \bar{\textbf{x}})^\top \boldsymbol{\beta} (\textbf{t}_j-\bar{\textbf{t}})   + (\textbf{x}_i-\bar{\textbf{x}})^\top\boldsymbol{\beta}_j\\
+&amp;= \mu + \alpha_i + \gamma_j  - \boldsymbol{\psi}\bar{\textbf{x}}^\top + \boldsymbol{\psi} \textbf{x}_i^\top+ \textbf{x}_i^\top \boldsymbol{\beta} (\textbf{t}_j-\bar{\textbf{t}})  - \bar{\textbf{x}}^\top\boldsymbol{\beta} (\textbf{t}_j-\bar{\textbf{t}}) -\bar{\textbf{x}}^\top\boldsymbol{\beta}_j + \textbf{x}_i^\top\boldsymbol{\beta}_j\\
+&amp;= \mu + \alpha_i + \gamma_j  - \boldsymbol{\psi}\bar{\textbf{x}}^\top + \boldsymbol{\psi} \textbf{x}_i^\top+ \textbf{x}_i^\top \boldsymbol{\beta} \textbf{t}_j - \textbf{x}_i^\top \boldsymbol{\beta} \bar{\textbf{t}} - \bar{\textbf{x}}^\top\boldsymbol{\beta} \textbf{t}_j + \bar{\textbf{x}}^\top\boldsymbol{\beta} \bar{\textbf{t}}-\bar{\textbf{x}}^\top\boldsymbol{\beta}_j + \textbf{x}_i^\top\boldsymbol{\beta}_j\\
+
+\\
+&amp;= \mu^* + \alpha_i^* + \gamma_j^* + \boldsymbol{\psi} \textbf{x}_i^\top + \textbf{x}_i^\top \boldsymbol{\beta} \textbf{t}_j   + \textbf{x}_i^\top\boldsymbol{\beta}_j,
+\end{align*}\]</span></p>
+<p>where <span class="math inline">\(\mu^* = \mu - \boldsymbol{\psi}\bar{\textbf{x}}^\top +\bar{\textbf{x}}^\top\boldsymbol{\beta}\bar{\textbf{t}}\)</span>, <span class="math inline">\(\alpha_i^* = \alpha_i - \textbf{x}_i^\top\boldsymbol{\beta}\bar{\textbf{t}}\)</span> and <span class="math inline">\(\gamma_j^* = \gamma_j -\bar{\textbf{x}}^\top\boldsymbol{\beta}\textbf{t}_j-\bar{\textbf{x}}^\top\boldsymbol{\beta}_j\)</span></p>
 </section>
 </section>
 
