@@ -86,7 +86,6 @@ So we can collect terms:
 (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) (\boldsymbol{\beta}_{ij}-\boldsymbol{\bar{\beta}})+ \delta_{ij} 
 (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \beta - 
 (\bf{t}_j^T \bf{x}_i -\bf{t}_j^T \bf{x} - \bf{\bar{t}}^T \bf{x}_i + \bf{\bar{t}}^T \bf{\bar{x}}) \boldsymbol{\bar{\beta}} \\
-
 &= \mu  + \bf{\bar{t}}^T \boldsymbol{\bar{\theta}} + \\
 & \bf{\bar{x}}^T \boldsymbol{\bar{\psi}} \alpha_i  - \bf{\bar{t}}^T \boldsymbol{\theta}_i-\bf{x}_i^T \boldsymbol{\bar{\psi}} \\
 & \gamma_j  -\bf{t}_j^T \boldsymbol{\bar{\theta}}- \bf{\bar{x}}^T \boldsymbol{\psi}_j + \\
@@ -96,5 +95,4 @@ So we can collect terms:
  \boldsymbol{\bar{\beta}}) \\
 \end{align}
 
-
-This makes me weep.
+This makes me weep. If I knew how to use LLMs I could probably get one of them to weep too.

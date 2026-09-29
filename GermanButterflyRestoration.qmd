@@ -54,16 +54,67 @@ Counts <- reshape(data=butterfly_data.agg, v.names = "x",
 Counts[is.na(Counts)] <- 0
 names(Counts) <- gsub("x.", "", names(Counts), fixed = TRUE)
 
-Counts$Site <- as.factor(gsub("\\..*", "", Counts$id.sub.transect))
+Counts$Site <- gsub("\\..*", "", Counts$id.sub.transect)
 # Get species names
 Species <- unique(butterfly_data$butterfly.name)
 # Check to make sure these are also comumn names
 if(mean(Species%in%names(Counts))<1) message("Some species not in Count")
 
-# Get presence fromdata
+# Get presence from data
 Present <- apply(Counts[,Species], 2, function(Spp, Site) 
   tapply(Spp, list(Site), function(a) c(NA,1)[1+any(a>0)]), 
                  Site = Counts$Site)
+
+```
+
+Now we get the trait an environemnt data:
+
+```{r}
+#| label: ImportCovariateData
+
+site_data <- read.csv("data/data_site_environment.csv")
+site_data$obs.year <- factor(site_data$obs.year)
+site_data$eco.name = factor(site_data$eco.name)
+site_data$region = factor(site_data$region, levels=c("north", "centre", "south"))
+site_data$mngm.type = factor(site_data$mngm.type)
+site_data$hydrology = factor(site_data$hydrology)
+site_data$site.type = factor(site_data$site.type, levels=c("negative", "restored", "positive"))
+site_data$rest.meth = factor(site_data$rest.meth, levels = c("cus", "res", "dih", "mga"))
+site_data$rest.meth.type = factor(site_data$rest.meth.type, levels = c("negative", "cus", "res", "dih", "mga", "positive"))
+site_data$land.use.hist = factor(site_data$land.use.hist)
+
+
+## butterfly rl & traits ####
+butterfly_rl_traits <- read.csv("data/data_butterfly_rl_traits_grassworks.csv")
+butterfly_rl_traits$rang <- factor(butterfly_rl_traits$rang)
+butterfly_rl_traits$rl.ger <- factor(butterfly_rl_traits$rl.ger)
+butterfly_rl_traits$larval.feeding.type <- factor(butterfly_rl_traits$larval.feeding.type)
+butterfly_rl_traits$habitat.preference <- factor(butterfly_rl_traits$habitat.preference)
+butterfly_rl_traits$disp <- factor(butterfly_rl_traits$disp)
+
+sum(!sapply(butterfly_rl_traits$butterfly.name, function(sp, Spp) sp%in%Spp, Spp=Species))
+
+sum(!sapply(Species, function(sp, Spp) sp%in%Spp, Spp=butterfly_rl_traits$butterfly.name))
+
+# Correct typo in species complex name
+butterfly_rl_traits$butterfly.name <- gsub("britomartin", "britomartis", butterfly_rl_traits$butterfly.name)
+
+NoTraitSpp <- Species[!sapply(Species, function(sp, Spp) sp%in%Spp, Spp=butterfly_rl_traits$butterfly.name)]
+
+if(length(NoTraitSpp)>0) message(paste0(c("Some species don't have traits:", NoTraitSpp), collapse = " "))
+
+
+# Make sites for Count & traits factors, so we can merge them
+O.s <- sort(site_data$id.site)
+Counts$Site <- factor(Counts$Site, levels = O.s)
+Counts$SiteID <- as.numeric(Counts$Site)
+site_data$id.site  <- factor(site_data$id.site, levels = O.s)
+site_data$ID  <- as.numeric(site_data$id.site)
+# Check Counts &  site_data have the same coding for site
+MisMatch <- sapply(unique(Counts$SiteID), function(i, CC, SI) {
+  any(!CC$Site[CC$SiteID==i]%in%SI$id.site[SI$ID==i])
+}, CC=Counts, SI=site_data)
+if(any(MisMatch)) message(paste0(c("Some sites have mismatched codes:", unique(Counts$SiteID)[MisMatch]), collapse = " "))
 
 ```
 
